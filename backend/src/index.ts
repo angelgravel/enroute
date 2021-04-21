@@ -1,30 +1,78 @@
 import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
 
-import wasmModule from "./initAsc";
+// import wasmModule from "./initAsc";
 
-/*============ ROUTES ============*/
-import { pingGet, pingPost } from "./routes/ping";
-/*================================*/
+/*========== IMPORT MIDDLEWARE ==========*/
+import tokenValidatorMiddleware from "./middleware/tokenValidator";
+/*=======================================*/
+
+/*============ IMPORT ROUTES ============*/
+import { getGameToken } from "./routes/token";
+import { createGame } from "./routes/game";
+import Game from "game/Game";
+/*=======================================*/
 
 dotenv.config();
 
-/*======== AssemblyScript ========*/
-console.log((wasmModule as any).add(1, 2));
-/*================================*/
+/*=========== AssemblyScript ===========*/
+// console.log((wasmModule as any).add(1, 2));
+/*======================================*/
 
 const URL = process.env.NODE_ENV === "production" ? "REPLACE_ME" : "localhost";
 
-const server = express();
-server.use(cors());
+const app = express();
+app.use(cors());
 
-/*=========== REQUESTS ===========*/
+/*=============== ROUTES ===============*/
 
-server.get("/ping", pingGet);
-server.post("/ping", pingPost);
+app.get("/token", tokenValidatorMiddleware, getGameToken);
 
-/*================================*/
+app.post("/game", createGame);
+
+/*======================================*/
+
+const server = createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+
+type Games = {
+  [gameToken: string]: Game;
+};
+let games: Games = {};
+
+io.on("connection", (socket) => {
+  console.log("a user connected");
+  socket.emit("test", "hej");
+
+  // socket.on("create_game", () => {
+  //   const newGame = new Game();
+  //   games[newGame.gameToken] = newGame;
+  // });
+  socket.on("test2", (value) => {
+    console.log(value);
+  });
+
+  // type JoinGameType = {
+  //   gameToken: string;
+  //   playerId: string;
+  // };
+  // socket.on("join_game", (value: JoinGameType) => {
+  //   if (games[value.gameToken].joinable) {
+  //     games[value.gameToken].addPlayer(value.playerId);
+  //   } else {
+  //     // Spelet är fullt, din sopa
+  //   }
+  // });
+});
 
 server.listen(process.env.API_PORT, () => {
   console.log(
