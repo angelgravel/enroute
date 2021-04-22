@@ -11,6 +11,7 @@ import {
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
 import styled from "styled-components";
 
+const ENDPOINT = "http://localhost:3001";
 
 import Home from "./routes/Home";
 import GameLounge from "./routes/GameLounge";

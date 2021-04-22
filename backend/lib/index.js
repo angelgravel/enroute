@@ -14,7 +14,7 @@ var tokenValidator_1 = __importDefault(require("./middleware/tokenValidator"));
 /*=======================================*/
 /*============ IMPORT ROUTES ============*/
 var token_1 = require("./routes/token");
-var game_1 = require("./routes/game");
+var Game_1 = __importDefault(require("game/Game"));
 /*=======================================*/
 dotenv_1.default.config();
 /*=========== AssemblyScript ===========*/
@@ -25,7 +25,7 @@ var app = express_1.default();
 app.use(cors_1.default());
 /*=============== ROUTES ===============*/
 app.get("/token", tokenValidator_1.default, token_1.getGameToken);
-app.post("/game", game_1.createGame);
+// app.post("/game", createGame);
 /*======================================*/
 var server = http_1.createServer(app);
 var io = new socket_io_1.Server(server, {
@@ -38,24 +38,19 @@ var games = {};
 io.on("connection", function (socket) {
     console.log("a user connected");
     socket.emit("test", "hej");
-    // socket.on("create_game", () => {
-    //   const newGame = new Game();
-    //   games[newGame.gameToken] = newGame;
-    // });
-    socket.on("test2", function (value) {
-        console.log(value);
+    socket.on("create_game", function () {
+        var newGame = new Game_1.default({ socket: socket });
+        games[newGame.gameToken] = newGame;
     });
-    // type JoinGameType = {
-    //   gameToken: string;
-    //   playerId: string;
-    // };
-    // socket.on("join_game", (value: JoinGameType) => {
-    //   if (games[value.gameToken].joinable) {
-    //     games[value.gameToken].addPlayer(value.playerId);
-    //   } else {
-    //     // Spelet är fullt, din sopa
-    //   }
-    // });
+    socket.on("join_game", function (gameToken) {
+        if (games[gameToken].joinable) {
+            var playerID = games[gameToken].addPlayer();
+            // Skicka playerID till klienten joina
+        }
+        else {
+            // Spelet är fullt, din sopa
+        }
+    });
 });
 server.listen(process.env.API_PORT, function () {
     console.log("\u26A1\uFE0F[server]: Server is running at https://" + URL + ":" + process.env.API_PORT);
