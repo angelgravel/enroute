@@ -1,14 +1,13 @@
-import crypto from "crypto";
 import { Socket } from "socket.io";
+import uniqid from "uniqid";
 
 type GameOptions = {
   socket: Socket;
-  players: string[];
 };
 
 type GameCard = { count: number };
 type GameCards = {
-  wild: GameCard;
+  bridge: GameCard;
   blue: GameCard;
   white: GameCard;
   red: GameCard;
@@ -21,25 +20,24 @@ type GameCards = {
 
 class Game {
   gameToken: string;
-  creator: string;
+  creator: Player;
   socket: Socket;
   joinable: boolean;
 
   players: Player[];
   gameCards: GameCards;
 
-  constructor(_creator: string, _options: GameOptions) {
-    this.creator = _creator;
-    this.gameToken = this.generateGameToken();
+  constructor(_options: GameOptions) {
+    this.creator = new Player(uniqid("player"));
+    this.gameToken = uniqid("game");
     this.socket = _options.socket;
     this.joinable = true;
 
-    this.players = [];
-    for (const player of _options.players) {
-      this.players.push(new Player(player));
-    }
+
+    this.players = [this.creator];
+
     this.gameCards = {
-      wild: { count: 14 },
+      bridge: { count: 14 },
       blue: { count: 12 },
       white: { count: 12 },
       red: { count: 12 },
@@ -53,17 +51,13 @@ class Game {
     this.gameLoop();
   }
 
-  generateGameToken(): string {
-    return crypto
-      .createHmac("sha256", process.env.HASH_SALT as any)
-      .update(this.creator)
-      .digest("hex");
-  }
-
-  addPlayer(playerId: string) {
-    this.players.push(new Player(playerId));
+  addPlayer() {
+    const newPlayer = new Player(uniqid("player"));
+    this.players.push(newPlayer);
 
     if (this.players.length > 4) this.joinable = false;
+
+    return newPlayer.id;
   }
 
   pickCard() {}
