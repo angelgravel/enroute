@@ -31,7 +31,7 @@ app.use(cors());
 
 app.get("/token", tokenValidatorMiddleware, getGameToken);
 
-app.post("/game", createGame);
+// app.post("/game", createGame);
 
 /*======================================*/
 
@@ -53,25 +53,19 @@ io.on("connection", (socket) => {
   console.log("a user connected");
   socket.emit("test", "hej");
 
-  // socket.on("create_game", () => {
-  //   const newGame = new Game();
-  //   games[newGame.gameToken] = newGame;
-  // });
-  socket.on("test2", (value) => {
-    console.log(value);
+  socket.on("create_game", () => {
+    const newGame = new Game({ socket });
+    games[newGame.gameToken] = newGame;
   });
 
-  // type JoinGameType = {
-  //   gameToken: string;
-  //   playerId: string;
-  // };
-  // socket.on("join_game", (value: JoinGameType) => {
-  //   if (games[value.gameToken].joinable) {
-  //     games[value.gameToken].addPlayer(value.playerId);
-  //   } else {
-  //     // Spelet är fullt, din sopa
-  //   }
-  // });
+  socket.on("join_game", (gameToken: string) => {
+    if (games[gameToken].joinable) {
+      const playerID = games[gameToken].addPlayer();
+      // Skicka playerID till klienten joina
+    } else {
+      // Spelet är fullt, din sopa
+    }
+  });
 });
 
 server.listen(process.env.API_PORT, () => {
@@ -79,3 +73,5 @@ server.listen(process.env.API_PORT, () => {
     `⚡️[server]: Server is running at https://${URL}:${process.env.API_PORT}`,
   );
 });
+
+
