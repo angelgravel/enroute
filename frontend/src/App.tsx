@@ -1,8 +1,6 @@
 import React, { FC, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import socketIOClient from "socket.io-client";
 import StoreWithProvider from "./redux/store";
-import { setTest } from "./redux/test/index";
 import {
   BrowserRouter as Router,
   Route,
@@ -11,10 +9,10 @@ import {
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
 import styled from "styled-components";
 
-const ENDPOINT = "http://localhost:3001";
-
 import Home from "./routes/Home";
 import GameLounge from "./routes/GameLounge";
+
+const ENDPOINT = "http://localhost:3001";
 
 const theme = createMuiTheme({
   shape: { 
@@ -76,8 +74,6 @@ const Container = styled.div`
     height: 100%;
 `;
 
-const ENDPOINT = "http://localhost:3001";
-
 const App: FC = () => {
   const [response, setResponse] = useState("");
 
@@ -103,20 +99,6 @@ const App: FC = () => {
       </Router>
     </StoreWithProvider>
   );
-};
-
-const Test: FC = () => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(
-      setTest({
-        testName: "Jacques",
-        testAge: 1000,
-      }),
-    );
-  }, []);
-  return null;
 };
 
 export default App;
