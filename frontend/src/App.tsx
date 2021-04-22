@@ -13,21 +13,51 @@ import {
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
 import styled from "styled-components";
 
+
 import Home from "./routes/Home";
 import GameLounge from "./routes/GameLounge";
 
 const theme = createMuiTheme({
+  shape: { 
+    borderRadius: 3,
+  },
   palette: {
     primary: {
-      main: '#ffb347',
+      main: '#fde77d',
     },
     secondary: {
-      main: '#DB93A5',
+      main: '#f9b1cd',
     },
     error: {
       main: '#ff0000',
     },
   },
+  overrides: { 
+    MuiButton: {
+      contained: {
+        boxShadow: 'none',
+        border: "4px solid",
+        margin: '10px',
+        '& > .MuiButton-label': {
+          color: 'white', 
+        },
+      },
+      containedPrimary: {
+        borderColor: "#dfc95f",
+      },
+      containedSecondary: {
+        borderColor: "#db93a5",
+      }
+    },
+    MuiTypography: {
+      h1: { 
+        fontFamily: 'Amatic SC'
+      },
+      h2: { 
+        fontFamily: 'Amatic SC'
+      }
+    }
+  }
 });
 
 const Container = styled.div`
