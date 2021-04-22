@@ -28,8 +28,8 @@ class Game {
   gameCards: GameCards;
 
   constructor(_options: GameOptions) {
-    this.creator = new Player(uniqid("player"));
-    this.gameToken = uniqid("game");
+    this.creator = new Player(uniqid("player#"));
+    this.gameToken = uniqid("game#");
     this.socket = _options.socket;
     this.joinable = true;
 
@@ -52,7 +52,7 @@ class Game {
   }
 
   addPlayer() {
-    const newPlayer = new Player(uniqid("player"));
+    const newPlayer = new Player(uniqid("player#"));
     this.players.push(newPlayer);
 
     if (this.players.length > 4) this.joinable = false;

@@ -6,10 +6,10 @@ import { useHistory } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 import logo from "../assets/location.gif";
-import { socketContext } from "App";
+import { socketContext } from "../App";
 
 /*=============== Types ===============*/
-import { GameCreatedSocketResponse, PlayerJoinedSocketResponse } from "@typeDef/index";
+import { GameCreatedSocketResponse, PlayerJoinedSocketResponse, SocketEvent } from "@typeDef/index";
 /*=====================================*/
 
 const Container = styled.div`
@@ -26,7 +26,8 @@ const Container = styled.div`
 const Home: FC = () => {
     const history = useHistory();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [gameCode, setGameCode] = useState<string>("");
+    const [gameToken, setGameToken] = useState<string>("");
+    const [error, setError] = useState<string>("");
     const socket = useContext(socketContext)
 
 
@@ -36,25 +37,38 @@ const Home: FC = () => {
         // socket.emit("create_game");
         socket.on("game_created", (data: GameCreatedSocketResponse) => {
             console.log(data);
+            setGameToken(data.message);
         });
 
-        // socket.emit("join_game");
+            
         socket.on("player_joined", (data: PlayerJoinedSocketResponse) => {
             console.log(data);
+            if (data.joined) {
+                history.push("/gamelounge");    //TODO Update Redux state
+            } else {
+                switch (data.message) {
+                    case "create_game/not_created":
+                        setError("Could not create game");
+                        break;
+                
+                    default:
+                        break;
+                }
+            }
         });
 
         }
     }, []);
 
-    const socketemit = (message: string) => {
-        socket?.emit(message);
+    const socketEmit = (event: SocketEvent, message?: string ) => {
+        socket?.emit(event, message);
     }
 
 
     //TODO: Add functionality to join a game (check if game code exits and if there is enough room)
-    const handleGameCode = () => {
-        console.log("enter game with code: ", gameCode);
-        if (gameCode === "hej") history.push("/gamelounge") //If gamecode is "hej then it will route to gamelounge"
+    const handleJoinGame = () => {
+        socketEmit("join_game", gameToken);
+        console.log("enter game with code: ", gameToken);
     }
 
     return (
@@ -65,7 +79,7 @@ const Home: FC = () => {
                 <Button
                     variant='contained'
                     color='primary'
-                    onClick={() => console.log("Lets create a new game")} //TODO: Add functionality to create a game
+                    onClick={() => socketEmit("create_game")} //TODO: Add functionality to create a game
                 >
                     <Typography variant="h6" style={{ filter: "drop-shadow(0 0 5px rgba(50, 50, 50, 0.2))" }}>Create game</Typography>
                 </Button>
@@ -104,13 +118,13 @@ const Home: FC = () => {
                             <OutlinedInput
                                 id="game_code"
                                 type={'text'}
-                                // value={gameCode}
-                                onChange={(e) => setGameCode(e.target.value)}
+                                // value={gameToken}
+                                onChange={(e) => setGameToken(e.target.value)}
                                 endAdornment={
                                     <InputAdornment position="end">
                                         <IconButton
                                             aria-label="toggle password visibility"
-                                            onClick={handleGameCode}
+                                            onClick={handleJoinGame}
                                             edge="end"
                                         >
                                             <ArrowForwardIcon />

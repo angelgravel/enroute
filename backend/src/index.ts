@@ -14,7 +14,7 @@ import tokenValidatorMiddleware from "./middleware/tokenValidator";
 import { getGameToken } from "./routes/token";
 import { createGame } from "./routes/game";
 import Game from "./game/Game";
-import { GameCreatedSocketResponse } from "@typeDef/index";
+import { GameCreatedSocketResponse, PlayerJoinedSocketResponse } from "@typeDef/index";
 /*=======================================*/
 
 dotenv.config();
@@ -62,14 +62,16 @@ io.on("connection", (socket) => {
 
     let response: GameCreatedSocketResponse = {
         created: false,
-        response: ""
+        message: ""
       };
 
     if (newGame.gameToken.length > 0) {
       response = {
         created: true,
-        response: newGame.gameToken
+        message: newGame.gameToken
       };
+    } else {
+      response.message = "create_game/not_created";
     }
     
     socket.emit("game_created", response);
@@ -77,12 +79,25 @@ io.on("connection", (socket) => {
 
   // Join Game
   socket.on("join_game", (gameToken: string) => {
+    let response: PlayerJoinedSocketResponse = {
+      joined: false,
+      gameToken: "",
+      message: ""
+    };
+    
     if (games[gameToken]?.joinable) {
       const playerID = games[gameToken].addPlayer();
       // Skicka playerID till klienten joina
+      response = {
+        joined: true,
+        gameToken: gameToken,
+        message: playerID
+      };
     } else {
-      // Spelet är fult, din sopa
+        response.message = "join_game/not_joined";
     }
+    
+    socket.emit("player_joined", response);
   });
 });
 

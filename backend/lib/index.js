@@ -44,26 +44,40 @@ io.on("connection", function (socket) {
         games[newGame.gameToken] = newGame;
         var response = {
             created: false,
-            response: ""
+            message: ""
         };
         if (newGame.gameToken.length > 0) {
             response = {
                 created: true,
-                response: newGame.gameToken
+                message: newGame.gameToken
             };
+        }
+        else {
+            response.message = "create_game/not_created";
         }
         socket.emit("game_created", response);
     });
     // Join Game
     socket.on("join_game", function (gameToken) {
         var _a;
+        var response = {
+            joined: false,
+            gameToken: "",
+            message: ""
+        };
         if ((_a = games[gameToken]) === null || _a === void 0 ? void 0 : _a.joinable) {
             var playerID = games[gameToken].addPlayer();
             // Skicka playerID till klienten joina
+            response = {
+                joined: true,
+                gameToken: gameToken,
+                message: playerID
+            };
         }
         else {
-            // Spelet är fult, din sopa
+            response.message = "join_game/not_joined";
         }
+        socket.emit("player_joined", response);
     });
 });
 server.listen(process.env.API_PORT, function () {
