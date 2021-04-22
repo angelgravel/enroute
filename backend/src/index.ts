@@ -13,7 +13,8 @@ import tokenValidatorMiddleware from "./middleware/tokenValidator";
 /*============ IMPORT ROUTES ============*/
 import { getGameToken } from "./routes/token";
 import { createGame } from "./routes/game";
-import Game from "game/Game";
+import Game from "./game/Game";
+import { GameCreatedSocketResponse } from "@typeDef/index";
 /*=======================================*/
 
 dotenv.config();
@@ -21,6 +22,7 @@ dotenv.config();
 /*=========== AssemblyScript ===========*/
 // console.log((wasmModule as any).add(1, 2));
 /*======================================*/
+
 
 const URL = process.env.NODE_ENV === "production" ? "REPLACE_ME" : "localhost";
 
@@ -53,17 +55,33 @@ io.on("connection", (socket) => {
   console.log("a user connected");
   socket.emit("test", "hej");
 
+  // Create Game
   socket.on("create_game", () => {
     const newGame = new Game({ socket });
     games[newGame.gameToken] = newGame;
+
+    let response: GameCreatedSocketResponse = {
+        created: false,
+        response: ""
+      };
+
+    if (newGame.gameToken.length > 0) {
+      response = {
+        created: true,
+        response: newGame.gameToken
+      };
+    }
+    
+    socket.emit("game_created", response);
   });
 
+  // Join Game
   socket.on("join_game", (gameToken: string) => {
-    if (games[gameToken].joinable) {
+    if (games[gameToken]?.joinable) {
       const playerID = games[gameToken].addPlayer();
       // Skicka playerID till klienten joina
     } else {
-      // Spelet är fullt, din sopa
+      // Spelet är fult, din sopa
     }
   });
 });

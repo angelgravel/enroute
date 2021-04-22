@@ -1,5 +1,5 @@
-import React, { FC, useEffect, useState } from "react";
-import socketIOClient from "socket.io-client";
+import React, { createContext, FC, useContext, useEffect, useRef, useState } from "react";
+import socketIOClient, { Socket } from "socket.io-client";
 import StoreWithProvider from "./redux/store";
 import {
   BrowserRouter as Router,
@@ -8,14 +8,18 @@ import {
 } from "react-router-dom";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
 import styled from "styled-components";
+import { DefaultEventsMap } from "socket.io-client/build/typed-events";
 
+
+/*============= Components ============*/
 import Home from "./routes/Home";
 import GameLounge from "./routes/GameLounge";
+/*=====================================*/
 
 const ENDPOINT = "http://localhost:3001";
 
 const theme = createMuiTheme({
-  shape: { 
+  shape: {
     borderRadius: 3,
   },
   palette: {
@@ -29,7 +33,7 @@ const theme = createMuiTheme({
       main: '#ff0000',
     },
   },
-  overrides: { 
+  overrides: {
     MuiButton: {
       contained: {
         boxShadow: 'none',
@@ -37,7 +41,7 @@ const theme = createMuiTheme({
         margin: '10px',
         color: 'white',
         '& > .MuiButton-label': {
-          color: 'white', 
+          color: 'white',
         },
       },
       containedPrimary: {
@@ -48,15 +52,15 @@ const theme = createMuiTheme({
       }
     },
     MuiTypography: {
-      h1: { 
+      h1: {
         fontFamily: 'Amatic SC',
         color: "rgb(88, 88, 88)"
       },
-      h2: { 
+      h2: {
         fontFamily: 'Amatic SC',
         color: "rgb(88, 88, 88)"
       },
-      h3: { 
+      h3: {
         fontFamily: 'Amatic SC',
         color: "rgb(88, 88, 88)"
       }
@@ -74,29 +78,26 @@ const Container = styled.div`
     height: 100%;
 `;
 
+export const socketContext = createContext<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
+
 const App: FC = () => {
   const [response, setResponse] = useState("");
 
-  useEffect(() => {
-    const socket = socketIOClient(ENDPOINT);
-    socket.on("test", (data: string) => {
-      setResponse(data);
-    });
-  }, []);
-
   return (
     <StoreWithProvider>
-      {/* <p>{response}</p> */}
-      <Router>
-      <ThemeProvider theme={theme}>
-        <Container>
-          <Switch>
-          <Route path={`/`} exact render={() => <Home />} />
-          <Route path={`/gamelounge`} exact render={() => <GameLounge />} />
-          </Switch>
-        </Container>
-        </ThemeProvider>
-      </Router>
+      <socketContext.Provider value={socketIOClient(ENDPOINT)}>
+        {/* <p>{response}</p> */}
+        <Router>
+          <ThemeProvider theme={theme}>
+            <Container>
+              <Switch>
+                <Route path={`/`} exact render={() => <Home />} />
+                <Route path={`/gamelounge`} exact render={() => <GameLounge />} />
+              </Switch>
+            </Container>
+          </ThemeProvider>
+        </Router>
+      </socketContext.Provider>
     </StoreWithProvider>
   );
 };

@@ -14,7 +14,7 @@ var tokenValidator_1 = __importDefault(require("./middleware/tokenValidator"));
 /*=======================================*/
 /*============ IMPORT ROUTES ============*/
 var token_1 = require("./routes/token");
-var Game_1 = __importDefault(require("game/Game"));
+var Game_1 = __importDefault(require("./game/Game"));
 /*=======================================*/
 dotenv_1.default.config();
 /*=========== AssemblyScript ===========*/
@@ -38,17 +38,31 @@ var games = {};
 io.on("connection", function (socket) {
     console.log("a user connected");
     socket.emit("test", "hej");
+    // Create Game
     socket.on("create_game", function () {
         var newGame = new Game_1.default({ socket: socket });
         games[newGame.gameToken] = newGame;
+        var response = {
+            created: false,
+            response: ""
+        };
+        if (newGame.gameToken.length > 0) {
+            response = {
+                created: true,
+                response: newGame.gameToken
+            };
+        }
+        socket.emit("game_created", response);
     });
+    // Join Game
     socket.on("join_game", function (gameToken) {
-        if (games[gameToken].joinable) {
+        var _a;
+        if ((_a = games[gameToken]) === null || _a === void 0 ? void 0 : _a.joinable) {
             var playerID = games[gameToken].addPlayer();
             // Skicka playerID till klienten joina
         }
         else {
-            // Spelet är fullt, din sopa
+            // Spelet är fult, din sopa
         }
     });
 });
