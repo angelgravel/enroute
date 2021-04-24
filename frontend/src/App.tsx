@@ -9,6 +9,7 @@ import {
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
 import styled from "styled-components";
 
+import './index.css';
 import Home from "./routes/Home";
 import GameLounge from "./routes/GameLounge";
 
@@ -59,20 +60,15 @@ const theme = createMuiTheme({
       h3: { 
         fontFamily: 'Amatic SC',
         color: "rgb(88, 88, 88)"
+      },
+      h6: { 
+        fontWeight: 'normal',
+        fontSize: '1rem',
+        color: "rgb(88, 88, 88)"
       }
     }
   }
 });
-
-const Container = styled.div`
-    position:fixed;
-    padding:0;
-    margin:0;
-    top:0;
-    left:0;
-    width: 100%;
-    height: 100%;
-`;
 
 const App: FC = () => {
   const [response, setResponse] = useState("");
@@ -88,13 +84,11 @@ const App: FC = () => {
     <StoreWithProvider>
       {/* <p>{response}</p> */}
       <Router>
-      <ThemeProvider theme={theme}>
-        <Container>
+        <ThemeProvider theme={theme}>
           <Switch>
           <Route path={`/`} exact render={() => <Home />} />
           <Route path={`/gamelounge`} exact render={() => <GameLounge />} />
           </Switch>
-        </Container>
         </ThemeProvider>
       </Router>
     </StoreWithProvider>
