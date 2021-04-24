@@ -39,7 +39,7 @@ const Home: FC = () => {
                     color='primary'
                     onClick={() => console.log("Lets create a new game")} //TODO: Add functionality to create a game
                     >
-                    <Typography variant="h6" style={{filter: "drop-shadow(0 0 5px rgba(50, 50, 50, 0.2))"}}>Create game</Typography> 
+                    <Typography variant="h6" style={{filter: "drop-shadow(0 0 2px rgba(50, 50, 50, 0.3))"}}>Create game</Typography> 
                 </Button>
             </Link>
             <Button 

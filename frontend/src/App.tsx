@@ -61,10 +61,19 @@ const theme = createMuiTheme({
         fontFamily: 'Amatic SC',
         color: "rgb(88, 88, 88)"
       },
-      h6: { 
+      h5: { 
         fontWeight: 'normal',
         fontSize: '1rem',
         color: "rgb(88, 88, 88)"
+      },
+      h6: { 
+        fontWeight: 'normal',
+        fontSize: '1rem',
+        color: 'white'
+      },
+      body1: {
+        color: "rgb(88, 88, 88)",
+        fontSize: "0.8rem",
       }
     }
   }
