@@ -1,8 +1,11 @@
-import { Socket } from "socket.io";
+import { BroadcastOperator, Server, Socket } from "socket.io";
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
+// import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import uniqid from "uniqid";
 
 type GameOptions = {
-  socket: Socket;
+  io: Server;
+  creatorSocket: Socket;
 };
 
 type GameCard = { count: number };
@@ -21,16 +24,16 @@ type GameCards = {
 class Game {
   gameToken: string;
   creator: Player;
-  socket: Socket;
+  gameRoomSocket: BroadcastOperator<DefaultEventsMap>;
   joinable: boolean;
 
   players: Player[];
   gameCards: GameCards;
 
   constructor(_options: GameOptions) {
-    this.creator = new Player(uniqid("player#"));
     this.gameToken = uniqid("game#");
-    this.socket = _options.socket;
+    this.gameRoomSocket = _options.io.to(this.gameToken);
+    this.creator = new Player(_options.creatorSocket);
     this.joinable = true;
 
 
@@ -51,27 +54,32 @@ class Game {
     this.gameLoop();
   }
 
-  addPlayer() {
-    const newPlayer = new Player(uniqid("player#"));
+  addPlayer(socket: Socket) {
+    const newPlayer = new Player(socket);
     this.players.push(newPlayer);
-
+    socket.join(this.gameToken);
     if (this.players.length > 4) this.joinable = false;
 
     return newPlayer.id;
   }
 
-  pickCard() {}
+  pickCard() {
+    // this.io.to(this.gameToken).emit("user ... picked a goddam card!");
+
+  }
 
   gameLoop() {
-    this.socket.on("pick_card", this.pickCard);
+    // this.socket.on("pick_card", this.pickCard);
   }
 }
 
 class Player {
   id: string;
+  socket: Socket
 
-  constructor(_id: string) {
-    this.id = _id;
+  constructor(_socket: Socket) {
+    this.id = uniqid("player#");
+    this.socket = _socket;
   }
 }
 

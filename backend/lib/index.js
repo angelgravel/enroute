@@ -35,25 +35,34 @@ var io = new socket_io_1.Server(server, {
     },
 });
 var games = {};
+// socket = a client/person
 io.on("connection", function (socket) {
-    console.log("a user connected");
-    socket.emit("test", "hej");
+    // console.log("a user connected");
+    socket.emit("new user", "new user connected");
     // Create Game
     socket.on("create_game", function () {
-        var newGame = new Game_1.default({ socket: socket });
+        var newGame = new Game_1.default({ io: io, creatorSocket: socket });
         games[newGame.gameToken] = newGame;
         var response = {
             created: false,
-            message: ""
+            message: {
+                gameToken: "",
+                playerID: "",
+            },
         };
         if (newGame.gameToken.length > 0) {
             response = {
                 created: true,
-                message: newGame.gameToken
+                message: {
+                    gameToken: newGame.gameToken,
+                    playerID: "",
+                },
             };
+            socket.join(newGame.gameToken);
+            response.message.playerID = newGame.creator.id;
         }
         else {
-            response.message = "create_game/not_created";
+            response.message.gameToken = "create_game/not_created";
         }
         socket.emit("game_created", response);
     });
@@ -62,22 +71,27 @@ io.on("connection", function (socket) {
         var _a;
         var response = {
             joined: false,
-            gameToken: "",
-            message: ""
+            message: {
+                gameToken: "",
+                playerID: ""
+            }
         };
         if ((_a = games[gameToken]) === null || _a === void 0 ? void 0 : _a.joinable) {
-            var playerID = games[gameToken].addPlayer();
-            // Skicka playerID till klienten joina
+            var playerID = games[gameToken].addPlayer(socket);
             response = {
                 joined: true,
-                gameToken: gameToken,
-                message: playerID
+                message: {
+                    gameToken: gameToken,
+                    playerID: playerID
+                }
             };
+            socket.join(gameToken); // join game room
+            games[gameToken].gameRoomSocket.emit("player_joined", response);
         }
         else {
-            response.message = "join_game/not_joined";
+            response.message.gameToken = "join_game/not_joined";
+            socket.emit("player_joined", response); // Tell player they couldn't join
         }
-        socket.emit("player_joined", response);
     });
 });
 server.listen(process.env.API_PORT, function () {
