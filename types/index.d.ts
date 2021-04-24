@@ -1,17 +1,7 @@
-export type GameCreatedSocketResponse = {
-    created: boolean;
-    // message: string;
-    message: {
-        gameToken: string;
-        playerID: string;
-    }
-};
-
-export type PlayerJoinedSocketResponse = {
-    joined: boolean;
-    // gameToken: string
-    // message: string;
-    message: {
+export type SocketResponse = {
+    success: boolean;
+    message: string;
+    payload: {
         gameToken: string;
         playerID: string;
     }

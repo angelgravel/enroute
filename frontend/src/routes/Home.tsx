@@ -9,7 +9,7 @@ import logo from "../assets/location.gif";
 import { socketContext } from "../App";
 
 /*=============== Types ===============*/
-import { GameCreatedSocketResponse, PlayerJoinedSocketResponse, SocketEvent } from "@typeDef/index";
+import { SocketResponse, SocketEvent } from "@typeDef/index";
 /*=====================================*/
 
 const Container = styled.div`
@@ -34,21 +34,16 @@ const Home: FC = () => {
 
     useEffect(() => {
         if(socket){
-        
-            socket.on("new user", (data) => {
-                // console.log(data);
-            })
-
             // Game created
-            socket.on("game_created", (data: GameCreatedSocketResponse) => {
-                console.log(data.message.gameToken, "created by", data.message.playerID);
-                if (data.created) {
+            socket.on("game_created", (data: SocketResponse) => {
+                console.log(data.payload.gameToken, "created by", data.payload.playerID);
+                if (data.success) {
                     history.push("/gamelounge");
                     //TODO Update Redux state?
-                    setGameToken(data.message.gameToken);
-                    setPlayerID(data.message.playerID);   // Set playerID?
+                    setGameToken(data.payload.gameToken);
+                    setPlayerID(data.payload.playerID);   // Set playerID?
                 } else {
-                    switch (data.message.gameToken) {
+                    switch (data.message) {
                         case "create_game/not_created":
                             setError("Could not create game");
                             break;
@@ -59,15 +54,15 @@ const Home: FC = () => {
             });
 
             // Player joined
-            socket.on("player_joined", (data: PlayerJoinedSocketResponse) => {
-                console.log(data.message.playerID, "joined", data.message.gameToken);
-                if (data.joined) {
+            socket.on("player_joined", (data: SocketResponse) => {
+                console.log(data.payload.playerID, "joined", data.payload.gameToken);
+                if (data.success) {
                     history.push("/gamelounge");
                     //TODO Update Redux state
-                    setGameToken(data.message.gameToken);
-                    setPlayerID(data.message.playerID);   // Set playerID?
+                    setGameToken(data.payload.gameToken);
+                    setPlayerID(data.payload.playerID);   // Set playerID?
                 } else {
-                    switch (data.message.gameToken) {
+                    switch (data.message) {
                         case "join_game/not_joined":
                             setError("Could not join game");
                             break;

@@ -1,6 +1,5 @@
 import { BroadcastOperator, Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-// import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import uniqid from "uniqid";
 
 type GameOptions = {
@@ -65,7 +64,6 @@ class Game {
 
   pickCard() {
     // this.io.to(this.gameToken).emit("user ... picked a goddam card!");
-
   }
 
   gameLoop() {

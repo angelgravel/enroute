@@ -8,7 +8,6 @@ import {
 } from "react-router-dom";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
 import styled from "styled-components";
-import { DefaultEventsMap } from "socket.io-client/build/typed-events";
 
 
 /*============= Components ============*/
@@ -78,7 +77,7 @@ const Container = styled.div`
     height: 100%;
 `;
 
-export const socketContext = createContext<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
+export const socketContext = createContext<Socket | null>(null);
 
 const App: FC = () => {
   const [response, setResponse] = useState("");

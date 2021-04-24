@@ -12,9 +12,11 @@ import tokenValidatorMiddleware from "./middleware/tokenValidator";
 
 /*============ IMPORT ROUTES ============*/
 import { getGameToken } from "./routes/token";
-import { createGame } from "./routes/game";
 import Game from "./game/Game";
-import { GameCreatedSocketResponse, PlayerJoinedSocketResponse } from "@typeDef/index";
+/*=======================================*/
+
+/*============ IMPORT TYPES ============*/
+import { SocketResponse } from "@typeDef/index";
 /*=======================================*/
 
 dotenv.config();
@@ -32,7 +34,6 @@ app.use(cors());
 /*=============== ROUTES ===============*/
 
 app.get("/token", tokenValidatorMiddleware, getGameToken);
-
 // app.post("/game", createGame);
 
 /*======================================*/
@@ -53,36 +54,35 @@ let games: Games = {};
 
 // socket = a client/person
 io.on("connection", (socket) => {
-  // console.log("a user connected");
-  socket.emit("new user", "new user connected");
-
   // Create Game
   socket.on("create_game", () => {
     const newGame = new Game({ io, creatorSocket: socket });
     games[newGame.gameToken] = newGame;
 
-    let response: GameCreatedSocketResponse = {
-        created: false,
-        message: {
+    let response: SocketResponse = {
+        success: false,
+        message: "",
+        payload: {
           gameToken: "",
           playerID: "",
-        },
+      }
       };
 
     if (newGame.gameToken.length > 0) {
       response = {
-        created: true,
-        message: {
+        success: true,
+        message: "create_game/created",
+        payload: {
           gameToken: newGame.gameToken,
           playerID: "",
-        },
+        }
       };
 
       socket.join(newGame.gameToken);
-      response.message.playerID = newGame.creator.id;
+      response.payload.playerID = newGame.creator.id;
 
     } else {
-      response.message.gameToken = "create_game/not_created";
+      response.message = "create_game/not_created";
     }
     
     socket.emit("game_created", response);
@@ -90,9 +90,10 @@ io.on("connection", (socket) => {
 
   // Join Game
   socket.on("join_game", (gameToken: string) => {
-    let response: PlayerJoinedSocketResponse = {
-      joined: false,
-      message: {
+    let response: SocketResponse = {
+      success: false,
+      message: "",
+      payload: {
         gameToken: "",
         playerID: ""
       }
@@ -101,18 +102,20 @@ io.on("connection", (socket) => {
     if (games[gameToken]?.joinable) {
       const playerID = games[gameToken].addPlayer(socket);
       response = {
-        joined: true,
-        message: {
+        success: true,
+        message: "join_game/joined",
+        payload: {
           gameToken: gameToken,
           playerID: playerID
         }
       };
       
-      socket.join(gameToken); // join game room
+       // Join game room
+      socket.join(gameToken);
       games[gameToken].gameRoomSocket.emit("player_joined", response);
     } else {
-      response.message.gameToken = "join_game/not_joined";
-      socket.emit("player_joined", response); // Tell player they couldn't join
+      response.message = "join_game/not_joined";
+      socket.emit("player_joined", response);
     }
 
   });
