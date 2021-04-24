@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import socketIOClient from "socket.io-client";
 import StoreWithProvider from "./redux/store";
 import {
@@ -7,7 +7,6 @@ import {
   Switch,
 } from "react-router-dom";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
-import styled from "styled-components";
 
 import './index.css';
 import Home from "./routes/Home";

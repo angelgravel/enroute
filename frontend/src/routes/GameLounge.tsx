@@ -1,7 +1,6 @@
-import { FC, useEffect, useState } from "react";
-import { Button, Card, Typography, Snackbar, Divider } from "@material-ui/core";
+import { FC, useState } from "react";
+import { Button, Card, Typography, LinearProgress} from "@material-ui/core";
 import PersonOutlineIcon from '@material-ui/icons/PersonOutline';
-import Alert from '@material-ui/lab/Alert';
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -24,9 +23,11 @@ type Player = {
 };
 
 const GameLounge: FC = () => {
-    const [alertOpen, setAlertOpen] = useState<boolean>(false);
     let gameToken: string = "game7438qgrfb"; //TODO: get gameToekn from Redux. (this is only temporary)
-    const [players, setPlayers] = useState<any>([{nickname: "Emma", playerId: "hfajkh", color: "green"}, {nickname: "Emma", playerId: "hfajkh", color: "blue"}]); //TODO: get }amount of plyers from Redux. (this is only temporary)
+    const [players, setPlayers] = useState<any>([
+        {nickname: "Emma", playerId: "hfajkh", color: "green"}, 
+        {nickname: "Jacob", playerId: "hfajkh", color: "blue"}
+    ]); //TODO: get }amount of plyers from Redux. (this is only temporary)
 
     const handleStartGame = () => {
     }
@@ -35,17 +36,9 @@ const GameLounge: FC = () => {
 
     };
 
-    const generatePlayers = () => {
-        players.map((player: Player) => {
-            return (<div style={{display: 'inline-grid'}}>
-                <PersonOutlineIcon style={{color: `${player.color}`, height: "80px", width: "80px"}} />
-                <Typography variant='body1'>{player.nickname}</Typography>
-            </div>)
-        })
-    }
-
     return(
         <Container>
+            <img src={logo} style={{height: '80px'}} />
             <Card style={{display: 'inline-grid', padding: "20px"}}>
                 <Typography variant="h2">Game lounge</Typography>
                 <Typography variant="h5">Game code: {gameToken}</Typography>
@@ -53,7 +46,12 @@ const GameLounge: FC = () => {
                 <Card style={{margin: '20px', padding: '10px', textAlign: 'center'}}>
                     <Typography variant="h5" style={{margin: '10px'}}>Players</Typography> 
                     <div>
-                        {generatePlayers}
+                        {players.map((player: Player) => {
+                            return (<div style={{display: 'inline-grid'}}>
+                                <PersonOutlineIcon style={{color: `${player.color}`, height: "80px", width: "80px"}} />
+                                <Typography variant='body1'>{player.nickname}</Typography>
+                            </div>)
+                        })}
                     </div>
                 </Card>
 
