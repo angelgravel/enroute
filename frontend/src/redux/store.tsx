@@ -9,14 +9,20 @@ import storage from "redux-persist/lib/storage";
 import { PersistGate } from "redux-persist/integration/react";
 
 import testReducer from "./test";
+import gameReducer from "./game";
+import { GameState } from "./types";
 
-//COMBINING ALL REDUCERS
+// COMBINING ALL REDUCERS
 const combinedReducer = combineReducers({
   test: testReducer,
+  game: gameReducer,
   // OTHER REDUCERS WILL BE ADDED HERE
 });
 
-export type RootState = ReturnType<typeof combinedReducer>;
+type CombinedReducerType = ReturnType<typeof combinedReducer>;
+export interface RootState extends CombinedReducerType {
+  game: GameState;
+}
 
 // BINDING MIDDLEWARE
 const bindMiddleware = (middleware: any[]) => {
@@ -29,7 +35,7 @@ const bindMiddleware = (middleware: any[]) => {
 const useRedux = () => {
   const persistConfig = {
     key: "EnRoute",
-    whitelist: ["test"], // only these will be persisted, add other reducers if needed
+    whitelist: ["test", "game"], // only these will be persisted, add other reducers if needed
     storage, // if needed, use a safer storage
   };
 

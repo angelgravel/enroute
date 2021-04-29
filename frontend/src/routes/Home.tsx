@@ -15,6 +15,8 @@ import styled from "styled-components";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import { useHistory } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setInitGame } from "../redux/game";
 
 import logo from "../assets/location.gif";
 import { socketContext } from "../App";
@@ -38,9 +40,9 @@ const Home: FC = () => {
   const history = useHistory();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [gameToken, setGameToken] = useState<string>("");
-  const [playerID, setPlayerID] = useState<string>("");
   const [error, setError] = useState<string>("");
   const socket = useContext(socketContext);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (socket) {
@@ -53,13 +55,26 @@ const Home: FC = () => {
         );
         if (data.success) {
           history.push("/gamelounge");
-          //TODO Update Redux state?
-          setGameToken(data.payload.gameToken);
-          setPlayerID(data.payload.playerID); // Set playerID?
+          dispatch(
+            setInitGame({
+              gameToken: data.payload.gameToken,
+              playerId: data.payload.playerID,
+              color: "yellow", // Dummy color - CHANGE!
+              players: [
+                // Dummy player - CHANGE!
+                {
+                  nickname: "Jacob",
+                  color: "yellow",
+                  playerId: data.payload.playerID,
+                },
+              ],
+            }),
+          );
         } else {
           switch (data.message) {
             case "create_game/not_created":
               setError("Could not create game");
+              console.log(error);
               break;
             default:
               break;
@@ -69,16 +84,39 @@ const Home: FC = () => {
 
       // Player joined
       socket.on("player_joined", (data: SocketResponse) => {
-        console.log(data.payload.playerID, "joined", data.payload.gameToken);
+        console.log(
+          data.payload.playerID,
+          "joined:",
+          data.success,
+          data.payload.gameToken,
+        );
         if (data.success) {
           history.push("/gamelounge");
-          //TODO Update Redux state
-          setGameToken(data.payload.gameToken);
-          setPlayerID(data.payload.playerID); // Set playerID?
+          dispatch(
+            setInitGame({
+              gameToken: data.payload.gameToken,
+              playerId: data.payload.playerID,
+              color: "blue", // Dummy color - CHANGE!
+              players: [
+                // Dummy players - CHANGE!
+                {
+                  nickname: "Jacob",
+                  color: "yellow",
+                  playerId: data.payload.playerID,
+                },
+                {
+                  nickname: "Emma",
+                  color: "blue",
+                  playerId: "dummyID",
+                },
+              ],
+            }),
+          );
         } else {
           switch (data.message) {
             case "join_game/not_joined":
               setError("Could not join game");
+              console.log(error);
               break;
             default:
               break;
@@ -92,6 +130,10 @@ const Home: FC = () => {
     socket?.emit(event, message);
   };
 
+  const handleCreateGame = () => {
+    socketEmit("create_game");
+  };
+
   //TODO: Add functionality to join a game (check if game code exits and if there is enough room)
   const handleJoinGame = () => {
     socketEmit("join_game", gameToken);
@@ -100,14 +142,10 @@ const Home: FC = () => {
 
   return (
     <Container>
-      <img src={logo} />
+      <img src={logo} alt="logo" />
       <Typography variant="h2">EN ROUTE</Typography>
       <Link to="/gamelounge" style={{ textDecoration: "none" }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => socketEmit("create_game")} //TODO: Add functionality to create a game
-        >
+        <Button variant="contained" color="primary" onClick={handleCreateGame}>
           <Typography
             variant="h6"
             style={{ filter: "drop-shadow(0 0 5px rgba(50, 50, 50, 0.3))" }}

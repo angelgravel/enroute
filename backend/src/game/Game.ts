@@ -35,7 +35,6 @@ class Game {
     this.creator = new Player(_options.creatorSocket);
     this.joinable = true;
 
-
     this.players = [this.creator];
 
     this.gameCards = {
@@ -73,7 +72,7 @@ class Game {
 
 class Player {
   id: string;
-  socket: Socket
+  socket: Socket;
 
   constructor(_socket: Socket) {
     this.id = uniqid("player#");
