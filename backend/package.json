@@ -40,7 +40,14 @@
     "@types/uniqid": "^5.3.0",
     "assemblyscript": "^0.18.24",
     "concurrently": "^6.0.2",
+    "git-format-staged": "^2.1.1",
+    "husky": "^6.0.0",
     "nodemon": "^2.0.7",
     "prettier": "^2.2.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "git-format-staged -f 'prettier --ignore-unknown --stdin --stdin-filepath \"{}\"' ."
+    }
   }
 }
