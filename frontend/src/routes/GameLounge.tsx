@@ -1,28 +1,75 @@
-import { FC } from "react";
-import { Button } from "@material-ui/core";
+import { FC, useState } from "react";
+import { Button, Card, Typography, LinearProgress} from "@material-ui/core";
+import PersonOutlineIcon from '@material-ui/icons/PersonOutline';
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
+import logo from "../assets/location.gif";
+
 const Container = styled.div`
-    text-align: center;
-    padding: 20px;
-    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    overflow: scroll;
+    text-align: center;
+    height: 100vh;
+    width: 100vw;
 `;
 
+type Player = {
+    nickname: string;
+    playerId: string;
+    color: string
+};
+
 const GameLounge: FC = () => {
+    let gameToken: string = "game7438qgrfb"; //TODO: get gameToekn from Redux. (this is only temporary)
+    const [players, setPlayers] = useState<any>([
+        {nickname: "Emma", playerId: "hfajkh", color: "green"}, 
+        {nickname: "Jacob", playerId: "hfajkh", color: "blue"}
+    ]); //TODO: get }amount of plyers from Redux. (this is only temporary)
+
+    const handleStartGame = () => {
+    }
+
+    const handleSnackbar = () => () => {
+
+    };
 
     return(
         <Container>
-            GameLounge component
-            <Link to="/" style={{textDecoration: 'none'}}>
-                <Button variant="contained" color="secondary">Exit game room</Button>
-            </Link>
-            <Button variant="contained" color="primary" onClick={() => console.log("start game")}>Start game</Button>
+            <img src={logo} style={{height: '80px'}} />
+            <Card style={{display: 'inline-grid', padding: "20px"}}>
+                <Typography variant="h2">Game lounge</Typography>
+                <Typography variant="h5">Game code: {gameToken}</Typography>
+                
+                <Card style={{margin: '20px', padding: '10px', textAlign: 'center'}}>
+                    <Typography variant="h5" style={{margin: '10px'}}>Players</Typography> 
+                    <div>
+                        {players.map((player: Player) => {
+                            return (<div style={{display: 'inline-grid'}}>
+                                <PersonOutlineIcon style={{color: `${player.color}`, height: "80px", width: "80px"}} />
+                                <Typography variant='body1'>{player.nickname}</Typography>
+                            </div>)
+                        })}
+                    </div>
+                </Card>
+
+                <div>
+                    <Link to="/" style={{textDecoration: 'none'}}>
+                        <Button variant="contained" color="secondary">
+                            <Typography variant="h6" style={{filter: "drop-shadow(0 0 2px rgba(50, 50, 50, 0.3))"}}>Exit game room</Typography> 
+                        </Button>
+                    </Link>
+                    <Button 
+                        variant="contained"  
+                        color="primary" 
+                        onClick={() => console.log("start game")}
+                    >
+                        <Typography variant="h6" style={{filter: "drop-shadow(0 0 2px rgba(50, 50, 50, 0.3))"}}>Start game</Typography> 
+                    </Button>
+                </div>
+            </Card>
         </Container>
     );
   };
