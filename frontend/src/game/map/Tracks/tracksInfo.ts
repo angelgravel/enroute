@@ -1,4 +1,4 @@
-import { CardColor } from "@typeDef/index";
+import { TrackColor } from "@typeDef/index";
 type TrackValues = {
   x: number;
   y: number;
@@ -7,7 +7,7 @@ type TrackValues = {
   transform?: string;
 };
 export type TrackInfo = {
-  color: CardColor;
+  color: TrackColor;
   bridges: string[];
   tracks: TrackValues[];
 };

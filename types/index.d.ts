@@ -1,6 +1,6 @@
 export type TestType = string;
 
-export type CardColor =
+export type TrackColor =
   | "blue"
   | "orange"
   | "red"
@@ -10,3 +10,5 @@ export type CardColor =
   | "yellow"
   | "pink"
   | "any";
+
+export type PlayerColor = "black" | "blue" | "red" | "green" | "yellow";

@@ -161,11 +161,7 @@ const Cities: FC = () => {
         <CityCircle cx="263.75" cy="495.75" r="11.75" />
         <CityText transform="translate(206.2314 504.3716)">Brest</CityText>
       </motion.g>
-      <motion.g
-        id="le_havre_"
-        data-name="le_havre
-"
-      >
+      <motion.g id="le_havre">
         <CityCircle cx="427.5864" cy="451.6763" r="11.75" />
         <CityText transform="translate(366.7866 487.1943)">Le Havre</CityText>
       </motion.g>
