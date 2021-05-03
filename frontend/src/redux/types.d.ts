@@ -1,18 +1,19 @@
-import {} from "";
+import { TrackColor, PlayerColor } from "../../../types";
 
-type PlayerId = string;
-type GameToken = string;
+export type PlayerId = string;
+export type GameToken = string;
 
-type Route = {
+export type Route = {
   routeId: string; // "amst_lond_1"
   takenBy: PlayerColor | null;
   length: number;
   color: TrackColor;
 };
 
-type Routes = {
+export type Routes = {
   [routeId: string]: Route;
 };
+
 /*
 routes: Routes = {
   "amst_lond_1": {
@@ -21,31 +22,32 @@ routes: Routes = {
 };
 */
 
-type Player = {
+export type Player = {
   nickname: string;
   color: PlayerColor;
+  playerId: string;
 };
 
-type TrackCard = {
+export type TrackCard = {
   color: TrackColor;
   amount: number;
 };
 
-type TrackCards = {
-  [color: TrackColor]: TrackCard;
+export type TrackCards = {
+  [color in TrackColor]?: TrackCard;
 };
 
-type Ticket = {
+export type Ticket = {
   start: string;
   end: string;
   points: number;
 };
 
-type GameState = {
+export type GameState = {
   gameToken: GameToken;
   playerId: PlayerId;
   nickname: string;
-  color: PlayerColor;
+  color: PlayerColor | "";
   trackCards: TrackCards;
   tickets: Ticket[];
   tracks: number;

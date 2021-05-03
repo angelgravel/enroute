@@ -1,9 +1,10 @@
-import React, { FC, useEffect, useState } from "react";
-import socketIOClient from "socket.io-client";
+import React, { createContext, FC } from "react";
+import socketIOClient, { Socket } from "socket.io-client";
 import StoreWithProvider from "./redux/store";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
-import styled from "styled-components";
+
+import "./index.css";
 
 import Home from "./routes/Home";
 import GameLounge from "./routes/GameLounge";
@@ -57,44 +58,40 @@ const theme = createMuiTheme({
         fontFamily: "Amatic SC",
         color: "rgb(88, 88, 88)",
       },
+      h5: {
+        fontWeight: "normal",
+        fontSize: "1rem",
+        color: "rgb(88, 88, 88)",
+      },
+      h6: {
+        fontWeight: "normal",
+        fontSize: "1rem",
+        color: "white",
+      },
+      body1: {
+        color: "rgb(88, 88, 88)",
+        fontSize: "0.8rem",
+      },
     },
   },
 });
 
-const Container = styled.div`
-  position: fixed;
-  padding: 0;
-  margin: 0;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-`;
+export const socketContext = createContext<Socket | null>(null);
 
 const App: FC = () => {
-  const [response, setResponse] = useState("");
-
-  useEffect(() => {
-    const socket = socketIOClient(ENDPOINT);
-    socket.on("test", (data: string) => {
-      setResponse(data);
-    });
-  }, []);
-
   return (
     <StoreWithProvider>
-      {/* <p>{response}</p> */}
-      <Router>
-        <ThemeProvider theme={theme}>
-          <Container>
+      <socketContext.Provider value={socketIOClient(ENDPOINT)}>
+        <Router>
+          <ThemeProvider theme={theme}>
             <Switch>
               <Route path={`/`} exact render={() => <Home />} />
               <Route path={`/gamelounge`} exact render={() => <GameLounge />} />
               <Route path={`/game`} exact render={() => <GameRoute />} />
             </Switch>
-          </Container>
-        </ThemeProvider>
-      </Router>
+          </ThemeProvider>
+        </Router>
+      </socketContext.Provider>
     </StoreWithProvider>
   );
 };

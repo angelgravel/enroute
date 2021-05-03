@@ -12,8 +12,15 @@ import tokenValidatorMiddleware from "./middleware/tokenValidator";
 
 /*============ IMPORT ROUTES ============*/
 import { getGameToken } from "./routes/token";
-import { createGame } from "./routes/game";
-import Game from "game/Game";
+import Game from "./game/Game";
+/*=======================================*/
+
+/*============ IMPORT TYPES ============*/
+import {
+  CreateJoinSocketPayload,
+  PlayerJoinedEmit,
+  SocketResponse,
+} from "@typeDef/index";
 /*=======================================*/
 
 dotenv.config();
@@ -30,7 +37,6 @@ app.use(cors());
 /*=============== ROUTES ===============*/
 
 app.get("/token", tokenValidatorMiddleware, getGameToken);
-
 // app.post("/game", createGame);
 
 /*======================================*/
@@ -49,21 +55,71 @@ type Games = {
 };
 let games: Games = {};
 
+// socket = a client/person
 io.on("connection", (socket) => {
-  console.log("a user connected");
-  socket.emit("test", "hej");
-
+  console.log("from index: ", socket.id);
+  /********************** Create Game **********************/
   socket.on("create_game", () => {
-    const newGame = new Game({ socket });
+    const newGame = new Game(socket, io);
     games[newGame.gameToken] = newGame;
+
+    let response: Partial<SocketResponse<CreateJoinSocketPayload>> = {
+      success: false,
+    };
+
+    if (newGame.gameToken.length > 0) {
+      response = {
+        success: true,
+        message: "create_game/created",
+        payload: {
+          gameToken: newGame.gameToken,
+          playerID: newGame.creator.id,
+          color: newGame.creator.color,
+        },
+      };
+
+      socket.join(newGame.gameToken);
+    } else {
+      response.message = "create_game/not_created";
+    }
+
+    socket.emit("create_game", response);
   });
 
+  /********************** Join Game **********************/
   socket.on("join_game", (gameToken: string) => {
-    if (games[gameToken].joinable) {
-      const playerID = games[gameToken].addPlayer();
-      // Skicka playerID till klienten joina
-    } else {
-      // Spelet är fullt, din sopa
+    let response: Partial<SocketResponse<CreateJoinSocketPayload>> = {
+      success: false,
+    };
+
+    try {
+      if (games[gameToken]?.joinable) {
+        const [playerID, color] = games[gameToken].addPlayer(socket);
+        response = {
+          success: true,
+          message: "join_game/joined",
+          payload: {
+            gameToken: gameToken,
+            playerID: playerID,
+            color: color,
+          },
+        };
+
+        // Join game room
+        socket.join(gameToken);
+        socket.emit("join_game", response);
+        const playerJoinedEmit: PlayerJoinedEmit = {
+          playerID: playerID,
+          color: color,
+        };
+        socket.to(gameToken).emit("player_joined", playerJoinedEmit);
+      } else {
+        response.message = "join_game/not_joined";
+        socket.emit("join_game", response);
+      }
+    } catch (err) {
+      response.message = err.message;
+      socket.emit("join_game", response);
     }
   });
 });
@@ -73,5 +129,3 @@ server.listen(process.env.API_PORT, () => {
     `⚡️[server]: Server is running at https://${URL}:${process.env.API_PORT}`,
   );
 });
-
-
