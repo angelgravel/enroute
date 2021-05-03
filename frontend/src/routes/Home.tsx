@@ -20,7 +20,11 @@ import logo from "../assets/location.gif";
 import { socketContext } from "../App";
 
 /*=============== Types ===============*/
-import { SocketResponse, SocketEvent } from "@typeDef/index";
+import {
+  SocketResponse,
+  SocketEvent,
+  CreateJoinSocketPayload,
+} from "@typeDef/index";
 /*=====================================*/
 
 const Container = styled.div`
@@ -45,46 +49,52 @@ const Home: FC = () => {
   useEffect(() => {
     if (socket) {
       // Game created
-      socket.on("game_created", (data: SocketResponse) => {
-        console.log(
-          data.payload.gameToken,
-          "created by",
-          data.payload.playerID,
-        );
-        if (data.success) {
-          history.push("/gamelounge");
-          //TODO Update Redux state?
-          setGameToken(data.payload.gameToken);
-          setPlayerID(data.payload.playerID); // Set playerID?
-        } else {
-          switch (data.message) {
-            case "create_game/not_created":
-              setError("Could not create game");
-              break;
-            default:
-              break;
+      socket.on(
+        "create_game",
+        (data: SocketResponse<CreateJoinSocketPayload>) => {
+          console.log(
+            data.payload.gameToken,
+            "created by",
+            data.payload.playerID,
+          );
+          if (data.success) {
+            history.push("/gamelounge");
+            //TODO Update Redux state?
+            setGameToken(data.payload.gameToken);
+            setPlayerID(data.payload.playerID); // Set playerID?
+          } else {
+            switch (data.message) {
+              case "create_game/not_created":
+                setError("Could not create game");
+                break;
+              default:
+                break;
+            }
           }
-        }
-      });
+        },
+      );
 
       // Player joined
-      socket.on("player_joined", (data: SocketResponse) => {
-        console.log(data.payload.playerID, "joined", data.payload.gameToken);
-        if (data.success) {
-          history.push("/gamelounge");
-          //TODO Update Redux state
-          setGameToken(data.payload.gameToken);
-          setPlayerID(data.payload.playerID); // Set playerID?
-        } else {
-          switch (data.message) {
-            case "join_game/not_joined":
-              setError("Could not join game");
-              break;
-            default:
-              break;
+      socket.on(
+        "join_game",
+        (data: SocketResponse<CreateJoinSocketPayload>) => {
+          console.log(data.payload.playerID, "joined", data.payload.gameToken);
+          if (data.success) {
+            history.push("/gamelounge");
+            //TODO Update Redux state
+            setGameToken(data.payload.gameToken);
+            setPlayerID(data.payload.playerID); // Set playerID?
+          } else {
+            switch (data.message) {
+              case "join_game/not_joined":
+                setError("Could not join game");
+                break;
+              default:
+                break;
+            }
           }
-        }
-      });
+        },
+      );
     }
   }, []);
 
