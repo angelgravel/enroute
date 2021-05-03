@@ -25,7 +25,6 @@ dotenv.config();
 // console.log((wasmModule as any).add(1, 2));
 /*======================================*/
 
-
 const URL = process.env.NODE_ENV === "production" ? "REPLACE_ME" : "localhost";
 
 const app = express();
@@ -60,13 +59,13 @@ io.on("connection", (socket) => {
     games[newGame.gameToken] = newGame;
 
     let response: SocketResponse = {
-        success: false,
-        message: "",
-        payload: {
-          gameToken: "",
-          playerID: "",
-      }
-      };
+      success: false,
+      message: "",
+      payload: {
+        gameToken: "",
+        playerID: "",
+      },
+    };
 
     if (newGame.gameToken.length > 0) {
       response = {
@@ -75,16 +74,15 @@ io.on("connection", (socket) => {
         payload: {
           gameToken: newGame.gameToken,
           playerID: "",
-        }
+        },
       };
 
       socket.join(newGame.gameToken);
       response.payload.playerID = newGame.creator.id;
-
     } else {
       response.message = "create_game/not_created";
     }
-    
+
     socket.emit("game_created", response);
   });
 
@@ -95,10 +93,10 @@ io.on("connection", (socket) => {
       message: "",
       payload: {
         gameToken: "",
-        playerID: ""
-      }
+        playerID: "",
+      },
     };
-    
+
     if (games[gameToken]?.joinable) {
       const playerID = games[gameToken].addPlayer(socket);
       response = {
@@ -106,18 +104,17 @@ io.on("connection", (socket) => {
         message: "join_game/joined",
         payload: {
           gameToken: gameToken,
-          playerID: playerID
-        }
+          playerID: playerID,
+        },
       };
-      
-       // Join game room
+
+      // Join game room
       socket.join(gameToken);
       games[gameToken].gameRoomSocket.emit("player_joined", response);
     } else {
       response.message = "join_game/not_joined";
       socket.emit("player_joined", response);
     }
-
   });
 });
 
@@ -126,5 +123,3 @@ server.listen(process.env.API_PORT, () => {
     `⚡️[server]: Server is running at https://${URL}:${process.env.API_PORT}`,
   );
 });
-
-
