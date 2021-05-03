@@ -16,7 +16,11 @@ import Game from "./game/Game";
 /*=======================================*/
 
 /*============ IMPORT TYPES ============*/
-import { SocketResponse } from "@typeDef/index";
+import {
+  CreateJoinSocketPayload,
+  PlayerJoinedEmit,
+  SocketResponse,
+} from "@typeDef/index";
 /*=======================================*/
 
 dotenv.config();
@@ -53,18 +57,14 @@ let games: Games = {};
 
 // socket = a client/person
 io.on("connection", (socket) => {
-  // Create Game
+  console.log("from index: ", socket.id);
+  /********************** Create Game **********************/
   socket.on("create_game", () => {
-    const newGame = new Game({ io, creatorSocket: socket });
+    const newGame = new Game(socket, io);
     games[newGame.gameToken] = newGame;
 
-    let response: SocketResponse = {
+    let response: Partial<SocketResponse<CreateJoinSocketPayload>> = {
       success: false,
-      message: "",
-      payload: {
-        gameToken: "",
-        playerID: "",
-      },
     };
 
     if (newGame.gameToken.length > 0) {
@@ -73,47 +73,53 @@ io.on("connection", (socket) => {
         message: "create_game/created",
         payload: {
           gameToken: newGame.gameToken,
-          playerID: "",
+          playerID: newGame.creator.id,
+          color: newGame.creator.color,
         },
       };
 
       socket.join(newGame.gameToken);
-      response.payload.playerID = newGame.creator.id;
     } else {
       response.message = "create_game/not_created";
     }
 
-    socket.emit("game_created", response);
+    socket.emit("create_game", response);
   });
 
-  // Join Game
+  /********************** Join Game **********************/
   socket.on("join_game", (gameToken: string) => {
-    let response: SocketResponse = {
+    let response: Partial<SocketResponse<CreateJoinSocketPayload>> = {
       success: false,
-      message: "",
-      payload: {
-        gameToken: "",
-        playerID: "",
-      },
     };
 
-    if (games[gameToken]?.joinable) {
-      const playerID = games[gameToken].addPlayer(socket);
-      response = {
-        success: true,
-        message: "join_game/joined",
-        payload: {
-          gameToken: gameToken,
-          playerID: playerID,
-        },
-      };
+    try {
+      if (games[gameToken]?.joinable) {
+        const [playerID, color] = games[gameToken].addPlayer(socket);
+        response = {
+          success: true,
+          message: "join_game/joined",
+          payload: {
+            gameToken: gameToken,
+            playerID: playerID,
+            color: color,
+          },
+        };
 
-      // Join game room
-      socket.join(gameToken);
-      games[gameToken].gameRoomSocket.emit("player_joined", response);
-    } else {
-      response.message = "join_game/not_joined";
-      socket.emit("player_joined", response);
+        // Join game room
+        socket.join(gameToken);
+        socket.emit("join_game", response);
+        const playerJoinedEmit: PlayerJoinedEmit = {
+          playerID: playerID,
+          color: color,
+        };
+        socket.to(gameToken).emit("player_joined", playerJoinedEmit);
+      } else {
+        response.message = "join_game/not_joined";
+        socket.emit("join_game", response);
+      }
+    } catch (err) {
+      response.message = err.message;
+      socket.emit("join_game", response);
     }
   });
 });

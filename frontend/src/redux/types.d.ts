@@ -47,7 +47,7 @@ export type GameState = {
   gameToken: GameToken;
   playerId: PlayerId;
   nickname: string;
-  color: PlayerColor;
+  color: PlayerColor | "";
   trackCards: TrackCards;
   tickets: Ticket[];
   tracks: number;

@@ -1,17 +1,43 @@
-export type SocketResponse = {
+export type SocketResponse<T> = {
   success: boolean;
-  message: string;
-  payload: {
-    gameToken: string;
-    playerID: string;
-  };
+  message?: string;
+  payload: T;
+};
+
+type CreateJoinSocketPayload = {
+  gameToken: string;
+  playerID: string;
+  color: PlayerColor;
+};
+
+type PlayerJoinedEmit = {
+  playerID: string;
+  color: PlayerColor;
 };
 
 export type SocketEvent =
   | "create_game"
   | "join_game"
-  | "player_joined"
-  | "game_created";
+  | "pick_initial_tickets"
+  | "open_track_cards"
+  | "tickets"
+  | "trackCards"
+  | "setup_game";
+
+export type PlayerTrackCard = {
+  color: TrackColor;
+  amount: number;
+};
+
+export type PlayerTrackCards = {
+  [color in TrackColor]: PlayerTrackCard;
+};
+
+export type Ticket = {
+  start: City;
+  end: City;
+  points: number;
+};
 
 export type TrackColor =
   | "blue"

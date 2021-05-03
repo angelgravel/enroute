@@ -16,7 +16,7 @@ const initialState: GameState = {
   gameToken: "",
   playerId: "",
   nickname: "",
-  color: "yellow",
+  color: "",
   trackCards: {},
   tickets: [],
   tracks: 0,
@@ -104,7 +104,6 @@ const gameReducer = (state: Partial<GameState> = initialState, action: any) => {
         gameToken: action.payload.gameToken,
         playerId: action.payload.playerId,
         color: action.payload.color,
-        players: action.payload.players,
       };
     case gameActions.SET_NICKNAME:
       return {

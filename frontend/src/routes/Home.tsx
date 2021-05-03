@@ -22,7 +22,11 @@ import logo from "../assets/location.gif";
 import { socketContext } from "../App";
 
 /*=============== Types ===============*/
-import { SocketResponse, SocketEvent } from "@typeDef/index";
+import {
+  SocketResponse,
+  SocketEvent,
+  CreateJoinSocketPayload,
+} from "@typeDef/index";
 /*=====================================*/
 
 const Container = styled.div`
@@ -47,82 +51,67 @@ const Home: FC = () => {
   useEffect(() => {
     if (socket) {
       // Game created
-      socket.on("game_created", (data: SocketResponse) => {
-        console.log(
-          data.payload.gameToken,
-          "created by",
-          data.payload.playerID,
-        );
-        if (data.success) {
-          history.push("/gamelounge");
-          dispatch(
-            setInitGame({
-              gameToken: data.payload.gameToken,
-              playerId: data.payload.playerID,
-              color: "yellow", // Dummy color - CHANGE!
-              players: [
-                // Dummy player - CHANGE!
-                {
-                  nickname: "Jacob",
-                  color: "yellow",
-                  playerId: data.payload.playerID,
-                },
-              ],
-            }),
+      socket.on(
+        "create_game",
+        (data: SocketResponse<CreateJoinSocketPayload>) => {
+          console.log(
+            data.payload.gameToken,
+            "created by",
+            data.payload.playerID,
           );
-        } else {
-          switch (data.message) {
-            case "create_game/not_created":
-              setError("Could not create game");
-              console.log(error);
-              break;
-            default:
-              break;
+          if (data.success) {
+            dispatch(
+              setInitGame({
+                gameToken: data.payload.gameToken,
+                playerId: data.payload.playerID,
+                color: data.payload.color,
+              }),
+            );
+            history.push("/gamelounge");
+          } else {
+            switch (data.message) {
+              case "create_game/not_created":
+                setError("Could not create game");
+                console.log(error);
+                break;
+              default:
+                break;
+            }
           }
-        }
-      });
+        },
+      );
 
       // Player joined
-      socket.on("player_joined", (data: SocketResponse) => {
-        console.log(
-          data.payload.playerID,
-          "joined:",
-          data.success,
-          data.payload.gameToken,
-        );
-        if (data.success) {
-          history.push("/gamelounge");
-          dispatch(
-            setInitGame({
-              gameToken: data.payload.gameToken,
-              playerId: data.payload.playerID,
-              color: "blue", // Dummy color - CHANGE!
-              players: [
-                // Dummy players - CHANGE!
-                {
-                  nickname: "Jacob",
-                  color: "yellow",
-                  playerId: data.payload.playerID,
-                },
-                {
-                  nickname: "Emma",
-                  color: "blue",
-                  playerId: "dummyID",
-                },
-              ],
-            }),
+      socket.on(
+        "join_game",
+        (data: SocketResponse<CreateJoinSocketPayload>) => {
+          console.log(
+            data.payload.playerID,
+            "joined:",
+            data.success,
+            data.payload.gameToken,
           );
-        } else {
-          switch (data.message) {
-            case "join_game/not_joined":
-              setError("Could not join game");
-              console.log(error);
-              break;
-            default:
-              break;
+          if (data.success) {
+            history.push("/gamelounge");
+            dispatch(
+              setInitGame({
+                gameToken: data.payload.gameToken,
+                playerId: data.payload.playerID,
+                color: data.payload.color, // Dummy color - CHANGE!
+              }),
+            );
+          } else {
+            switch (data.message) {
+              case "join_game/not_joined":
+                setError("Could not join game");
+                console.log(error);
+                break;
+              default:
+                break;
+            }
           }
-        }
-      });
+        },
+      );
     }
   }, []);
 
