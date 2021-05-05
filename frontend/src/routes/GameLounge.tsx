@@ -1,12 +1,19 @@
-import { FC } from "react";
+import { FC, useContext, useEffect } from "react";
 import { Button, Card, Typography } from "@material-ui/core";
 import PersonOutlineIcon from "@material-ui/icons/PersonOutline";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
+import { socketContext } from "../App";
+import { useDispatch } from "react-redux";
+import { setInitGame } from "../redux/game";
 
 import logo from "../assets/location.gif";
+
+/*=============== Types ===============*/
+import { SocketResponse, SocketEvent } from "@typeDef/index";
+/*=====================================*/
 
 const Container = styled.div`
   display: flex;
@@ -20,10 +27,25 @@ const Container = styled.div`
 
 const GameLounge: FC = () => {
   const { players, gameToken } = useSelector((state: RootState) => state.game);
+  const socket = useContext(socketContext);
+  const dispatch = useDispatch();
 
-  const handleStartGame = () => {};
+  const socketEmit = (event: SocketEvent, message?: string) => {
+    socket?.emit(event, message);
+  };
 
-  const handleSnackbar = () => () => {};
+  const handleStartGame = () => {
+    socketEmit("setup_game");
+  };
+
+  useEffect(() => {
+    if (socket) {
+      // Setup game
+      socket.on("setup_game", (data: SocketResponse<undefined>) => {
+        if (!data.success) console.log(data.message);
+      });
+    }
+  }, []);
 
   return (
     <Container>
@@ -67,11 +89,7 @@ const GameLounge: FC = () => {
               </Typography>
             </Button>
           </Link>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => console.log("start game")}
-          >
+          <Button variant="contained" color="primary" onClick={handleStartGame}>
             <Typography
               variant="h6"
               style={{ filter: "drop-shadow(0 0 2px rgba(50, 50, 50, 0.3))" }}
