@@ -104,6 +104,7 @@ const gameReducer = (state: Partial<GameState> = initialState, action: any) => {
         gameToken: action.payload.gameToken,
         playerId: action.payload.playerId,
         color: action.payload.color,
+        nickname: action.payload.nickname,
       };
     case gameActions.SET_NICKNAME:
       return {

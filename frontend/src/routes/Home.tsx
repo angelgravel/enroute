@@ -61,13 +61,13 @@ const Home: FC = () => {
   const createGameListener = (
     data: SocketResponse<CreateJoinSocketPayload>,
   ) => {
-    console.log(data.payload.gameToken, "created by", data.payload.playerID);
     if (data.success) {
       dispatch(
         setInitGame({
           gameToken: data.payload.gameToken,
-          playerId: data.payload.playerID,
-          color: data.payload.color,
+          playerId: data.payload.player.playerID,
+          color: data.payload.player.color,
+          nickname: data.payload.player.nickname,
         }),
       );
       history.push("/gamelounge");
@@ -84,19 +84,14 @@ const Home: FC = () => {
   };
 
   const joinGameListener = (data: SocketResponse<CreateJoinSocketPayload>) => {
-    console.log(
-      data.payload.playerID,
-      "joined:",
-      data.success,
-      data.payload.gameToken,
-    );
     if (data.success) {
       history.push("/gamelounge");
       dispatch(
         setInitGame({
           gameToken: data.payload.gameToken,
-          playerId: data.payload.playerID,
-          color: data.payload.color, // Dummy color - CHANGE!
+          playerId: data.payload.player.playerID,
+          color: data.payload.player.color,
+          nickname: data.payload.player.nickname,
         }),
       );
     } else {
