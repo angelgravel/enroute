@@ -144,7 +144,7 @@ class Game {
       }
 
       player.socket.emit("tickets", player.tickets);
-      player.socket.emit("trackCards", player.trackCards);
+      player.socket.emit("track_cards", player.trackCards);
     }
   }
 
@@ -163,6 +163,7 @@ class Game {
         return;
       }
 
+      //Chosen tickets must match the dealt tickets
       const correctlyChosenTickets = chosenTickets.filter(
         (ct) =>
           player.tickets.filter(
