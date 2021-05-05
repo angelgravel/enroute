@@ -2,7 +2,7 @@ import React, { FC, forwardRef } from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 
-import { ColorToHex } from "utils/constants";
+import { colorToHex } from "utils/constants";
 import tracksInfo, { TrackInfo } from "./tracksInfo";
 
 const TrackRect = styled(motion.rect)`
@@ -34,7 +34,7 @@ type TrackProps = {
   trackInfo: TrackInfo;
 };
 const Track = forwardRef<any, TrackProps>(({ id, trackInfo }, ref) => {
-  const color = ColorToHex[trackInfo.color];
+  const color = colorToHex[trackInfo.color];
   const tracks = trackInfo.tracks;
   const bridges = trackInfo.bridges;
 
