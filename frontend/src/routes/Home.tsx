@@ -23,11 +23,7 @@ import useAxios from "../hooks/useAxios";
 import logo from "../assets/location.gif";
 
 /*=============== Types ===============*/
-import {
-  SocketResponse,
-  PlayerEmit,
-  CreateJoinSocketPayload,
-} from "@typeDef/index";
+import { SocketResponse, CreateJoinSocketPayload } from "@typeDef/index";
 /*=====================================*/
 
 const Container = styled.div`
@@ -52,7 +48,7 @@ const Home: FC = () => {
 
   useEffect(() => {
     if (error) {
-      enqueueSnackbar(error, { variant: "error" });
+      enqueueSnackbar(error, { variant: "error", autoHideDuration: 2000 });
       setError("");
     }
   }, [error]);
@@ -65,7 +61,7 @@ const Home: FC = () => {
       dispatch(
         setInitGame({
           gameToken: resp.data.payload.gameToken,
-          playerId: resp.data.payload.player.playerID,
+          playerId: resp.data.payload.player.playerId,
           color: resp.data.payload.player.color,
           nickname: resp.data.payload.player.nickname,
         }),
@@ -94,7 +90,7 @@ const Home: FC = () => {
       dispatch(
         setInitGame({
           gameToken: resp.data.payload.gameToken,
-          playerId: resp.data.payload.player.playerID,
+          playerId: resp.data.payload.player.playerId,
           color: resp.data.payload.player.color,
           nickname: resp.data.payload.player.nickname,
         }),

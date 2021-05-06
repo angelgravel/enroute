@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useContext, useEffect } from "react";
 import { Button, Card, Typography } from "@material-ui/core";
 import PersonOutlineIcon from "@material-ui/icons/PersonOutline";
 import { Link } from "react-router-dom";
@@ -7,6 +7,13 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 
 import logo from "../../assets/location.gif";
+
+import { socketContext } from "../../context/socket";
+import {
+  SocketResponse,
+  AddSocketPayload,
+  AddSocketEmit,
+} from "@typeDef/index";
 
 const Container = styled.div`
   display: flex;
@@ -20,11 +27,37 @@ const Container = styled.div`
 
 type GameLoungeProps = {};
 const GameLounge: FC<GameLoungeProps> = ({}) => {
-  const { players, gameToken } = useSelector((state: RootState) => state.game);
+  const socket = useContext(socketContext);
+  const { players, gameToken, playerId } = useSelector(
+    (state: RootState) => state.game,
+  );
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("add_socket", (response: SocketResponse<AddSocketPayload>) => {
+        if (!response.success) {
+          console.log(response.payload);
+          return;
+        }
+      });
+    }
+
+    return () => {
+      socket.off("add_socket");
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket && playerId && gameToken) {
+      const addSocketEmit: AddSocketEmit = {
+        gameToken,
+        playerId,
+      };
+      socket.emit("add_socket", addSocketEmit);
+    }
+  }, [socket, playerId, gameToken]);
 
   const handleStartGame = () => {};
-
-  const handleSnackbar = () => () => {};
 
   // TODO: Check if game exists
 
@@ -43,7 +76,7 @@ const GameLounge: FC<GameLoungeProps> = ({}) => {
             {players && players.length
               ? players.map((player) => {
                   return (
-                    <div style={{ display: "inline-grid" }}>
+                    <div style={{ display: "inline-grid" }} key={playerId}>
                       <PersonOutlineIcon
                         style={{
                           color: `${player.color}`,
@@ -51,7 +84,10 @@ const GameLounge: FC<GameLoungeProps> = ({}) => {
                           width: "80px",
                         }}
                       />
-                      <Typography variant="body1">{player.nickname}</Typography>
+                      <Typography variant="body2">{player.nickname}</Typography>
+                      {player.playerId === playerId && (
+                        <Typography variant="body1">You</Typography>
+                      )}
                     </div>
                   );
                 })

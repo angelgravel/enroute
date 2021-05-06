@@ -2,7 +2,9 @@ import {
   Ticket,
   PlayerTrackCards,
   TrackColor,
-  PlayerEmit,
+  PlayerClient,
+  SocketResponse,
+  AddSocketPayload,
 } from "@typeDef/index";
 import { BroadcastOperator, Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
@@ -64,6 +66,8 @@ class Game {
       this.players[playerIdx].setSocket(_socket);
       this.gameEvents(_socket);
     }
+
+    this.emitPlayers();
   }
 
   addPlayer() {
@@ -79,7 +83,7 @@ class Game {
     if (this.players.length > 4) this.joinable = false;
 
     return {
-      playerID: newPlayer.id,
+      playerId: newPlayer.id,
       color: newPlayer.color,
       nickname: newPlayer.nickname,
       remainingTracks: newPlayer.remainingTracks,
@@ -89,10 +93,10 @@ class Game {
 
   emitPlayers() {
     if (this.gameRoomSocket) {
-      const _players: PlayerEmit[] = [];
+      const _players: PlayerClient[] = [];
       for (const player of this.players) {
         _players.push({
-          playerID: player.id,
+          playerId: player.id,
           color: player.color,
           nickname: player.nickname,
           remainingTracks: player.remainingTracks,
@@ -260,7 +264,12 @@ class Game {
       this.pickInitialTickets(socket, data),
     );
 
-    socket.emit("add_socket", "You are now connected to the game");
+    const response: SocketResponse<AddSocketPayload> = {
+      success: true,
+      message: "add_socket/added",
+      payload: "You are now connected to the game",
+    };
+    socket.emit("add_socket", response);
   }
 }
 

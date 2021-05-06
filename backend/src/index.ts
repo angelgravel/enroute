@@ -11,8 +11,9 @@ import Game from "./game/Game";
 /*============ IMPORT TYPES ============*/
 import {
   AddSocketEmit,
+  AddSocketPayload,
   CreateJoinSocketPayload,
-  PlayerEmit,
+  PlayerClient,
   SocketResponse,
 } from "@typeDef/index";
 import { createGame, joinGame } from "./routes/game";
@@ -70,10 +71,12 @@ io.on("connection", (socket) => {
     const game = games[data.gameToken];
 
     if (!game) {
-      socket.emit("add_socket", {
+      const response: SocketResponse<AddSocketPayload> = {
         success: false,
         message: "add_socket/not_added",
-      });
+        payload: "Could not add socket",
+      };
+      socket.emit("add_socket", response);
       return;
     }
 

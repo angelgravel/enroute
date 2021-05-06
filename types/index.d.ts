@@ -6,7 +6,7 @@ export type SocketResponse<T> = {
 
 type CreateJoinSocketPayload = {
   gameToken: string;
-  player: PlayerEmit;
+  player: PlayerClient;
 };
 
 export type AddSocketEmit = {
@@ -14,8 +14,10 @@ export type AddSocketEmit = {
   playerId: string;
 };
 
-type PlayerEmit = {
-  playerID: string;
+export type AddSocketPayload = string;
+
+type PlayerClient = {
+  playerId: string;
   color: PlayerColor;
   nickname: string;
   remainingTracks: number;
