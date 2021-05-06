@@ -9,7 +9,6 @@ import "./index.css";
 import Home from "./routes/Home";
 import GameLounge from "./routes/GameLounge";
 import GameRoute from "./routes/GameRoute";
-import useSocketListeners from "hooks/useSocketListeners";
 /*=====================================*/
 
 const ENDPOINT = "http://localhost:3001";
