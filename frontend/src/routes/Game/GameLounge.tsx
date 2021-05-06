@@ -4,9 +4,9 @@ import PersonOutlineIcon from "@material-ui/icons/PersonOutline";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { RootState } from "../../redux/store";
 
-import logo from "../assets/location.gif";
+import logo from "../../assets/location.gif";
 
 const Container = styled.div`
   display: flex;
@@ -18,12 +18,15 @@ const Container = styled.div`
   width: 100vw;
 `;
 
-const GameLounge: FC = () => {
+type GameLoungeProps = {};
+const GameLounge: FC<GameLoungeProps> = ({}) => {
   const { players, gameToken } = useSelector((state: RootState) => state.game);
 
   const handleStartGame = () => {};
 
   const handleSnackbar = () => () => {};
+
+  // TODO: Check if game exists
 
   return (
     <Container>

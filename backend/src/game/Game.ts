@@ -21,7 +21,7 @@ import { shuffleArray } from "../utils/helpers";
 class Game {
   gameToken: string;
   creator: Player;
-  gameRoomSocket: BroadcastOperator<DefaultEventsMap>;
+  gameRoomSocket: BroadcastOperator<DefaultEventsMap> | undefined;
   joinable: boolean;
   gameStarted: boolean;
 
@@ -32,11 +32,10 @@ class Game {
   availableShortTickets: Ticket[];
   availableLongTickets: Ticket[];
 
-  constructor(creatorSocket: Socket, io: Server) {
+  constructor() {
     this.gameToken = uniqid("game#");
-    this.gameRoomSocket = io.to(this.gameToken);
+    this.gameRoomSocket = undefined;
     this.creator = new Player(
-      creatorSocket,
       playerColors[Math.floor(Math.random() * (playerColors.length - 1))],
     );
     this.joinable = true;
@@ -50,25 +49,34 @@ class Game {
 
     this.availableShortTickets = shuffleArray(initialShortTickets);
     this.availableLongTickets = shuffleArray(initialLongTickets);
-
-    this.gameEvents(creatorSocket);
   }
 
-  addPlayer(socket: Socket) {
-    const playerAlreadyInGame = this.players.find(
-      (p) => p.socket.id === socket.id,
-    );
-    if (playerAlreadyInGame) {
-      throw new Error("join_game/already_in_game");
+  addSocket(_socket: Socket, _io: Server, playerId: string) {
+    if (playerId == this.creator.id) {
+      this.gameRoomSocket = _io.to(this.gameToken);
     }
 
-    const newPlayer = new Player(socket, this.assignColor());
-    this.players.push(newPlayer);
-    socket.join(this.gameToken);
-    this.gameEvents(socket);
-    if (this.players.length > 4) this.joinable = false;
+    const playerIdx = this.players.findIndex(
+      (_player) => _player.id === playerId,
+    );
+    if (playerIdx !== -1) {
+      _socket.join(this.gameToken);
+      this.players[playerIdx].setSocket(_socket);
+      this.gameEvents(_socket);
+    }
+  }
 
-    this.emitPlayers();
+  addPlayer() {
+    // const playerAlreadyInGame = this.players.find(
+    //   (p) => p.id === socket.id,
+    // );
+    // if (playerAlreadyInGame) {
+    //   throw new Error("join_game/already_in_game");
+    // }
+
+    const newPlayer = new Player(this.assignColor());
+    this.players.push(newPlayer);
+    if (this.players.length > 4) this.joinable = false;
 
     return {
       playerID: newPlayer.id,
@@ -80,17 +88,19 @@ class Game {
   }
 
   emitPlayers() {
-    const _players: PlayerEmit[] = [];
-    for (const player of this.players) {
-      _players.push({
-        playerID: player.id,
-        color: player.color,
-        nickname: player.nickname,
-        remainingTracks: player.remainingTracks,
-        haveChosenTickets: player.haveChosenTickets,
-      });
+    if (this.gameRoomSocket) {
+      const _players: PlayerEmit[] = [];
+      for (const player of this.players) {
+        _players.push({
+          playerID: player.id,
+          color: player.color,
+          nickname: player.nickname,
+          remainingTracks: player.remainingTracks,
+          haveChosenTickets: player.haveChosenTickets,
+        });
+      }
+      this.gameRoomSocket.emit("players", _players);
     }
-    this.gameRoomSocket.emit("players", _players);
   }
 
   assignColor(): PlayerColor {
@@ -129,8 +139,8 @@ class Game {
     }
   }
 
-  async setupGame(socket: Socket) {
-    if (socket.id !== this.creator.socket.id) {
+  private async setupGame(socket: Socket) {
+    if (socket.id !== this.creator.socket?.id) {
       socket.emit("setup_game", {
         success: false,
         message: "Unauthorized: Only the creator of a game can start",
@@ -157,91 +167,106 @@ class Game {
 
     // Loop over all players
     for (const player of this.players) {
-      // Loop 4 times (because we will deal 4 tickets and 4 track cards)
-      for (let step = 0; step < 4; ++step) {
-        // In the first iteration, a long ticket will be dealt
-        if (step == 0) {
-          this.dealTicket(player, this.availableLongTickets);
-        } else {
-          this.dealTicket(player, this.availableShortTickets);
+      // Check if player is connected
+      if (player.socket) {
+        // Loop 4 times (because we will deal 4 tickets and 4 track cards)
+        for (let step = 0; step < 4; ++step) {
+          // In the first iteration, a long ticket will be dealt
+          if (step == 0) {
+            this.dealTicket(player, this.availableLongTickets);
+          } else {
+            this.dealTicket(player, this.availableShortTickets);
+          }
+
+          // For each iteration deal a random track card to the player
+          this.dealTrackCard(player);
         }
 
-        // For each iteration deal a random track card to the player
-        this.dealTrackCard(player);
+        player.socket.emit("tickets", player.tickets);
+        player.socket.emit("track_cards", player.trackCards);
       }
-
-      player.socket.emit("tickets", player.tickets);
-      player.socket.emit("track_cards", player.trackCards);
     }
   }
 
-  pickInitialTickets(socket: Socket, chosenTickets: Ticket[]) {
-    const player = this.players.find((p) => p.socket.id === socket.id);
+  private pickInitialTickets(socket: Socket, chosenTickets: Ticket[]) {
+    const player = this.players.find(
+      (p) => p.socket && p.socket.id === socket.id,
+    );
 
-    if (player) {
-      // Player must keep 2 tickets
-      if (chosenTickets.length < 2) {
-        socket.emit("pick_initial_tickets", {
-          success: false,
-          message: "You must keep at least two tickets",
-          code: "game/must_keep_two_tickets",
-        });
-
-        return;
-      }
-
-      //Chosen tickets must match the dealt tickets
-      const correctlyChosenTickets = chosenTickets.filter(
-        (ct) =>
-          player.tickets.filter(
-            (pt) => ct.start === pt.start && ct.end === pt.end,
-          ).length,
-      ).length;
-
-      if (!correctlyChosenTickets) {
-        socket.emit("pick_initial_tickets", {
-          success: false,
-          message: "The chosen tickets doesn't match the dealt tickets",
-          code: "game/incorrectly_chosen_tickets",
-        });
-
-        return;
-      }
-
-      player.tickets = Array.from(chosenTickets);
-      player.haveChosenTickets = true;
-      player.socket.emit("tickets", player.tickets);
-
-      // If all players have chosen tickets => start game
-      if (!this.players.find((p) => !p.haveChosenTickets)) {
-        this.gameStarted = true;
-
-        // Send five open track cards to all players
-        this.openTrackCards = Array.from(this.trackCards.splice(0, 5));
-        this.gameRoomSocket.emit("open_track_cards", this.openTrackCards);
-      }
-    } else {
+    if (!player) {
       socket.emit("pick_initial_tickets", {
         success: false,
         message: "Player not found in the game",
         code: "game/player_not_found",
       });
+      return;
+    }
+
+    if (!player.socket) {
+      socket.emit("pick_initial_tickets", {
+        success: false,
+        message: "Player inactive",
+        code: "game/player_inactive",
+      });
+      return;
+    }
+
+    // Player must keep 2 tickets
+    if (chosenTickets.length < 2) {
+      socket.emit("pick_initial_tickets", {
+        success: false,
+        message: "You must keep at least two tickets",
+        code: "game/must_keep_two_tickets",
+      });
+
+      return;
+    }
+
+    //Chosen tickets must match the dealt tickets
+    const correctlyChosenTickets = chosenTickets.filter(
+      (ct) =>
+        player.tickets.filter(
+          (pt) => ct.start === pt.start && ct.end === pt.end,
+        ).length,
+    ).length;
+
+    if (!correctlyChosenTickets) {
+      socket.emit("pick_initial_tickets", {
+        success: false,
+        message: "The chosen tickets doesn't match the dealt tickets",
+        code: "game/incorrectly_chosen_tickets",
+      });
+
+      return;
+    }
+
+    player.tickets = Array.from(chosenTickets);
+    player.haveChosenTickets = true;
+    player.socket.emit("tickets", player.tickets);
+
+    // If all players have chosen tickets => start game
+    if (!this.players.find((p) => !p.haveChosenTickets)) {
+      this.gameStarted = true;
+
+      // Send five open track cards to all players
+      this.openTrackCards = Array.from(this.trackCards.splice(0, 5));
+      this.gameRoomSocket?.emit("open_track_cards", this.openTrackCards);
     }
   }
 
   gameEvents(socket: Socket) {
-    // if (Object.keys(socket.rooms).includes(this.gameToken)) {
     socket.on("setup_game", () => this.setupGame(socket));
     socket.on("pick_initial_tickets", (data: Ticket[]) =>
       this.pickInitialTickets(socket, data),
     );
-    // }
+
+    socket.emit("add_socket", "You are now connected to the game");
   }
 }
 
 class Player {
   id: string;
-  socket: Socket;
+  socket?: Socket;
   color: PlayerColor;
   nickname: string;
   tickets: Ticket[];
@@ -249,9 +274,9 @@ class Player {
   remainingTracks: number;
   haveChosenTickets: boolean;
 
-  constructor(_socket: Socket, _color: PlayerColor) {
+  constructor(_color: PlayerColor) {
     this.id = uniqid("player#");
-    this.socket = _socket;
+    // this.socket = _socket;
     this.tickets = [];
     this.trackCards = cloneDeep(initialPlayerTrackCards);
     this.color = _color;
@@ -260,6 +285,10 @@ class Player {
     this.haveChosenTickets = false;
 
     this.socketListeners();
+  }
+
+  setSocket(_socket: Socket) {
+    this.socket = _socket;
   }
 
   setNickname(newNickname: string): void {
@@ -275,9 +304,11 @@ class Player {
   }
 
   socketListeners() {
-    this.socket.on("set_nickname", (newNickname: string) =>
-      this.setNickname(newNickname),
-    );
+    if (this.socket) {
+      this.socket.on("set_nickname", (newNickname: string) =>
+        this.setNickname(newNickname),
+      );
+    }
   }
 }
 

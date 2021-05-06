@@ -1,17 +1,14 @@
-import React, { createContext, FC } from "react";
-import socketIOClient, { Socket } from "socket.io-client";
+import React, { FC } from "react";
 import StoreWithProvider from "./redux/store";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
+import { SnackbarProvider } from "notistack";
 
 import "./index.css";
 
 import Home from "./routes/Home";
-import GameLounge from "./routes/GameLounge";
-import useSocketListeners from "hooks/useSocketListeners";
+import GameRoute from "./routes/Game";
 /*=====================================*/
-
-const ENDPOINT = "http://localhost:3001";
 
 const theme = createMuiTheme({
   shape: {
@@ -77,23 +74,19 @@ const theme = createMuiTheme({
   },
 });
 
-export const socketContext = createContext<Socket | null>(null);
-
 const App: FC = () => {
-  // useSocketListeners(); // TODO: Move this to "/game"
-
   return (
     <StoreWithProvider>
-      <socketContext.Provider value={socketIOClient(ENDPOINT)}>
+      <SnackbarProvider maxSnack={3}>
         <Router>
           <ThemeProvider theme={theme}>
             <Switch>
-              <Route path={`/`} exact render={() => <Home />} />
-              <Route path={`/gamelounge`} exact render={() => <GameLounge />} />
+              <Route path={"/"} exact render={() => <Home />} />
+              <Route path={"/game"} exact render={() => <GameRoute />} />
             </Switch>
           </ThemeProvider>
         </Router>
-      </socketContext.Provider>
+      </SnackbarProvider>
     </StoreWithProvider>
   );
 };

@@ -1,7 +1,7 @@
-import React, { useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
 
-import { socketContext } from "App";
+import { socketContext } from "../context/socket";
 
 const useSocketListeners = () => {
   const socket = useContext(socketContext);

@@ -9,6 +9,11 @@ type CreateJoinSocketPayload = {
   player: PlayerEmit;
 };
 
+export type AddSocketEmit = {
+  gameToken: string;
+  playerId: string;
+};
+
 type PlayerEmit = {
   playerID: string;
   color: PlayerColor;
@@ -18,8 +23,7 @@ type PlayerEmit = {
 };
 
 export type SocketEvent =
-  | "create_game"
-  | "join_game"
+  | "add_socket"
   | "pick_initial_tickets"
   | "open_track_cards"
   | "tickets"

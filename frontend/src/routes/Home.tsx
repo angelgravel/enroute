@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   Button,
   Typography,
@@ -14,17 +14,18 @@ import {
 import styled from "styled-components";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import { useHistory } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useSnackbar } from "notistack";
 import { useDispatch } from "react-redux";
+
 import { setInitGame } from "../redux/game";
+import useAxios from "../hooks/useAxios";
 
 import logo from "../assets/location.gif";
-import { socketContext } from "../App";
 
 /*=============== Types ===============*/
 import {
   SocketResponse,
-  SocketEvent,
+  PlayerEmit,
   CreateJoinSocketPayload,
 } from "@typeDef/index";
 /*=====================================*/
@@ -41,99 +42,93 @@ const Container = styled.div`
 `;
 
 const Home: FC = () => {
+  const { enqueueSnackbar } = useSnackbar();
   const history = useHistory();
+  const axios = useAxios();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [gameToken, setGameToken] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const socket = useContext(socketContext);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (socket) {
-      // Created game
-      socket.on("create_game", createGameListener);
-
-      // Joined game
-      socket.on("join_game", joinGameListener);
+    if (error) {
+      enqueueSnackbar(error, { variant: "error" });
+      setError("");
     }
-  }, []);
+  }, [error]);
 
-  const createGameListener = (
-    data: SocketResponse<CreateJoinSocketPayload>,
-  ) => {
-    if (data.success) {
+  const handleCreateGame = async () => {
+    try {
+      const resp = await axios.post<SocketResponse<CreateJoinSocketPayload>>(
+        "/game",
+      );
       dispatch(
         setInitGame({
-          gameToken: data.payload.gameToken,
-          playerId: data.payload.player.playerID,
-          color: data.payload.player.color,
-          nickname: data.payload.player.nickname,
+          gameToken: resp.data.payload.gameToken,
+          playerId: resp.data.payload.player.playerID,
+          color: resp.data.payload.player.color,
+          nickname: resp.data.payload.player.nickname,
         }),
       );
-      history.push("/gamelounge");
-    } else {
-      switch (data.message) {
-        case "create_game/not_created":
-          setError("Could not create game");
-          console.log(error);
-          break;
-        default:
-          break;
-      }
+      history.push("/game");
+    } catch (err) {
+      setError("Could not create game");
+      // TODO: Fix error handling
+      // switch (err.code) { DOES NOT WORK
+      //   case "create_game/not_created":
+      //     console.log(err.message);
+      //     break;
+      //   default:
+      //     break;
+      // }
     }
-  };
-
-  const joinGameListener = (data: SocketResponse<CreateJoinSocketPayload>) => {
-    if (data.success) {
-      history.push("/gamelounge");
-      dispatch(
-        setInitGame({
-          gameToken: data.payload.gameToken,
-          playerId: data.payload.player.playerID,
-          color: data.payload.player.color,
-          nickname: data.payload.player.nickname,
-        }),
-      );
-    } else {
-      switch (data.message) {
-        case "join_game/not_joined":
-          setError("Could not join game");
-          console.log(error);
-          break;
-        default:
-          break;
-      }
-    }
-  };
-
-  const socketEmit = (event: SocketEvent, message?: string) => {
-    socket?.emit(event, message);
-  };
-
-  const handleCreateGame = () => {
-    socketEmit("create_game");
   };
 
   //TODO: Add functionality to join a game (check if game code exits and if there is enough room)
-  const handleJoinGame = () => {
-    socketEmit("join_game", gameToken);
-    console.log("enter game with code: ", gameToken);
+  const handleJoinGame = async () => {
+    try {
+      const resp = await axios.patch<SocketResponse<CreateJoinSocketPayload>>(
+        "/game",
+        { gameToken },
+      );
+      dispatch(
+        setInitGame({
+          gameToken: resp.data.payload.gameToken,
+          playerId: resp.data.payload.player.playerID,
+          color: resp.data.payload.player.color,
+          nickname: resp.data.payload.player.nickname,
+        }),
+      );
+      history.push("/game");
+    } catch (err) {
+      setError("Could not join game");
+      // TODO: Fix error handling
+      // switch (err.code) { DOES NOT WORK
+      //   case "join_game/not_joined":
+      //     setError("Could not join game");
+      //     console.log(err.message);
+      //     break;
+      //   case "join_game/not_found":
+      //     setError("Could not find the game");
+      //     break;
+      //   default:
+      //     break;
+      // }
+    }
   };
 
   return (
     <Container>
       <img src={logo} alt="logo" />
       <Typography variant="h2">EN ROUTE</Typography>
-      <Link to="/gamelounge" style={{ textDecoration: "none" }}>
-        <Button variant="contained" color="primary" onClick={handleCreateGame}>
-          <Typography
-            variant="h6"
-            style={{ filter: "drop-shadow(0 0 5px rgba(50, 50, 50, 0.3))" }}
-          >
-            Create game
-          </Typography>
-        </Button>
-      </Link>
+      <Button variant="contained" color="primary" onClick={handleCreateGame}>
+        <Typography
+          variant="h6"
+          style={{ filter: "drop-shadow(0 0 5px rgba(50, 50, 50, 0.3))" }}
+        >
+          Create game
+        </Typography>
+      </Button>
       <Button
         variant="contained"
         color="secondary"
