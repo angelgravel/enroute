@@ -100,3 +100,7 @@ export type City =
   | "frankfurt"
   | "berlin"
   | "bremen";
+
+type GameRoutes = {
+  [routeId in keyof typeof initialRoutes]: PlayerColor | null;
+};
