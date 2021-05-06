@@ -2,7 +2,7 @@ import React, { FC, forwardRef } from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 
-import { colorToHex } from "utils/constants";
+import { colorToHex } from "../../../utils/constants";
 import tracksInfo, { TrackInfo } from "./tracksInfo";
 
 const TrackRect = styled(motion.rect)`
