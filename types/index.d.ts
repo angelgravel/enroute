@@ -38,6 +38,8 @@ export type PlayerTrackCards = {
   [color in TrackColor]: PlayerTrackCard;
 };
 
+export type PlayerAction = "none" | "built_route" | "picked_track_card";
+
 export type Ticket = {
   start: City;
   end: City;

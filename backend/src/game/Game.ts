@@ -6,6 +6,7 @@ import {
   GameRoutes,
   RouteColor,
   Routes,
+  PlayerAction,
 } from "@typeDef/index";
 import { BroadcastOperator, Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
@@ -21,7 +22,7 @@ import { PlayerColor } from "../../../types/index";
 import { initialShortTickets, initialLongTickets } from "./initialTickets";
 import { shuffleArray } from "../utils/helpers";
 import initialRoutes from "./initialRoutes";
-import { SocketError } from "utils/SocketError";
+import { SocketError } from "../utils/SocketError";
 
 class Game {
   gameToken: string;
@@ -136,6 +137,21 @@ class Game {
     }
   }
 
+  pickTrackCard() {
+    if (!this.trackCards.length) {
+      this.trackCards = shuffleArray(this.discardedTrackCards);
+      this.discardedTrackCards = [];
+    }
+
+    const pickedTrackCard = this.trackCards.shift();
+
+    if (pickedTrackCard) {
+      return pickedTrackCard;
+    } else {
+      throw new Error("game/no-available-track-cards");
+    }
+  }
+
   async setupGame(socket: Socket) {
     if (socket.id !== this.creator.socket.id) {
       socket.emit("setup_game", {
@@ -225,7 +241,8 @@ class Game {
         this.gameStarted = true;
 
         // Send five open track cards to all players
-        this.openTrackCards = Array.from(this.trackCards.splice(0, 5));
+        // this.openTrackCards = Array.from(this.trackCards.splice(0, 5));
+        this.openTrackCards = ["blue", "green", "bridge", "yellow", "bridge"];
         this.gameRoomSocket.emit("open_track_cards", this.openTrackCards);
       }
     } else {
@@ -339,6 +356,108 @@ class Game {
     }
   }
 
+  pickCardFromOpenTracksCards(socket: Socket, pickedTrackCard: TrackColor) {
+    const player = this.players.find((p) => p.socket.id === socket.id);
+    try {
+      if (!player) {
+        throw new SocketError(
+          "Player not found in the game",
+          "game/player_not_found",
+        );
+      }
+      //TODO: Check so its this players turn
+      //Does the pickedTrackCard exist in openTrackCards
+      if (!this.openTrackCards.includes(pickedTrackCard)) {
+        throw new SocketError(
+          "The picked track card does not exist in the openTrackCards array",
+          "game/openTrackCard_not_found",
+        );
+      }
+      //If the player built a route on the same turn its the next players turn
+      if (player.previousAction === "built_route") {
+        // TODO: Next players turn
+        throw new SocketError(
+          "No more actions left after built route.",
+          "game/no_actions_left",
+        );
+      }
+      // If
+      if (
+        player.previousAction === "picked_track_card" &&
+        pickedTrackCard === "bridge"
+      ) {
+        // TODO: Next players turn
+        throw new SocketError(
+          "You can not pick up a Bridge card on this move",
+          "game/not_able_to_pick_up_bridge",
+        );
+      }
+      /******* Update openTrackCards ******/
+      let index = this.openTrackCards.indexOf(pickedTrackCard);
+      this.openTrackCards.splice(index, 1);
+      let newTrackCard = this.pickTrackCard();
+      this.openTrackCards.push(newTrackCard);
+      /******* Update players previousAction state ******/
+      if (player.previousAction === "none") {
+        if (pickedTrackCard === "bridge") {
+          player.previousAction = "none";
+          // TODO: Next players turn
+        } else {
+          player.previousAction = "picked_track_card";
+        }
+      }
+      /******* Update players trackCards ******/
+      player.trackCards[pickedTrackCard].amount =
+        player.trackCards[pickedTrackCard].amount + 1;
+      player.socket.emit("track_cards", {
+        success: true,
+        message: `Player ${player.nickname} picked up a card from open track cards`,
+        payload: player.trackCards,
+      });
+    } catch (error) {
+      socket.emit("pick_card_from_openTrackCards", {
+        success: false,
+        message: error.message,
+        code: error.code,
+      });
+    }
+  }
+  pickCardFromTracksCards(socket: Socket) {
+    const player = this.players.find((p) => p.socket.id === socket.id);
+    try {
+      if (!player) {
+        throw new SocketError(
+          "Player not found in the game",
+          "game/player_not_found",
+        );
+      }
+      //TODO: Check so its this players turn
+
+      /******* Update players previousAction state ******/
+      if (player.previousAction === "none") {
+        player.previousAction = "picked_track_card";
+      } else {
+        player.previousAction = "none";
+        //TODO: New players turn
+      }
+      /******* Update players trackCards ******/
+      let newTrackCard = this.pickTrackCard();
+      player.trackCards[newTrackCard].amount =
+        player.trackCards[newTrackCard].amount + 1;
+      player.socket.emit("track_cards", {
+        success: true,
+        message: `The ${player.nickname} picked up a card`,
+        payload: player.trackCards,
+      });
+    } catch (error) {
+      socket.emit("pick_card_from_TrackCards", {
+        success: false,
+        message: error.message,
+        code: error.code,
+      });
+    }
+  }
+
   gameEvents(socket: Socket) {
     // if (Object.keys(socket.rooms).includes(this.gameToken)) {
     socket.on("setup_game", () => this.setupGame(socket));
@@ -347,6 +466,12 @@ class Game {
     );
     socket.on("build_route", (route: Routes, data: TrackColor[]) =>
       this.buildRoute(socket, route, data),
+    );
+    socket.on("pick_card_from_openTrackCards", (data: TrackColor) =>
+      this.pickCardFromOpenTracksCards(socket, data),
+    );
+    socket.on("pick_card_from_TrackCards", () =>
+      this.pickCardFromTracksCards(socket),
     );
     // }
   }
@@ -361,6 +486,7 @@ class Player {
   trackCards: PlayerTrackCards;
   remainingTracks: number;
   haveChosenTickets: boolean;
+  previousAction: PlayerAction;
 
   constructor(_socket: Socket, _color: PlayerColor) {
     this.id = uniqid("player#");
@@ -371,6 +497,7 @@ class Player {
     this.nickname = `${_color[0].toUpperCase()}${_color.substring(1)}`;
     this.remainingTracks = 45;
     this.haveChosenTickets = false;
+    this.previousAction = "none";
 
     this.socketListeners();
   }
