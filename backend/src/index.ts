@@ -1,26 +1,22 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
 
-// import wasmModule from "./initAsc";
-
-/*========== IMPORT MIDDLEWARE ==========*/
-import tokenValidatorMiddleware from "./middleware/tokenValidator";
-/*=======================================*/
-
 /*============ IMPORT ROUTES ============*/
-import { getGameToken } from "./routes/token";
 import Game from "./game/Game";
 /*=======================================*/
 
 /*============ IMPORT TYPES ============*/
 import {
+  AddSocketEmit,
+  AddSocketPayload,
   CreateJoinSocketPayload,
-  PlayerEmit,
+  PlayerClient,
   SocketResponse,
 } from "@typeDef/index";
+import { createGame, joinGame } from "./routes/game";
 /*=======================================*/
 
 dotenv.config();
@@ -32,14 +28,31 @@ dotenv.config();
 const URL = process.env.NODE_ENV === "production" ? "REPLACE_ME" : "localhost";
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    methods: "*",
+  }),
+);
+app.use(express.json());
 
-/*=============== ROUTES ===============*/
+export type Games = {
+  [gameToken: string]: Game;
+};
+let games: Games = {};
 
-app.get("/token", tokenValidatorMiddleware, getGameToken);
-// app.post("/game", createGame);
+/*=========================== ROUTES =========================*/
 
-/*======================================*/
+// app.get("/token", tokenValidatorMiddleware, getGameToken);
+// app.get("/count_games", (req: Request, res: Response) => {
+//   res.send(Object.keys(games).length);
+// });
+/********************** Create Game **********************/
+app.post("/game", (req: Request, res: Response) => createGame(req, res, games));
+app.patch("/game", (req: Request, res: Response) => joinGame(req, res, games));
+/*********************************************************/
+
+/*============================================================*/
 
 const server = createServer(app);
 
@@ -50,77 +63,26 @@ const io = new Server(server, {
   },
 });
 
-type Games = {
-  [gameToken: string]: Game;
-};
-let games: Games = {};
-
 // socket = a client/person
 io.on("connection", (socket) => {
   console.log("from index: ", socket.id);
-  /********************** Create Game **********************/
-  socket.on("create_game", () => {
-    const newGame = new Game(socket, io);
-    games[newGame.gameToken] = newGame;
+  /********************** Add Socket ***********************/
+  socket.on("add_socket", (data: AddSocketEmit) => {
+    const game = games[data.gameToken];
 
-    let response: Partial<SocketResponse<CreateJoinSocketPayload>> = {
-      success: false,
-    };
-
-    if (newGame.gameToken.length > 0) {
-      response = {
-        success: true,
-        message: "create_game/created",
-        payload: {
-          gameToken: newGame.gameToken,
-          player: {
-            playerID: newGame.creator.id,
-            color: newGame.creator.color,
-            nickname: newGame.creator.nickname,
-            remainingTracks: newGame.creator.remainingTracks,
-            haveChosenTickets: newGame.creator.haveChosenTickets,
-          },
-        },
+    if (!game) {
+      const response: SocketResponse<AddSocketPayload> = {
+        success: false,
+        message: "add_socket/not_added",
+        payload: "Could not add socket",
       };
-
-      socket.join(newGame.gameToken);
-    } else {
-      response.message = "create_game/not_created";
+      socket.emit("add_socket", response);
+      return;
     }
 
-    socket.emit("create_game", response);
+    game.addSocket(socket, io, data.playerId);
   });
-
-  /********************** Join Game **********************/
-  socket.on("join_game", (gameToken: string) => {
-    let response: Partial<SocketResponse<CreateJoinSocketPayload>> = {
-      success: false,
-    };
-
-    try {
-      if (games[gameToken]?.joinable) {
-        const player = games[gameToken].addPlayer(socket);
-        response = {
-          success: true,
-          message: "join_game/joined",
-          payload: {
-            gameToken: gameToken,
-            player: player,
-          },
-        };
-
-        // Join game room
-        socket.join(gameToken);
-        socket.emit("join_game", response);
-      } else {
-        response.message = "join_game/not_joined";
-        socket.emit("join_game", response);
-      }
-    } catch (err) {
-      response.message = err.message;
-      socket.emit("join_game", response);
-    }
-  });
+  /*********************************************************/
 });
 
 server.listen(process.env.API_PORT, () => {

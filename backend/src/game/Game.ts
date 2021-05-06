@@ -2,11 +2,13 @@ import {
   Ticket,
   PlayerTrackCards,
   TrackColor,
-  PlayerEmit,
   GameRoutes,
   RouteColor,
-  Routes,
+  Route,
   PlayerAction,
+  PlayerClient,
+  SocketResponse,
+  AddSocketPayload,
 } from "@typeDef/index";
 import { BroadcastOperator, Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
@@ -27,7 +29,7 @@ import { SocketError } from "../utils/SocketError";
 class Game {
   gameToken: string;
   creator: Player;
-  gameRoomSocket: BroadcastOperator<DefaultEventsMap>;
+  gameRoomSocket: BroadcastOperator<DefaultEventsMap> | undefined;
   joinable: boolean;
   gameStarted: boolean;
 
@@ -39,11 +41,10 @@ class Game {
   availableLongTickets: Ticket[];
   routes: GameRoutes;
 
-  constructor(creatorSocket: Socket, io: Server) {
+  constructor() {
     this.gameToken = uniqid("game#");
-    this.gameRoomSocket = io.to(this.gameToken);
+    this.gameRoomSocket = undefined;
     this.creator = new Player(
-      creatorSocket,
       playerColors[Math.floor(Math.random() * (playerColors.length - 1))],
     );
     this.joinable = true;
@@ -58,28 +59,39 @@ class Game {
 
     this.availableShortTickets = shuffleArray(initialShortTickets);
     this.availableLongTickets = shuffleArray(initialLongTickets);
-
-    this.gameEvents(creatorSocket);
   }
 
-  addPlayer(socket: Socket) {
-    const playerAlreadyInGame = this.players.find(
-      (p) => p.socket.id === socket.id,
-    );
-    if (playerAlreadyInGame) {
-      throw new Error("join_game/already_in_game");
+  addSocket(_socket: Socket, _io: Server, playerId: string) {
+    if (playerId == this.creator.id) {
+      this.gameRoomSocket = _io.to(this.gameToken);
     }
 
-    const newPlayer = new Player(socket, this.assignColor());
-    this.players.push(newPlayer);
-    socket.join(this.gameToken);
-    this.gameEvents(socket);
-    if (this.players.length > 4) this.joinable = false;
+    const playerIdx = this.players.findIndex(
+      (_player) => _player.id === playerId,
+    );
+    if (playerIdx !== -1) {
+      _socket.join(this.gameToken);
+      this.players[playerIdx].setSocket(_socket);
+      this.gameEvents(_socket);
+    }
 
     this.emitPlayers();
+  }
+
+  addPlayer() {
+    // const playerAlreadyInGame = this.players.find(
+    //   (p) => p.id === socket.id,
+    // );
+    // if (playerAlreadyInGame) {
+    //   throw new Error("join_game/already_in_game");
+    // }
+
+    const newPlayer = new Player(this.assignColor());
+    this.players.push(newPlayer);
+    if (this.players.length > 4) this.joinable = false;
 
     return {
-      playerID: newPlayer.id,
+      playerId: newPlayer.id,
       color: newPlayer.color,
       nickname: newPlayer.nickname,
       remainingTracks: newPlayer.remainingTracks,
@@ -88,17 +100,19 @@ class Game {
   }
 
   emitPlayers() {
-    const _players: PlayerEmit[] = [];
-    for (const player of this.players) {
-      _players.push({
-        playerID: player.id,
-        color: player.color,
-        nickname: player.nickname,
-        remainingTracks: player.remainingTracks,
-        haveChosenTickets: player.haveChosenTickets,
-      });
+    if (this.gameRoomSocket) {
+      const _players: PlayerClient[] = [];
+      for (const player of this.players) {
+        _players.push({
+          playerId: player.id,
+          color: player.color,
+          nickname: player.nickname,
+          remainingTracks: player.remainingTracks,
+          haveChosenTickets: player.haveChosenTickets,
+        });
+      }
+      this.gameRoomSocket.emit("players", _players);
     }
-    this.gameRoomSocket.emit("players", _players);
   }
 
   assignColor(): PlayerColor {
@@ -108,7 +122,7 @@ class Game {
     );
 
     if (!availableColors.length) {
-      throw new Error("game/all_colors_taken");
+      throw new SocketError("All colors are taken", "game/all_colors_taken");
     }
     return availableColors[0];
   }
@@ -118,7 +132,10 @@ class Game {
     if (pickedTicket) {
       player.addTicket(pickedTicket);
     } else {
-      throw new Error("game/no-available-tickets");
+      throw new SocketError(
+        "No available tickets",
+        "game/no-available-tickets",
+      );
     }
   }
 
@@ -133,7 +150,10 @@ class Game {
     if (pickedTrackCard) {
       player.addTrackCard(pickedTrackCard);
     } else {
-      throw new Error("game/no-available-track-cards");
+      throw new SocketError(
+        "No available track cards",
+        "game/no-available-track-cards",
+      );
     }
   }
 
@@ -148,70 +168,88 @@ class Game {
     if (pickedTrackCard) {
       return pickedTrackCard;
     } else {
-      throw new Error("game/no-available-track-cards");
+      throw new SocketError(
+        "No available track cards",
+        "game/no-available-track-cards",
+      );
     }
   }
 
-  async setupGame(socket: Socket) {
-    if (socket.id !== this.creator.socket.id) {
-      socket.emit("setup_game", {
-        success: false,
-        message: "Unauthorized: Only the creator of a game can start",
-        code: "unauthorized/creator_only",
-      });
-
-      return;
-    }
-
-    if (this.players.length < 2) {
-      socket.emit("setup_game", {
-        success: false,
-        message: "There are not enough players to start the game",
-        code: "game/not_enough_players",
-      });
-
-      return;
-    }
-
-    this.joinable = false;
-
-    // The code below is to deal 4 random track cards and
-    // 4 tickets (including 1 long ticket)
-
-    // Loop over all players
-    for (const player of this.players) {
-      // Loop 4 times (because we will deal 4 tickets and 4 track cards)
-      for (let step = 0; step < 4; ++step) {
-        // In the first iteration, a long ticket will be dealt
-        if (step == 0) {
-          this.dealTicket(player, this.availableLongTickets);
-        } else {
-          this.dealTicket(player, this.availableShortTickets);
-        }
-
-        // For each iteration deal a random track card to the player
-        this.dealTrackCard(player);
+  private async setupGame(socket: Socket) {
+    try {
+      if (socket.id !== this.creator.socket?.id) {
+        throw new SocketError(
+          "Unauthorized: Only the creator of a game can start",
+          "unauthorized/creator_only",
+        );
       }
 
-      player.socket.emit("tickets", player.tickets);
-      player.socket.emit("track_cards", player.trackCards);
+      if (this.players.length < 2) {
+        throw new SocketError(
+          "There are not enough players to start the game",
+          "game/not_enough_players",
+        );
+      }
+
+      this.joinable = false;
+
+      // The code below is to deal 4 random track cards and
+      // 4 tickets (including 1 long ticket)
+
+      // Loop over all players
+      for (const player of this.players) {
+        // Check if player is connected
+        if (player.socket) {
+          // Loop 4 times (because we will deal 4 tickets and 4 track cards)
+          for (let step = 0; step < 4; ++step) {
+            // In the first iteration, a long ticket will be dealt
+            if (step == 0) {
+              this.dealTicket(player, this.availableLongTickets);
+            } else {
+              this.dealTicket(player, this.availableShortTickets);
+            }
+
+            // For each iteration deal a random track card to the player
+            this.dealTrackCard(player);
+          }
+
+          player.socket.emit("tickets", player.tickets);
+          player.socket.emit("track_cards", player.trackCards);
+        }
+      }
+      this.gameRoomSocket?.emit("routes", this.routes);
+    } catch (error) {
+      socket.emit("setup_game", {
+        success: false,
+        message: error.message,
+        code: error.code,
+      });
     }
-    this.gameRoomSocket.emit("routes", this.routes);
   }
 
-  pickInitialTickets(socket: Socket, chosenTickets: Ticket[]) {
-    const player = this.players.find((p) => p.socket.id === socket.id);
+  private pickInitialTickets(socket: Socket, chosenTickets: Ticket[]) {
+    try {
+      const player = this.players.find(
+        (p) => p.socket && p.socket.id === socket.id,
+      );
 
-    if (player) {
+      if (!player) {
+        throw new SocketError(
+          "Player not found in the game",
+          "game/player_not_found",
+        );
+      }
+
+      if (!player.socket) {
+        throw new SocketError("Player inactive", "game/player_inactive");
+      }
+
       // Player must keep 2 tickets
       if (chosenTickets.length < 2) {
-        socket.emit("pick_initial_tickets", {
-          success: false,
-          message: "You must keep at least two tickets",
-          code: "game/must_keep_two_tickets",
-        });
-
-        return;
+        throw new SocketError(
+          "You must keep at least two tickets",
+          "game/must_keep_two_tickets",
+        );
       }
 
       //Chosen tickets must match the dealt tickets
@@ -223,13 +261,10 @@ class Game {
       ).length;
 
       if (!correctlyChosenTickets) {
-        socket.emit("pick_initial_tickets", {
-          success: false,
-          message: "The chosen tickets doesn't match the dealt tickets",
-          code: "game/incorrectly_chosen_tickets",
-        });
-
-        return;
+        throw new SocketError(
+          "The chosen tickets doesn't match the dealt tickets",
+          "game/incorrectly_chosen_tickets",
+        );
       }
 
       player.tickets = Array.from(chosenTickets);
@@ -241,21 +276,26 @@ class Game {
         this.gameStarted = true;
 
         // Send five open track cards to all players
-        // this.openTrackCards = Array.from(this.trackCards.splice(0, 5));
-        this.openTrackCards = ["blue", "green", "bridge", "yellow", "bridge"];
-        this.gameRoomSocket.emit("open_track_cards", this.openTrackCards);
+        this.openTrackCards = Array.from(this.trackCards.splice(0, 5));
+        this.gameRoomSocket?.emit("open_track_cards", this.openTrackCards);
       }
-    } else {
+    } catch (error) {
       socket.emit("pick_initial_tickets", {
         success: false,
-        message: "Player not found in the game",
-        code: "game/player_not_found",
+        message: error.message,
+        code: error.code,
       });
     }
   }
 
-  buildRoute(socket: Socket, route: Routes, chosenTrackCards: TrackColor[]) {
-    const player = this.players.find((p) => p.socket.id === socket.id);
+  private buildRoute(
+    socket: Socket,
+    route: Route,
+    chosenTrackCards: TrackColor[],
+  ) {
+    const player = this.players.find(
+      (p) => p.socket && p.socket.id === socket.id,
+    );
     //Separate potential bridge cards and track cards of other colors.
     const chosenBridgeCards = chosenTrackCards.filter(
       (card) => card === "bridge",
@@ -303,7 +343,7 @@ class Game {
         this.routes[route].bridges > player.trackCards.bridge.amount &&
         chosenBridgeCards.length < player.trackCards.bridge.amount
       ) {
-        player.socket.emit("track_cards", {
+        socket.emit("track_cards", {
           success: true,
           message: `The amount of bridge cards are incorrect. The ${player.nickname}s track cards are updated`,
           payload: player.trackCards,
@@ -336,12 +376,12 @@ class Game {
       //Add played cards to discardedTrackCards
       this.discardedTrackCards.push(...chosenTrackCards);
 
-      this.gameRoomSocket.emit("routes", {
+      this.gameRoomSocket?.emit("routes", {
         success: true,
         message: `The route ${route} was build by ${player.nickname}`,
         payload: this.routes,
       });
-      player.socket.emit("track_cards", {
+      socket.emit("track_cards", {
         success: true,
         message: `The ${player.nickname}s track cards are updated`,
         payload: player.trackCards,
@@ -356,8 +396,13 @@ class Game {
     }
   }
 
-  pickCardFromOpenTracksCards(socket: Socket, pickedTrackCard: TrackColor) {
-    const player = this.players.find((p) => p.socket.id === socket.id);
+  private pickCardFromOpenTracksCards(
+    socket: Socket,
+    pickedTrackCard: TrackColor,
+  ) {
+    const player = this.players.find(
+      (p) => p.socket && p.socket.id === socket.id,
+    );
     try {
       if (!player) {
         throw new SocketError(
@@ -409,7 +454,7 @@ class Game {
       /******* Update players trackCards ******/
       player.trackCards[pickedTrackCard].amount =
         player.trackCards[pickedTrackCard].amount + 1;
-      player.socket.emit("track_cards", {
+      socket.emit("track_cards", {
         success: true,
         message: `Player ${player.nickname} picked up a card from open track cards`,
         payload: player.trackCards,
@@ -422,8 +467,11 @@ class Game {
       });
     }
   }
-  pickCardFromTracksCards(socket: Socket) {
-    const player = this.players.find((p) => p.socket.id === socket.id);
+
+  private pickCardFromTracksCards(socket: Socket) {
+    const player = this.players.find(
+      (p) => p.socket && p.socket.id === socket.id,
+    );
     try {
       if (!player) {
         throw new SocketError(
@@ -444,7 +492,8 @@ class Game {
       let newTrackCard = this.pickTrackCard();
       player.trackCards[newTrackCard].amount =
         player.trackCards[newTrackCard].amount + 1;
-      player.socket.emit("track_cards", {
+
+      socket.emit("track_cards", {
         success: true,
         message: `The ${player.nickname} picked up a card`,
         payload: player.trackCards,
@@ -459,12 +508,11 @@ class Game {
   }
 
   gameEvents(socket: Socket) {
-    // if (Object.keys(socket.rooms).includes(this.gameToken)) {
     socket.on("setup_game", () => this.setupGame(socket));
     socket.on("pick_initial_tickets", (data: Ticket[]) =>
       this.pickInitialTickets(socket, data),
     );
-    socket.on("build_route", (route: Routes, data: TrackColor[]) =>
+    socket.on("build_route", (route: Route, data: TrackColor[]) =>
       this.buildRoute(socket, route, data),
     );
     socket.on("pick_card_from_openTrackCards", (data: TrackColor) =>
@@ -473,13 +521,19 @@ class Game {
     socket.on("pick_card_from_TrackCards", () =>
       this.pickCardFromTracksCards(socket),
     );
-    // }
+
+    const response: SocketResponse<AddSocketPayload> = {
+      success: true,
+      message: "add_socket/added",
+      payload: "You are now connected to the game",
+    };
+    socket.emit("add_socket", response);
   }
 }
 
 class Player {
   id: string;
-  socket: Socket;
+  socket?: Socket;
   color: PlayerColor;
   nickname: string;
   tickets: Ticket[];
@@ -488,9 +542,9 @@ class Player {
   haveChosenTickets: boolean;
   previousAction: PlayerAction;
 
-  constructor(_socket: Socket, _color: PlayerColor) {
+  constructor(_color: PlayerColor) {
     this.id = uniqid("player#");
-    this.socket = _socket;
+    // this.socket = _socket;
     this.tickets = [];
     this.trackCards = cloneDeep(initialPlayerTrackCards);
     this.color = _color;
@@ -500,6 +554,10 @@ class Player {
     this.previousAction = "none";
 
     this.socketListeners();
+  }
+
+  setSocket(_socket: Socket) {
+    this.socket = _socket;
   }
 
   setNickname(newNickname: string): void {
@@ -515,9 +573,11 @@ class Player {
   }
 
   socketListeners() {
-    this.socket.on("set_nickname", (newNickname: string) =>
-      this.setNickname(newNickname),
-    );
+    if (this.socket) {
+      this.socket.on("set_nickname", (newNickname: string) =>
+        this.setNickname(newNickname),
+      );
+    }
   }
 }
 

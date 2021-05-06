@@ -4,15 +4,20 @@ import PersonOutlineIcon from "@material-ui/icons/PersonOutline";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
-import { socketContext } from "../App";
-import { useDispatch } from "react-redux";
-import { setInitGame } from "../redux/game";
+import { useSnackbar } from "notistack";
 
-import logo from "../assets/location.gif";
+import logo from "../../assets/location.gif";
+
+import { RootState } from "../../redux/store";
+import { socketContext } from "../../context/socket";
 
 /*=============== Types ===============*/
-import { SocketResponse, SocketEvent } from "@typeDef/index";
+import {
+  SocketResponse,
+  SocketEvent,
+  AddSocketPayload,
+  AddSocketEmit,
+} from "@typeDef/index";
 /*=====================================*/
 
 const Container = styled.div`
@@ -25,14 +30,42 @@ const Container = styled.div`
   width: 100vw;
 `;
 
-const GameLounge: FC = () => {
-  const { players, gameToken } = useSelector((state: RootState) => state.game);
+type GameLoungeProps = {};
+const GameLounge: FC<GameLoungeProps> = ({}) => {
+  const { enqueueSnackbar } = useSnackbar();
   const socket = useContext(socketContext);
-  const dispatch = useDispatch();
+  const { players, gameToken, playerId } = useSelector(
+    (state: RootState) => state.game,
+  );
 
-  const socketEmit = (event: SocketEvent, message?: string) => {
+  const socketEmit = (event: SocketEvent, message?: any) => {
     socket?.emit(event, message);
   };
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("add_socket", (response: SocketResponse<AddSocketPayload>) => {
+        if (!response.success) {
+          console.log(response.payload);
+          return;
+        }
+      });
+    }
+
+    return () => {
+      socket.off("add_socket");
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket && playerId && gameToken) {
+      const addSocketEmit: AddSocketEmit = {
+        gameToken,
+        playerId,
+      };
+      socketEmit("add_socket", addSocketEmit);
+    }
+  }, [socket, playerId, gameToken]);
 
   const handleStartGame = () => {
     socketEmit("setup_game");
@@ -42,10 +75,21 @@ const GameLounge: FC = () => {
     if (socket) {
       // Setup game
       socket.on("setup_game", (data: SocketResponse<undefined>) => {
-        if (!data.success) console.log(data.message);
+        if (!data.success) {
+          enqueueSnackbar(data.message, {
+            variant: "error",
+            autoHideDuration: 2000,
+          });
+        }
       });
     }
+
+    return () => {
+      socket.off("setup_game");
+    };
   }, []);
+
+  // TODO: Check if game exists
 
   return (
     <Container>
@@ -62,7 +106,7 @@ const GameLounge: FC = () => {
             {players && players.length
               ? players.map((player) => {
                   return (
-                    <div style={{ display: "inline-grid" }}>
+                    <div style={{ display: "inline-grid" }} key={playerId}>
                       <PersonOutlineIcon
                         style={{
                           color: `${player.color}`,
@@ -70,7 +114,10 @@ const GameLounge: FC = () => {
                           width: "80px",
                         }}
                       />
-                      <Typography variant="body1">{player.nickname}</Typography>
+                      <Typography variant="body2">{player.nickname}</Typography>
+                      {player.playerId === playerId && (
+                        <Typography variant="body1">You</Typography>
+                      )}
                     </div>
                   );
                 })

@@ -8,11 +8,18 @@ export type SocketResponse<T> = {
 
 type CreateJoinSocketPayload = {
   gameToken: string;
-  player: PlayerEmit;
+  player: PlayerClient;
 };
 
-type PlayerEmit = {
-  playerID: string;
+export type AddSocketEmit = {
+  gameToken: string;
+  playerId: string;
+};
+
+export type AddSocketPayload = string;
+
+type PlayerClient = {
+  playerId: string;
   color: PlayerColor;
   nickname: string;
   remainingTracks: number;
@@ -20,8 +27,7 @@ type PlayerEmit = {
 };
 
 export type SocketEvent =
-  | "create_game"
-  | "join_game"
+  | "add_socket"
   | "pick_initial_tickets"
   | "open_track_cards"
   | "tickets"
@@ -76,7 +82,7 @@ export type GameRoute = {
 };
 
 export type GameRoutes = {
-  [routeId in Routes]: GameRoute;
+  [routeId in Route]: GameRoute;
 };
 
 export type PlayerColor = "black" | "blue" | "red" | "green" | "yellow";
@@ -130,7 +136,7 @@ export type City =
   | "berlin"
   | "bremen";
 
-export type Routes =
+export type Route =
   | "edin_lond_1"
   | "edin_lond_2"
   | "amst_lond_1"

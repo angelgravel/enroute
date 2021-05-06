@@ -1,5 +1,12 @@
+import {
+  GameRoutes,
+  PlayerClient,
+  PlayerTrackCards,
+  Ticket,
+} from "@typeDef/index";
 import { Dispatch } from "redux";
 import { GameState } from "../types";
+import initialRoutes from "./initialRoutes";
 
 export const gameActions = {
   SET_INIT_GAME: "setInitGame",
@@ -17,12 +24,49 @@ const initialState: GameState = {
   playerId: "",
   nickname: "",
   color: "",
-  trackCards: {},
+  trackCards: {
+    blue: {
+      color: "blue",
+      amount: 0,
+    },
+    orange: {
+      color: "orange",
+      amount: 0,
+    },
+    red: {
+      color: "red",
+      amount: 0,
+    },
+    black: {
+      color: "black",
+      amount: 0,
+    },
+    white: {
+      color: "white",
+      amount: 0,
+    },
+    green: {
+      color: "green",
+      amount: 0,
+    },
+    yellow: {
+      color: "yellow",
+      amount: 0,
+    },
+    pink: {
+      color: "pink",
+      amount: 0,
+    },
+    bridge: {
+      color: "bridge",
+      amount: 0,
+    },
+  },
   tickets: [],
   tracks: 0,
   points: 0,
   players: [],
-  routes: {},
+  routes: initialRoutes,
 };
 
 export const setInitGame = (newState: Partial<GameState>) => (
@@ -34,16 +78,14 @@ export const setInitGame = (newState: Partial<GameState>) => (
   });
 };
 
-export const setNickname = (newState: Partial<GameState>) => (
-  dispatch: Dispatch,
-) => {
+export const setNickname = (newState: string) => (dispatch: Dispatch) => {
   return dispatch({
     type: gameActions.SET_NICKNAME,
     payload: newState,
   });
 };
 
-export const setTrackCards = (newState: Partial<GameState>) => (
+export const setTrackCards = (newState: PlayerTrackCards) => (
   dispatch: Dispatch,
 ) => {
   return dispatch({
@@ -52,45 +94,37 @@ export const setTrackCards = (newState: Partial<GameState>) => (
   });
 };
 
-export const setTickets = (newState: Partial<GameState>) => (
-  dispatch: Dispatch,
-) => {
+export const setTickets = (newState: Ticket[]) => (dispatch: Dispatch) => {
   return dispatch({
     type: gameActions.SET_TICKETS,
     payload: newState,
   });
 };
 
-export const setTracks = (newState: Partial<GameState>) => (
-  dispatch: Dispatch,
-) => {
+export const setTracks = (newState: number) => (dispatch: Dispatch) => {
   return dispatch({
     type: gameActions.SET_TRACKS,
     payload: newState,
   });
 };
 
-export const setPoints = (newState: Partial<GameState>) => (
-  dispatch: Dispatch,
-) => {
+export const setPoints = (newState: number) => (dispatch: Dispatch) => {
   return dispatch({
     type: gameActions.SET_POINTS,
     payload: newState,
   });
 };
 
-export const setPlayers = (newState: Partial<GameState>) => (
+export const setPlayers = (newState: PlayerClient[]) => (
   dispatch: Dispatch,
 ) => {
   return dispatch({
-    type: gameActions.SET_TRACK_CARDS,
+    type: gameActions.SET_PLAYERS,
     payload: newState,
   });
 };
 
-export const setRoutes = (newState: Partial<GameState>) => (
-  dispatch: Dispatch,
-) => {
+export const setRoutes = (newState: GameRoutes) => (dispatch: Dispatch) => {
   return dispatch({
     type: gameActions.SET_ROUTES,
     payload: newState,
@@ -101,6 +135,7 @@ const gameReducer = (state: Partial<GameState> = initialState, action: any) => {
   switch (action.type) {
     case gameActions.SET_INIT_GAME:
       return {
+        ...state,
         gameToken: action.payload.gameToken,
         playerId: action.payload.playerId,
         color: action.payload.color,
@@ -108,31 +143,38 @@ const gameReducer = (state: Partial<GameState> = initialState, action: any) => {
       };
     case gameActions.SET_NICKNAME:
       return {
-        nickname: action.payload.nickname,
+        ...state,
+        nickname: action.payload,
       };
     case gameActions.SET_TRACK_CARDS:
       return {
-        trackCards: action.payload.trackCards,
+        ...state,
+        trackCards: action.payload,
       };
     case gameActions.SET_TICKETS:
       return {
-        tickets: action.payload.tickets,
+        ...state,
+        tickets: action.payload,
       };
     case gameActions.SET_TRACKS:
       return {
-        tracks: action.payload.tracks,
+        ...state,
+        tracks: action.payload,
       };
     case gameActions.SET_POINTS:
       return {
-        points: action.payload.points,
+        ...state,
+        points: action.payload,
       };
     case gameActions.SET_PLAYERS:
       return {
-        players: action.payload.players,
+        ...state,
+        players: action.payload,
       };
     case gameActions.SET_ROUTES:
       return {
-        routes: action.payload.routes,
+        ...state,
+        routes: action.payload,
       };
     default:
       return state;
