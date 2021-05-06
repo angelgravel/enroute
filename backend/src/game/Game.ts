@@ -3,6 +3,9 @@ import {
   PlayerTrackCards,
   TrackColor,
   PlayerEmit,
+  GameRoutes,
+  RouteColor,
+  Routes,
 } from "@typeDef/index";
 import { BroadcastOperator, Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
@@ -17,6 +20,7 @@ import {
 import { PlayerColor } from "../../../types/index";
 import { initialShortTickets, initialLongTickets } from "./initialTickets";
 import { shuffleArray } from "../utils/helpers";
+import initialRoutes from "./initialRoutes";
 
 class Game {
   gameToken: string;
@@ -31,6 +35,7 @@ class Game {
   discardedTrackCards: TrackColor[];
   availableShortTickets: Ticket[];
   availableLongTickets: Ticket[];
+  routes: GameRoutes;
 
   constructor(creatorSocket: Socket, io: Server) {
     this.gameToken = uniqid("game#");
@@ -47,6 +52,7 @@ class Game {
     this.trackCards = shuffleArray(initialGameTrackCards);
     this.openTrackCards = [];
     this.discardedTrackCards = [];
+    this.routes = cloneDeep(initialRoutes);
 
     this.availableShortTickets = shuffleArray(initialShortTickets);
     this.availableLongTickets = shuffleArray(initialLongTickets);
@@ -173,6 +179,7 @@ class Game {
       player.socket.emit("tickets", player.tickets);
       player.socket.emit("track_cards", player.trackCards);
     }
+    this.gameRoomSocket.emit("routes", this.routes);
   }
 
   pickInitialTickets(socket: Socket, chosenTickets: Ticket[]) {
@@ -229,11 +236,97 @@ class Game {
     }
   }
 
+  buildRoute(socket: Socket, route: Routes, chosenTrackCards: TrackColor[]) {
+    const player = this.players.find((p) => p.socket.id === socket.id);
+    //Separate potential bridge cards and track cards of other colors.
+    const chosenBridgeCards = chosenTrackCards.filter(
+      (card) => card === "bridge",
+    );
+    const chosenColoredTrackCards = chosenTrackCards.filter(
+      (card) => card !== "bridge",
+    );
+
+    if (!player) {
+      socket.emit("build_route", {
+        success: false,
+        message: "Player not found in the game",
+        code: "game/player_not_found",
+      });
+      return;
+    }
+    if (!this.routes[route]) {
+      // Route does not exist
+      socket.emit("build_route", {
+        success: false,
+        message: "Route not found on game map.",
+        code: "game/route_not_found",
+      });
+      return;
+    }
+    // Does the player have enough chosen cards?
+    if (this.routes[route].length > chosenTrackCards.length) {
+      socket.emit("build_route", {
+        success: false,
+        message: "Not enough chosen cards to build the chosen route.",
+        code: "game/not_enough_chosen_cards",
+      });
+      return;
+    }
+    // Does the player have enough bridges?
+    if (
+      this.routes[route].bridges > player.trackCards.bridge.amount &&
+      chosenBridgeCards.length <= player.trackCards.bridge.amount
+    ) {
+      socket.emit("build_route", {
+        success: false,
+        message: "Not enough bridge cards to build the chosen route.",
+        code: "game/not_enough_bridge_cards",
+      });
+      return;
+    }
+    // Does the player have the chosen cards of the chosen color?
+    if (
+      chosenColoredTrackCards.length <
+      player.trackCards[chosenColoredTrackCards[0]].amount
+    ) {
+      socket.emit("build_route", {
+        success: false,
+        message:
+          "Not enough cards of the chosen color to build the chosen route.",
+        code: "game/not_enough_chosen_colored_cards",
+      });
+      return;
+    }
+
+    /******** BUILD ROUTE ********/
+    // Update players trackCards
+    player.trackCards["bridge"].amount =
+      player.trackCards["bridge"].amount - chosenBridgeCards.length;
+    player.trackCards[chosenColoredTrackCards[0]].amount =
+      player.trackCards[chosenColoredTrackCards[0]].amount -
+      chosenColoredTrackCards.length;
+    // Mark route as taken
+    this.routes[route].builtBy = player.color;
+    socket.emit("routes", {
+      success: true,
+      message: `The route ${route} was build by ${player.nickname}`,
+      payload: this.routes,
+    });
+    player.socket.emit("track_cards", {
+      success: true,
+      message: `The ${player.nickname}s track cards are updated`,
+      payload: player.trackCards,
+    });
+  }
+
   gameEvents(socket: Socket) {
     // if (Object.keys(socket.rooms).includes(this.gameToken)) {
     socket.on("setup_game", () => this.setupGame(socket));
     socket.on("pick_initial_tickets", (data: Ticket[]) =>
       this.pickInitialTickets(socket, data),
+    );
+    socket.on("build_route", (route: Routes, data: TrackColor[]) =>
+      this.buildRoute(socket, route, data),
     );
     // }
   }
