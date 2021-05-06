@@ -1,4 +1,9 @@
-import { Ticket, PlayerTrackCards, TrackColor } from "@typeDef/index";
+import {
+  Ticket,
+  PlayerTrackCards,
+  TrackColor,
+  PlayerEmit,
+} from "@typeDef/index";
 import { BroadcastOperator, Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import uniqid from "uniqid";
@@ -49,7 +54,7 @@ class Game {
     this.gameEvents(creatorSocket);
   }
 
-  addPlayer(socket: Socket): [string, PlayerColor] {
+  addPlayer(socket: Socket) {
     const playerAlreadyInGame = this.players.find(
       (p) => p.socket.id === socket.id,
     );
@@ -63,7 +68,29 @@ class Game {
     this.gameEvents(socket);
     if (this.players.length > 4) this.joinable = false;
 
-    return [newPlayer.id, newPlayer.color];
+    this.emitPlayers();
+
+    return {
+      playerID: newPlayer.id,
+      color: newPlayer.color,
+      nickname: newPlayer.nickname,
+      remainingTracks: newPlayer.remainingTracks,
+      haveChosenTickets: newPlayer.haveChosenTickets,
+    };
+  }
+
+  emitPlayers() {
+    const _players: PlayerEmit[] = [];
+    for (const player of this.players) {
+      _players.push({
+        playerID: player.id,
+        color: player.color,
+        nickname: player.nickname,
+        remainingTracks: player.remainingTracks,
+        haveChosenTickets: player.haveChosenTickets,
+      });
+    }
+    this.gameRoomSocket.emit("players", _players);
   }
 
   assignColor(): PlayerColor {
@@ -144,7 +171,7 @@ class Game {
       }
 
       player.socket.emit("tickets", player.tickets);
-      player.socket.emit("trackCards", player.trackCards);
+      player.socket.emit("track_cards", player.trackCards);
     }
   }
 
@@ -163,6 +190,7 @@ class Game {
         return;
       }
 
+      //Chosen tickets must match the dealt tickets
       const correctlyChosenTickets = chosenTickets.filter(
         (ct) =>
           player.tickets.filter(
@@ -218,7 +246,7 @@ class Player {
   nickname: string;
   tickets: Ticket[];
   trackCards: PlayerTrackCards;
-  remainingRails: number;
+  remainingTracks: number;
   haveChosenTickets: boolean;
 
   constructor(_socket: Socket, _color: PlayerColor) {
@@ -228,7 +256,7 @@ class Player {
     this.trackCards = cloneDeep(initialPlayerTrackCards);
     this.color = _color;
     this.nickname = `${_color[0].toUpperCase()}${_color.substring(1)}`;
-    this.remainingRails = 45;
+    this.remainingTracks = 45;
     this.haveChosenTickets = false;
 
     this.socketListeners();

@@ -37,20 +37,22 @@ const GameLounge: FC = () => {
             Players
           </Typography>
           <div>
-            {players.map((player) => {
-              return (
-                <div style={{ display: "inline-grid" }}>
-                  <PersonOutlineIcon
-                    style={{
-                      color: `${player.color}`,
-                      height: "80px",
-                      width: "80px",
-                    }}
-                  />
-                  <Typography variant="body1">{player.nickname}</Typography>
-                </div>
-              );
-            })}
+            {players && players.length
+              ? players.map((player) => {
+                  return (
+                    <div style={{ display: "inline-grid" }}>
+                      <PersonOutlineIcon
+                        style={{
+                          color: `${player.color}`,
+                          height: "80px",
+                          width: "80px",
+                        }}
+                      />
+                      <Typography variant="body1">{player.nickname}</Typography>
+                    </div>
+                  );
+                })
+              : "No players"}
           </div>
         </Card>
 

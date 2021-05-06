@@ -6,13 +6,15 @@ export type SocketResponse<T> = {
 
 type CreateJoinSocketPayload = {
   gameToken: string;
-  playerID: string;
-  color: PlayerColor;
+  player: PlayerEmit;
 };
 
-type PlayerJoinedEmit = {
+type PlayerEmit = {
   playerID: string;
   color: PlayerColor;
+  nickname: string;
+  remainingTracks: number;
+  haveChosenTickets: boolean;
 };
 
 export type SocketEvent =
@@ -21,8 +23,9 @@ export type SocketEvent =
   | "pick_initial_tickets"
   | "open_track_cards"
   | "tickets"
-  | "trackCards"
-  | "setup_game";
+  | "track_cards"
+  | "setup_game"
+  | "players";
 
 export type PlayerTrackCard = {
   color: TrackColor;

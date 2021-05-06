@@ -50,70 +50,61 @@ const Home: FC = () => {
 
   useEffect(() => {
     if (socket) {
-      // Game created
-      socket.on(
-        "create_game",
-        (data: SocketResponse<CreateJoinSocketPayload>) => {
-          console.log(
-            data.payload.gameToken,
-            "created by",
-            data.payload.playerID,
-          );
-          if (data.success) {
-            dispatch(
-              setInitGame({
-                gameToken: data.payload.gameToken,
-                playerId: data.payload.playerID,
-                color: data.payload.color,
-              }),
-            );
-            history.push("/gamelounge");
-          } else {
-            switch (data.message) {
-              case "create_game/not_created":
-                setError("Could not create game");
-                console.log(error);
-                break;
-              default:
-                break;
-            }
-          }
-        },
-      );
+      // Created game
+      socket.on("create_game", createGameListener);
 
-      // Player joined
-      socket.on(
-        "join_game",
-        (data: SocketResponse<CreateJoinSocketPayload>) => {
-          console.log(
-            data.payload.playerID,
-            "joined:",
-            data.success,
-            data.payload.gameToken,
-          );
-          if (data.success) {
-            history.push("/gamelounge");
-            dispatch(
-              setInitGame({
-                gameToken: data.payload.gameToken,
-                playerId: data.payload.playerID,
-                color: data.payload.color, // Dummy color - CHANGE!
-              }),
-            );
-          } else {
-            switch (data.message) {
-              case "join_game/not_joined":
-                setError("Could not join game");
-                console.log(error);
-                break;
-              default:
-                break;
-            }
-          }
-        },
-      );
+      // Joined game
+      socket.on("join_game", joinGameListener);
     }
   }, []);
+
+  const createGameListener = (
+    data: SocketResponse<CreateJoinSocketPayload>,
+  ) => {
+    if (data.success) {
+      dispatch(
+        setInitGame({
+          gameToken: data.payload.gameToken,
+          playerId: data.payload.player.playerID,
+          color: data.payload.player.color,
+          nickname: data.payload.player.nickname,
+        }),
+      );
+      history.push("/gamelounge");
+    } else {
+      switch (data.message) {
+        case "create_game/not_created":
+          setError("Could not create game");
+          console.log(error);
+          break;
+        default:
+          break;
+      }
+    }
+  };
+
+  const joinGameListener = (data: SocketResponse<CreateJoinSocketPayload>) => {
+    if (data.success) {
+      history.push("/gamelounge");
+      dispatch(
+        setInitGame({
+          gameToken: data.payload.gameToken,
+          playerId: data.payload.player.playerID,
+          color: data.payload.player.color,
+          nickname: data.payload.player.nickname,
+        }),
+      );
+    } else {
+      switch (data.message) {
+        case "join_game/not_joined":
+          setError("Could not join game");
+          console.log(error);
+          break;
+        default:
+          break;
+      }
+    }
+  };
 
   const socketEmit = (event: SocketEvent, message?: string) => {
     socket?.emit(event, message);

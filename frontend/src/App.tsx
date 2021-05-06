@@ -9,6 +9,8 @@ import "./index.css";
 import Home from "./routes/Home";
 import GameLounge from "./routes/GameLounge";
 import GameRoute from "./routes/GameRoute";
+import useSocketListeners from "hooks/useSocketListeners";
+/*=====================================*/
 
 const ENDPOINT = "http://localhost:3001";
 
@@ -79,6 +81,8 @@ const theme = createMuiTheme({
 export const socketContext = createContext<Socket | null>(null);
 
 const App: FC = () => {
+  // useSocketListeners(); // TODO: Move this to "/game"
+
   return (
     <StoreWithProvider>
       <socketContext.Provider value={socketIOClient(ENDPOINT)}>

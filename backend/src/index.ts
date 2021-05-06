@@ -18,7 +18,7 @@ import Game from "./game/Game";
 /*============ IMPORT TYPES ============*/
 import {
   CreateJoinSocketPayload,
-  PlayerJoinedEmit,
+  PlayerEmit,
   SocketResponse,
 } from "@typeDef/index";
 /*=======================================*/
@@ -73,8 +73,13 @@ io.on("connection", (socket) => {
         message: "create_game/created",
         payload: {
           gameToken: newGame.gameToken,
-          playerID: newGame.creator.id,
-          color: newGame.creator.color,
+          player: {
+            playerID: newGame.creator.id,
+            color: newGame.creator.color,
+            nickname: newGame.creator.nickname,
+            remainingTracks: newGame.creator.remainingTracks,
+            haveChosenTickets: newGame.creator.haveChosenTickets,
+          },
         },
       };
 
@@ -94,25 +99,19 @@ io.on("connection", (socket) => {
 
     try {
       if (games[gameToken]?.joinable) {
-        const [playerID, color] = games[gameToken].addPlayer(socket);
+        const player = games[gameToken].addPlayer(socket);
         response = {
           success: true,
           message: "join_game/joined",
           payload: {
             gameToken: gameToken,
-            playerID: playerID,
-            color: color,
+            player: player,
           },
         };
 
         // Join game room
         socket.join(gameToken);
         socket.emit("join_game", response);
-        const playerJoinedEmit: PlayerJoinedEmit = {
-          playerID: playerID,
-          color: color,
-        };
-        socket.to(gameToken).emit("player_joined", playerJoinedEmit);
       } else {
         response.message = "join_game/not_joined";
         socket.emit("join_game", response);
