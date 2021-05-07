@@ -34,6 +34,7 @@ class Game {
   gameStarted: boolean;
 
   currentPlayer: Player | undefined;
+  lastRoundStartedBy: Player | undefined;
 
   players: Player[];
   trackCards: TrackColor[];
@@ -145,6 +146,10 @@ class Game {
       }
       this.gameRoomSocket.emit("players", _players);
     }
+  }
+
+  private emitFinalRound(emitMessage: string) {
+    this.gameRoomSocket?.emit("routes", emitMessage);
   }
 
   private nextPlayer() {
@@ -413,7 +418,7 @@ class Game {
       // Does the player have enough bridges?
       if (player.remainingTracks < this.routes[route].length) {
         throw new SocketError(
-          "You dont have enough tracks to build this route.",
+          "You don't have enough tracks to build this route.",
           "game/not_enough_tracks",
         );
       }
@@ -450,10 +455,21 @@ class Game {
       player.trackCards[chosenColoredTrackCards[0]].amount =
         player.trackCards[chosenColoredTrackCards[0]].amount -
         chosenColoredTrackCards.length;
+      // Update the players remainingTracks
+      player.remainingTracks =
+        player.remainingTracks - this.routes[route].length;
       // Mark route as taken
       this.routes[route].builtBy = player.color;
       //Add played cards to discardedTrackCards
       this.discardedTrackCards.push(...chosenTrackCards);
+
+      // Is it time for the final round?
+      if (player.remainingTracks < 3) {
+        this.lastRoundStartedBy = player;
+        this.emitFinalRound(
+          `${player.nickname} has less than 3 tracks remaining. Start final round!`,
+        );
+      }
 
       this.emitRoutes(`The route ${route} was build by ${player.nickname}`);
       this.emitTrackCards(
@@ -599,6 +615,16 @@ class Game {
     socket.on("pick_initial_tickets", (data: Ticket[]) =>
       this.pickInitialTickets(socket, data),
     );
+
+    const endResponse: SocketResponse<AddSocketPayload> = {
+      success: true,
+      message: "game/ended_game",
+      payload: "The game has now ended!",
+    };
+    if (socket === this.lastRoundStartedBy?.socket) {
+      socket.emit("end_game", endResponse);
+    }
+
     socket.on("build_route", (route: Route, data: TrackColor[]) =>
       this.buildRoute(socket, route, data),
     );
