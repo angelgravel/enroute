@@ -77,7 +77,7 @@ The user interface will be built using `React` and `Material UI`. This will be d
 
 `Socket.io` will be used as an bi-directional communication channel between the server and the user interface.
 
-The server will be built using `Express.js` and `Node.js`. `WebAssembly` will be used to perform functionalities like shuffle deck. This will be written in `AssemblyScript`. `MySQL` will be used to regularly store backups of the game state, in case the server crashes.
+The server will be built using `Express.js` and `Node.js`. `MySQL` will be used to regularly store backups of the game state, in case the server crashes.
 
 ## Code Standards
 
