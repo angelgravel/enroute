@@ -21,7 +21,7 @@ const useSocketListeners = (socket: Socket) => {
     return () => {
       socket.off("track_cards");
       socket.off("tickets");
-      socket.off("tickets");
+      socket.off("players");
     };
   }, [socket]);
 
