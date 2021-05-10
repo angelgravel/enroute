@@ -1,10 +1,12 @@
 import { FC, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
-import GameLounge from "./GameLounge";
+import { RootState } from "../../redux/store";
 import { socketContext, socket } from "../../context/socket";
 import useSocketListeners from "../../hooks/useSocketListeners";
-import { useSelector } from "react-redux";
-import { RootState } from "redux/store";
+
+import GameLounge from "./GameLounge";
+import Game from "./Game";
 
 type GameRouteProps = {};
 const GameRoute: FC<GameRouteProps> = ({}) => {
@@ -22,7 +24,7 @@ const GameRoute: FC<GameRouteProps> = ({}) => {
   if (isListening) {
     return (
       <socketContext.Provider value={socket}>
-        {gameStarted ? <div>GAME</div> : <GameLounge />}
+        {gameStarted ? <Game /> : <GameLounge />}
       </socketContext.Provider>
     );
   }
