@@ -35,7 +35,7 @@ const bindMiddleware = (middleware: any[]) => {
 const useRedux = () => {
   const persistConfig = {
     key: "EnRoute",
-    whitelist: ["test", "game"], // only these will be persisted, add other reducers if needed
+    whitelist: ["test"], // only these will be persisted, add other reducers if needed
     storage, // if needed, use a safer storage
   };
 

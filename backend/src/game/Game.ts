@@ -184,12 +184,15 @@ class Game {
         );
       }
 
-      if (this.players.length < 2) {
-        throw new SocketError(
-          "There are not enough players to start the game",
-          "game/not_enough_players",
-        );
-      }
+      // TODO: Uncomment
+      // Disabled so you don't need >=2
+      // players to test funcitonality
+      // if (this.players.length < 2) {
+      //   throw new SocketError(
+      //     "There are not enough players to start the game",
+      //     "game/not_enough_players",
+      //   );
+      // }
 
       this.joinable = false;
 
@@ -228,8 +231,6 @@ class Game {
   }
 
   private pickInitialTickets(socket: Socket, chosenTickets: Ticket[]) {
-    console.log("Picking initial!");
-
     try {
       const player = this.players.find(
         (p) => p.socket && p.socket.id === socket.id,
@@ -510,7 +511,6 @@ class Game {
   }
 
   gameEvents(socket: Socket) {
-    console.log("gameEvents");
     socket.on("setup_game", () => this.setupGame(socket));
     socket.on("pick_initial_tickets", (data: Ticket[]) =>
       this.pickInitialTickets(socket, data),
