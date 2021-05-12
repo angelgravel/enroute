@@ -228,6 +228,8 @@ class Game {
   }
 
   private pickInitialTickets(socket: Socket, chosenTickets: Ticket[]) {
+    console.log("Picking initial!");
+
     try {
       const player = this.players.find(
         (p) => p.socket && p.socket.id === socket.id,
@@ -508,6 +510,7 @@ class Game {
   }
 
   gameEvents(socket: Socket) {
+    console.log("gameEvents");
     socket.on("setup_game", () => this.setupGame(socket));
     socket.on("pick_initial_tickets", (data: Ticket[]) =>
       this.pickInitialTickets(socket, data),

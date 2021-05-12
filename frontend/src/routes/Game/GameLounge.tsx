@@ -37,6 +37,7 @@ const GameLounge: FC<GameLoungeProps> = ({}) => {
   const { players, gameToken, playerId } = useSelector(
     (state: RootState) => state.game,
   );
+  console.log("HELLO");
 
   const socketEmit = (event: SocketEvent, message?: any) => {
     socket?.emit(event, message);

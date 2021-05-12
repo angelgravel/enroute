@@ -16,6 +16,8 @@ const useSocketListeners = (socket: Socket) => {
       socket.on("track_cards", trackCardsListener);
       socket.on("tickets", ticketsListener);
       socket.on("players", playersListener);
+
+      // TODO: Handle pick initial tickets error handling
     }
 
     return () => {
