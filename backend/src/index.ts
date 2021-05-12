@@ -83,24 +83,6 @@ io.on("connection", (socket) => {
     game.addSocket(socket, io, data.playerId);
   });
   /*********************************************************/
-
-  /******************* Pick Init Tickets ********************/
-  // socket.on("pick_initial_tickets", (data: AddSocketEmit) => {
-  //   const game = games[data.gameToken];
-
-  //   if (!game) {
-  //     const response: SocketResponse<AddSocketPayload> = {
-  //       success: false,
-  //       message: "add_socket/not_added",
-  //       payload: "Could not add socket",
-  //     };
-  //     socket.emit("add_socket", response);
-  //     return;
-  //   }
-
-  //   game.addSocket(socket, io, data.playerId);
-  // });
-  /*********************************************************/
 });
 
 server.listen(process.env.API_PORT, () => {
