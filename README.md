@@ -6,14 +6,14 @@ https://drive.google.com/drive/folders/130smoF7Di2d60U_NpGAZwllunFjOx_Kw?usp=sha
 
 ## Background
 
-We are going to build a game inspired by the board game Ticket to Ride. The game can be played by 2-5 players and the goal of the game is to collect points by building train rail routes on a map. The player with the highest score at the end of the game wins. Points can be collected through:
+We are going to build a game inspired by the board game Ticket to Ride. The game can be played by 2-5 players and the goal of the game is to collect points by building train Track routes on a map. The player with the highest score at the end of the game wins. Points can be collected through:
 
-- Building a rail route between two destinations on the map
+- Building a Track route between two destinations on the map
 - Completing a path between to destinations given on a Destination Card
 - Hold the longest path
 - (Train stations kept at end of the game)
 
-When a player has less than 3 rails left, the final round begins. The game ends when that same player finishes it’s turn of the final round.
+When a player has less than 3 Tracks left, the final round begins. The game ends when that same player finishes it’s turn of the final round.
 
 ## Functionalities
 
@@ -40,8 +40,8 @@ When a player has less than 3 rails left, the final round begins. The game ends 
 
 ### Make a move (the player have three options)
 
-1. Pick two cards from the rail deck
-2. Build a rail
+1. Pick two cards from the Track deck
+2. Build a Track
 3. Pick up new destination cards
 
 ### Keep track (and show) each players points
@@ -53,7 +53,7 @@ When a player has less than 3 rails left, the final round begins. The game ends 
 
 ### The games ending
 
-- When a player has less than 3 rails left, the final round begins
+- When a player has less than 3 Tracks left, the final round begins
 
 ## Technologies
 
