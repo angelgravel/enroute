@@ -13,7 +13,7 @@ export type GameState = {
   color: PlayerColor | "";
   trackCards: PlayerTrackCards;
   tickets: Ticket[];
-  tracks: number;
+  remainingTracks: number;
   points: number;
   players: PlayerClient[];
   routes: GameRoutes;
