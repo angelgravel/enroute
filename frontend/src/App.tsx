@@ -42,6 +42,11 @@ const theme = createMuiTheme({
       containedSecondary: {
         borderColor: "#db93a5",
       },
+      root: {
+        "&$disabled": {
+          borderColor: "#a6a6a6",
+        },
+      },
     },
     MuiTypography: {
       h1: {
