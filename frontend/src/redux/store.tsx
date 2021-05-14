@@ -8,14 +8,16 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { PersistGate } from "redux-persist/integration/react";
 
-import testReducer from "./test";
 import gameReducer from "./game";
+import chosenRouteReducer from "./chosenRoute";
+
 import { GameState } from "./types";
+import { GameRoute } from "@typeDef/index";
 
 // COMBINING ALL REDUCERS
 const combinedReducer = combineReducers({
-  test: testReducer,
   game: gameReducer,
+  chosenRoute: chosenRouteReducer,
   // OTHER REDUCERS WILL BE ADDED HERE
 });
 

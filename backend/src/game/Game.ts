@@ -378,7 +378,7 @@ class Game {
 
       this.gameRoomSocket?.emit("routes", {
         success: true,
-        message: `The route ${route} was build by ${player.nickname}`,
+        message: `The route ${route} was built by ${player.nickname}`,
         payload: this.routes,
       });
       socket.emit("track_cards", {
@@ -512,8 +512,8 @@ class Game {
     socket.on("pick_initial_tickets", (data: Ticket[]) =>
       this.pickInitialTickets(socket, data),
     );
-    socket.on("build_route", (route: Route, data: TrackColor[]) =>
-      this.buildRoute(socket, route, data),
+    socket.on("build_route", (data) =>
+      this.buildRoute(socket, data.chosenRoute, data.chosenTrackCards),
     );
     socket.on("pick_card_from_openTrackCards", (data: TrackColor) =>
       this.pickCardFromOpenTracksCards(socket, data),

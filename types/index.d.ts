@@ -33,7 +33,8 @@ export type SocketEvent =
   | "tickets"
   | "track_cards"
   | "setup_game"
-  | "players";
+  | "players"
+  | "build_route";
 
 export type PlayerTrackCard = {
   color: TrackColor;
