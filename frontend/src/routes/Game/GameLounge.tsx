@@ -17,7 +17,7 @@ import {
   SocketEvent,
   AddSocketPayload,
   AddSocketEmit,
-} from "@typeDef/index";
+} from "@typeDef/types";
 /*=====================================*/
 
 const Container = styled.div`

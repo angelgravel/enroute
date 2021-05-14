@@ -4,7 +4,7 @@ import {
   PlayerTrackCards,
   GameRoutes,
   Ticket,
-} from "../../../types";
+} from "@typeDef/types";
 
 export type GameState = {
   gameToken: string;

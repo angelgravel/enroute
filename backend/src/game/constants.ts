@@ -3,7 +3,7 @@ import {
   PlayerTrackCards,
   Ticket,
   TrackColor,
-} from "@typeDef/index";
+} from "@typeDef/types";
 
 export const initialPlayerTrackCards: PlayerTrackCards = {
   blue: {

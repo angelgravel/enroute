@@ -1,6 +1,7 @@
-import { FC } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store";
+import styled from "styled-components";
 import {
   Button,
   Typography,
@@ -10,10 +11,10 @@ import {
   Card,
   CardContent,
   CardHeader,
-  makeStyles,
 } from "@material-ui/core";
-import styled from "styled-components";
 
+import { SocketEvent, Ticket } from "@typeDef/types";
+import { socketContext } from "context/socket";
 import { firstCap } from "utils/firstCap";
 
 const CardsWrapper = styled.div`
@@ -22,51 +23,46 @@ const CardsWrapper = styled.div`
   justify-content: space-between;
 `;
 
-// const TicketsCardWrapper = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: space-between;
-//   margin: 1vw;
-//   height: 25vh;
-//   width: 20vw;
-//   min-width: 70px;
-//   max-width: 175px;
-//   text-align: center;
-// `;
-
-const ContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background-color: white;
-  border: 4px solid #f9b1cd;
-  border-radius: 4px;
-  padding: 10px;
-`;
-
-const useStyles = makeStyles({
-  ticketsCard: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    margin: "1vw",
-    height: "25vh",
-    width: "20vw",
-    minWidth: "70px",
-    maxWidth: "175px",
-    textAlign: "center",
-  },
-});
-
-type TicketsModalProp = {
-  modalState: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
-};
-
-const TicketsModal: FC<TicketsModalProp> = ({
-  modalState: [isModalOpen, setIsModalOpen],
-}) => {
+const PickInitTicketsModal: FC = () => {
+  const socket = useContext(socketContext);
   const { tickets } = useSelector((state: RootState) => state.game);
-  const classes = useStyles();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(true);
+  const [isEnoughCards, setIsEnoughCards] = useState<boolean>(false);
+  const [chosenTickets, setChosenTickets] = useState<Ticket[]>([]);
+
+  const socketEmit = (event: SocketEvent, message?: any) => {
+    socket?.emit(event, message);
+  };
+
+  useEffect(() => {
+    if (chosenTickets.length >= 2) {
+      setIsEnoughCards(true);
+    } else {
+      setIsEnoughCards(false);
+    }
+  }, [chosenTickets]);
+
+  const isChosen = (ticket: Ticket) => chosenTickets.includes(ticket);
+
+  const markTicket = (ticket: Ticket) => {
+    if (!chosenTickets.includes(ticket)) {
+      const newTickets = [...chosenTickets, ticket];
+      setChosenTickets(newTickets);
+    } else {
+      const filtered = chosenTickets.filter((t) => t !== ticket);
+      setChosenTickets(filtered);
+    }
+  };
+
+  const chooseTickets = () => {
+    if (chosenTickets.length >= 2 && socket) {
+      socketEmit("pick_initial_tickets", chosenTickets);
+      setIsModalOpen(false);
+    } else {
+      // TODO: Change to enqueueSnackbar?
+      console.log("You must choose at least 2 cards to keep!");
+    }
+  };
 
   return (
     <Modal
@@ -84,22 +80,22 @@ const TicketsModal: FC<TicketsModalProp> = ({
       BackdropProps={{ timeout: 500 }}
     >
       <Fade in={isModalOpen}>
-        <ContentWrapper
-        // style={{
-        //   display: "flex",
-        //   flexDirection: "column",
-        //   justifyContent: "center",
-        //   backgroundColor: "white",
-        //   border: "4px solid #f9b1cd",
-        //   borderRadius: "4px",
-        //   padding: "10px",
-        // }}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            backgroundColor: "white",
+            border: "4px solid #f9b1cd",
+            borderRadius: "4px",
+            padding: "10px",
+          }}
         >
           <Typography
             variant="h3"
             style={{ margin: "10px", textAlign: "center" }}
           >
-            Destination Tickets
+            Choose at least two Destination Tickets to keep
           </Typography>
 
           <CardsWrapper>
@@ -108,8 +104,19 @@ const TicketsModal: FC<TicketsModalProp> = ({
                   return (
                     <div key={`${ticket.start}_${ticket.end}`}>
                       <Card
-                        key={`${ticket.start}_${ticket.end}`}
-                        className={classes.ticketsCard}
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          margin: "1vw",
+                          height: "25vh",
+                          width: "20vw",
+                          minWidth: "70px",
+                          maxWidth: "175px",
+                          textAlign: "center",
+                        }}
+                        raised={isChosen(ticket)}
+                        onClick={() => markTicket(ticket)}
                       >
                         <div>
                           <CardHeader
@@ -156,7 +163,8 @@ const TicketsModal: FC<TicketsModalProp> = ({
             variant="contained"
             color="secondary"
             style={{ maxWidth: "200px", alignSelf: "center" }}
-            onClick={() => setIsModalOpen(false)}
+            onClick={chooseTickets}
+            disabled={!isEnoughCards}
           >
             <Typography
               variant="h6"
@@ -164,13 +172,13 @@ const TicketsModal: FC<TicketsModalProp> = ({
                 filter: "drop-shadow(0 0 2px rgba(50, 50, 50, 0.3))",
               }}
             >
-              Close
+              Choose tickets
             </Typography>
           </Button>
-        </ContentWrapper>
+        </div>
       </Fade>
     </Modal>
   );
 };
 
-export default TicketsModal;
+export default PickInitTicketsModal;

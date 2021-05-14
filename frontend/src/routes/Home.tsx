@@ -23,7 +23,7 @@ import useAxios from "../hooks/useAxios";
 import logo from "../assets/location.gif";
 
 /*=============== Types ===============*/
-import { SocketResponse, CreateJoinSocketPayload } from "@typeDef/index";
+import { SocketResponse, CreateJoinSocketPayload } from "@typeDef/types";
 /*=====================================*/
 
 const Container = styled.div`

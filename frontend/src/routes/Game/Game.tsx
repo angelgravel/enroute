@@ -2,8 +2,8 @@ import { FC } from "react";
 import styled from "styled-components";
 
 import Map from "../../game/map/Map";
-import PickInitTicketsModal from "./PickInitTicketsModal";
-import PlayerView from "./PlayerView";
+import PickInitTicketsModal from "./components/PickInitTicketsModal";
+import PlayerView from "./components/PlayerView";
 
 const GameWrapper = styled.div`
   display: flex;
@@ -55,7 +55,7 @@ const TracksDeckView: FC = () => {
 const Game: FC = () => {
   return (
     <GameWrapper>
-      <PickInitTicketsModal />
+      {/* <PickInitTicketsModal /> */}
       <TopWrapper>
         <MidWrapper>
           <OpponentsView />

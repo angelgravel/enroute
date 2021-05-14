@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { setPlayers, setTickets, setTrackCards } from "../redux/game";
-import { PlayerClient, PlayerTrackCards, Ticket } from "@typeDef/index";
+import { PlayerClient, PlayerTrackCards, Ticket } from "@typeDef/types";
 import { Socket } from "socket.io-client";
 
 const useSocketListeners = (socket: Socket) => {

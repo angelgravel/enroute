@@ -76,6 +76,14 @@ const theme = createMuiTheme({
         fontSize: "0.8rem",
       },
     },
+    MuiBadge: {
+      badge: {
+        fontSize: "1.25rem",
+        height: "1.75rem",
+        minWidth: "1.75rem",
+        borderRadius: "50%",
+      },
+    },
   },
 });
 

@@ -3,7 +3,7 @@ import {
   PlayerClient,
   PlayerTrackCards,
   Ticket,
-} from "@typeDef/index";
+} from "@typeDef/types";
 import { Dispatch } from "redux";
 import { GameState } from "../types";
 import initialRoutes from "./initialRoutes";

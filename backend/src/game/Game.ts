@@ -9,7 +9,7 @@ import {
   PlayerClient,
   SocketResponse,
   AddSocketPayload,
-} from "@typeDef/index";
+} from "@typeDef/types";
 import { BroadcastOperator, Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import uniqid from "uniqid";
@@ -20,7 +20,7 @@ import {
   initialPlayerTrackCards,
   playerColors,
 } from "./constants";
-import { PlayerColor } from "../../../types/index";
+import { PlayerColor } from "@typeDef/types";
 import { initialShortTickets, initialLongTickets } from "./initialTickets";
 import { shuffleArray } from "../utils/helpers";
 import initialRoutes from "./initialRoutes";
