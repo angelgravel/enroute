@@ -55,7 +55,7 @@ const TracksDeckView: FC = () => {
 const Game: FC = () => {
   return (
     <GameWrapper>
-      {/* <PickInitTicketsModal /> */}
+      <PickInitTicketsModal />
       <TopWrapper>
         <MidWrapper>
           <OpponentsView />

@@ -94,6 +94,7 @@ const Home: FC = () => {
           playerId: resp.data.payload.player.playerId,
           color: resp.data.payload.player.color,
           nickname: resp.data.payload.player.nickname,
+          remainingTracks: resp.data.payload.player.remainingTracks,
         }),
       );
       history.push("/game");
