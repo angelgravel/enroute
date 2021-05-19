@@ -3,8 +3,10 @@ import {
   PlayerClient,
   PlayerTrackCards,
   GameRoutes,
+  GameRoute,
   Ticket,
-} from "../../../types";
+  Route,
+} from "@typeDef/index";
 
 export type GameState = {
   gameToken: string;
@@ -17,4 +19,12 @@ export type GameState = {
   points: number;
   players: PlayerClient[];
   routes: GameRoutes;
+};
+
+export type ChosenRouteState = {
+  id?: Route;
+  builtBy?: PlayerColor | null;
+  color?: RouteColor;
+  bridges?: number;
+  length?: number;
 };

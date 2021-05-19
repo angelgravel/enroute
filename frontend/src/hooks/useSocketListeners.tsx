@@ -1,8 +1,18 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
-import { setPlayers, setTickets, setTrackCards } from "../redux/game";
-import { PlayerClient, PlayerTrackCards, Ticket } from "@typeDef/index";
+import {
+  setPlayers,
+  setRoutes,
+  setTickets,
+  setTrackCards,
+} from "../redux/game";
+import {
+  GameRoutes,
+  PlayerClient,
+  PlayerTrackCards,
+  Ticket,
+} from "@typeDef/index";
 import { Socket } from "socket.io-client";
 
 const useSocketListeners = (socket: Socket) => {
@@ -13,6 +23,8 @@ const useSocketListeners = (socket: Socket) => {
     if (socket) {
       setIsListening(true);
 
+      socket.on("open_track_cards", openTrackCardsListener);
+      socket.on("routes", routesListener);
       socket.on("track_cards", trackCardsListener);
       socket.on("tickets", ticketsListener);
       socket.on("players", playersListener);
@@ -26,6 +38,18 @@ const useSocketListeners = (socket: Socket) => {
       socket.off("players");
     };
   }, [socket]);
+
+  const openTrackCardsListener = (openTrackCards: PlayerTrackCards) => {
+    if (openTrackCards) {
+      dispatch(setOpenTrackCards(openTrackCards));
+    }
+  };
+
+  const routesListener = (routes: GameRoutes) => {
+    if (routes) {
+      dispatch(setRoutes(routes));
+    }
+  };
 
   const trackCardsListener = (trackCards: PlayerTrackCards) => {
     if (trackCards) {
@@ -49,3 +73,6 @@ const useSocketListeners = (socket: Socket) => {
 };
 
 export default useSocketListeners;
+function setOpenTrackCards(trackCards: PlayerTrackCards): any {
+  throw new Error("Function not implemented.");
+}

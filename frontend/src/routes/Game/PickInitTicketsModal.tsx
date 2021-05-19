@@ -8,7 +8,7 @@ import {
   CardContent,
   CardHeader,
 } from "@material-ui/core";
-import { SocketEvent, Ticket } from "../../../../types/index";
+import { SocketEvent, Ticket } from "@typeDef/index";
 import { socketContext } from "context/socket";
 import { FC, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";

@@ -1,9 +1,18 @@
-import React, { FC, forwardRef } from "react";
+import React, { FC, forwardRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 
 import { colorToHex } from "../../../utils/constants";
 import routesInfo, { RouteInfo } from "./routesInfo";
+import { useDispatch, useSelector } from "react-redux";
+import { useSnackbar } from "notistack";
+import { RootState } from "redux/store";
+import { setChosenRoute } from "redux/chosenRoute";
+import {
+  PlayerTrackCards,
+  Route as RouteType,
+  TrackColor,
+} from "@typeDef/index";
 
 const TrackRect = styled(motion.rect)`
   stroke-miterlimit: 10;
@@ -30,16 +39,95 @@ const TrackGroup = styled(motion.g)`
 `;
 
 type RouteProps = {
-  id: string;
+  id: RouteType;
   routeInfo: RouteInfo;
 };
 const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
+  const { enqueueSnackbar } = useSnackbar();
+  const dispatch = useDispatch();
+  const { routes, trackCards } = useSelector((state: RootState) => state.game);
   const color = colorToHex[routeInfo.color];
   const tracks = routeInfo.tracks;
   const bridges = routeInfo.bridges;
 
+  const handleClick = () => {
+    try {
+      if (!trackCards || !routes) throw new Error("");
+
+      if (routes[id].builtBy !== null) {
+        throw new Error("already_built");
+      }
+
+      const amountBridges = trackCards["bridge"].amount;
+
+      if (amountBridges < routes[id].bridges) {
+        throw new Error("not_enough_bridges");
+      }
+
+      const noBridges = Object.values(trackCards).filter(
+        ({ color }) => color !== "bridge",
+      );
+      console.log(noBridges);
+
+      if (
+        (routes[id].color === "any" &&
+          !noBridges.some(
+            (trackCard) =>
+              trackCard.amount + amountBridges >= routes[id].length,
+          )) ||
+        (routes[id].color !== "any" &&
+          trackCards[routes[id].color as TrackColor].amount + amountBridges <
+            routes[id].length)
+      ) {
+        throw new Error("not_enough_track_cards");
+      }
+
+      const { color, bridges, tracks } = routeInfo;
+
+      dispatch(
+        setChosenRoute({
+          id: id,
+          builtBy: null,
+          color,
+          bridges: bridges.length,
+          length: tracks.length,
+        }),
+      );
+    } catch (error) {
+      console.log(error);
+      switch (error.message) {
+        case "already_built":
+          enqueueSnackbar(`Already built by ${routes[id].builtBy}!`, {
+            variant: "error",
+          });
+          break;
+        case "not_enough_track_cards":
+          enqueueSnackbar(`Not enough track cards to build that route!`, {
+            variant: "error",
+          });
+          break;
+        case "not_enough_bridges":
+          enqueueSnackbar(`Not enough bridges to build that route!`, {
+            variant: "error",
+          });
+          break;
+        default:
+          enqueueSnackbar(`Error!`, {
+            variant: "error",
+          });
+          break;
+      }
+    }
+  };
+
   return (
-    <TrackGroup ref={ref} id={id}>
+    <TrackGroup
+      ref={ref}
+      id={id}
+      onClick={() => {
+        handleClick();
+      }}
+    >
       {tracks.map((track) => (
         <TrackRect {...track} rx="3" fill={color[0]} stroke={color[1]} />
       ))}
@@ -54,7 +142,7 @@ const Routes: FC = () => {
   return (
     <g id="tracks">
       {Object.entries(routesInfo).map(([id, routeInfo]) => (
-        <Route id={id} routeInfo={routeInfo} />
+        <Route id={id as RouteType} routeInfo={routeInfo} />
       ))}
     </g>
   );
