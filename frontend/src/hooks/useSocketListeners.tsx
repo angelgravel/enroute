@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { Socket } from "socket.io-client";
+import { useSnackbar } from "notistack";
 
 import {
+  setOpenTrackCards,
   setPlayers,
   setRoutes,
   setTickets,
@@ -11,11 +14,13 @@ import {
   GameRoutes,
   PlayerClient,
   PlayerTrackCards,
+  SocketResponse,
   Ticket,
+  TrackColor,
 } from "@typeDef/index";
-import { Socket } from "socket.io-client";
 
 const useSocketListeners = (socket: Socket) => {
+  const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
   const [isListening, setIsListening] = useState<boolean>(false);
 
@@ -33,27 +38,35 @@ const useSocketListeners = (socket: Socket) => {
     }
 
     return () => {
+      socket.off("open_track_cards");
+      socket.off("routes");
       socket.off("track_cards");
       socket.off("tickets");
       socket.off("players");
     };
   }, [socket]);
 
-  const openTrackCardsListener = (openTrackCards: PlayerTrackCards) => {
+  const openTrackCardsListener = (openTrackCards: TrackColor[]) => {
     if (openTrackCards) {
       dispatch(setOpenTrackCards(openTrackCards));
     }
   };
 
-  const routesListener = (routes: GameRoutes) => {
-    if (routes) {
-      dispatch(setRoutes(routes));
+  const routesListener = (data: SocketResponse<GameRoutes>) => {
+    if (data) {
+      enqueueSnackbar(data.message, {
+        variant: data.success ? "success" : "error",
+      });
+      dispatch(setRoutes(data.payload));
     }
   };
 
-  const trackCardsListener = (trackCards: PlayerTrackCards) => {
-    if (trackCards) {
-      dispatch(setTrackCards(trackCards));
+  const trackCardsListener = (data: SocketResponse<PlayerTrackCards>) => {
+    if (data) {
+      enqueueSnackbar(data.message, {
+        variant: data.success ? "success" : "error",
+      });
+      dispatch(setTrackCards(data.payload));
     }
   };
 
@@ -73,6 +86,3 @@ const useSocketListeners = (socket: Socket) => {
 };
 
 export default useSocketListeners;
-function setOpenTrackCards(trackCards: PlayerTrackCards): any {
-  throw new Error("Function not implemented.");
-}

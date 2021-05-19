@@ -1,4 +1,4 @@
-import React, { FC, forwardRef, useEffect } from "react";
+import React, { FC, forwardRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 
@@ -9,6 +9,7 @@ import { useSnackbar } from "notistack";
 import { RootState } from "redux/store";
 import { setChosenRoute } from "redux/chosenRoute";
 import {
+  PlayerColor,
   PlayerTrackCards,
   Route as RouteType,
   TrackColor,
@@ -50,9 +51,12 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
   const tracks = routeInfo.tracks;
   const bridges = routeInfo.bridges;
 
+  const [builtBy, setBuiltBy] = useState<PlayerColor | null>(null);
+
   const handleClick = () => {
     try {
-      if (!trackCards || !routes) throw new Error("");
+      console.log(routes);
+      if (!trackCards || !routes || !routes[id]) throw new Error("");
 
       if (routes[id].builtBy !== null) {
         throw new Error("already_built");
@@ -120,6 +124,12 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
     }
   };
 
+  useEffect(() => {
+    if (routes && routes[id]) {
+      setBuiltBy(routes[id].builtBy);
+    }
+  }, [routes]);
+
   return (
     <TrackGroup
       ref={ref}
@@ -129,7 +139,12 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
       }}
     >
       {tracks.map((track) => (
-        <TrackRect {...track} rx="3" fill={color[0]} stroke={color[1]} />
+        <TrackRect
+          {...track}
+          rx="3"
+          fill={builtBy || color[0]}
+          stroke={builtBy || color[1]}
+        />
       ))}
       {bridges.map((d) => (
         <Bridge d={d} />
