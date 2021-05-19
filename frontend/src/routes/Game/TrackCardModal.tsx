@@ -7,27 +7,21 @@ import {
   Modal,
   Typography,
 } from "@material-ui/core";
-import styled from "styled-components";
-import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "redux/store";
-import {
-  PlayerTrackCards,
-  PlayerTrackCard,
-  TrackColor,
-  Route,
-  SocketEvent,
-} from "@typeDef/index";
 import { useSnackbar } from "notistack";
-import chosenRoute, { unsetChosenRoute } from "redux/chosenRoute";
 import cloneDeep from "lodash.clonedeep";
+
+import { TrackColor } from "@typeDef/index";
+import { unsetChosenRoute } from "redux/chosenRoute";
+import { RootState } from "redux/store";
 import { socket } from "context/socket";
+import socketEmit from "utils/socketEmit";
 
 type CardModalProps = {};
 const TrackCardModal: FC<CardModalProps> = ({}) => {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-  // const { trackCards } = useSelector((state: RootState) => state.game);
+  const { trackCards } = useSelector((state: RootState) => state.game);
   const chosenRoute = useSelector((state: RootState) => state.chosenRoute);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isChosenCardsEnough, setIsChosenCardsEnough] = useState<boolean>(
@@ -40,49 +34,6 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
     [],
   );
 
-  const socketEmit = (event: SocketEvent, message?: any) => {
-    socket?.emit(event, message);
-  };
-
-  const trackCards: PlayerTrackCards = {
-    blue: {
-      color: "blue",
-      amount: 4,
-    },
-    orange: {
-      color: "orange",
-      amount: 0,
-    },
-    red: {
-      color: "red",
-      amount: 5,
-    },
-    black: {
-      color: "black",
-      amount: 0,
-    },
-    white: {
-      color: "white",
-      amount: 0,
-    },
-    green: {
-      color: "green",
-      amount: 0,
-    },
-    yellow: {
-      color: "yellow",
-      amount: 0,
-    },
-    pink: {
-      color: "pink",
-      amount: 1,
-    },
-    bridge: {
-      color: "bridge",
-      amount: 1,
-    },
-  };
-
   const toggleTrackCard = (trackColor: TrackColor, idx: number) => {
     let _chosenTrackCards = cloneDeep(chosenTrackCards);
     if (_chosenTrackCards.hasOwnProperty(idx)) {
@@ -92,7 +43,6 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
     }
     setChosenTrackCards(_chosenTrackCards);
   };
-  console.log(chosenTrackCards);
 
   const handleBuildRoute = () => {
     let _chosenTrackCards = Object.values(chosenTrackCards);
@@ -100,7 +50,10 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
       chosenRoute: chosenRoute.id,
       chosenTrackCards: _chosenTrackCards,
     };
-    socketEmit("build_route", data);
+
+    if (socket) {
+      socketEmit(socket, "build_route", data);
+    }
 
     setIsModalOpen(false);
     setChosenTrackCards({});
@@ -218,6 +171,7 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
                     margin: "8px",
                     height: "80px",
                     width: "80px",
+                    cursor: "pointer",
                   }}
                   raised={chosenTrackCards.hasOwnProperty(i)}
                   onClick={() => toggleTrackCard(trackColor, i)}

@@ -18,6 +18,7 @@ import {
   AddSocketPayload,
   AddSocketEmit,
 } from "@typeDef/index";
+import socketEmit from "utils/socketEmit";
 /*=====================================*/
 
 const Container = styled.div`
@@ -37,10 +38,6 @@ const GameLounge: FC<GameLoungeProps> = ({}) => {
   const { players, gameToken, playerId } = useSelector(
     (state: RootState) => state.game,
   );
-
-  const socketEmit = (event: SocketEvent, message?: any) => {
-    socket?.emit(event, message);
-  };
 
   useEffect(() => {
     if (socket) {
@@ -63,12 +60,12 @@ const GameLounge: FC<GameLoungeProps> = ({}) => {
         gameToken,
         playerId,
       };
-      socketEmit("add_socket", addSocketEmit);
+      socketEmit(socket, "add_socket", addSocketEmit);
     }
   }, [socket, playerId, gameToken]);
 
   const handleStartGame = () => {
-    socketEmit("setup_game");
+    socketEmit(socket, "setup_game");
   };
 
   useEffect(() => {

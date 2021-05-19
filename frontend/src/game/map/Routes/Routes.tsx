@@ -45,48 +45,10 @@ type RouteProps = {
 const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
-  const { routes } = useSelector((state: RootState) => state.game);
+  const { routes, trackCards } = useSelector((state: RootState) => state.game);
   const color = colorToHex[routeInfo.color];
   const tracks = routeInfo.tracks;
   const bridges = routeInfo.bridges;
-  const trackCards: PlayerTrackCards = {
-    blue: {
-      color: "blue",
-      amount: 4,
-    },
-    orange: {
-      color: "orange",
-      amount: 0,
-    },
-    red: {
-      color: "red",
-      amount: 5,
-    },
-    black: {
-      color: "black",
-      amount: 0,
-    },
-    white: {
-      color: "white",
-      amount: 0,
-    },
-    green: {
-      color: "green",
-      amount: 0,
-    },
-    yellow: {
-      color: "yellow",
-      amount: 0,
-    },
-    pink: {
-      color: "pink",
-      amount: 1,
-    },
-    bridge: {
-      color: "bridge",
-      amount: 1,
-    },
-  };
 
   const handleClick = () => {
     try {
