@@ -22,18 +22,6 @@ const CardsWrapper = styled.div`
   justify-content: space-between;
 `;
 
-// const TicketsCardWrapper = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: space-between;
-//   margin: 1vw;
-//   height: 25vh;
-//   width: 20vw;
-//   min-width: 70px;
-//   max-width: 175px;
-//   text-align: center;
-// `;
-
 const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;

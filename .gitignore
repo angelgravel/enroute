@@ -120,3 +120,6 @@ build/
 
 .DS_Store
 */.DS_Store
+
+# Cards SVG files
+cards_svg

@@ -1,7 +1,7 @@
 import { FC } from "react";
 import styled from "styled-components";
 
-import Map from "../../game/map/Map";
+import Map from "../../gameComponents/Map";
 import PickInitTicketsModal from "./components/PickInitTicketsModal";
 import PlayerView from "./components/PlayerView";
 
@@ -22,7 +22,6 @@ const MidWrapper = styled.div`
   flex-direction: column;
   width: 100%;
 `;
-
 const OpponentsViewWrapper = styled.div`
   height: 175px;
   background-color: magenta;

@@ -1,13 +1,13 @@
 import { FC, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store";
-import { Badge, Card, CardHeader, Typography } from "@material-ui/core";
+import { Badge, Typography } from "@material-ui/core";
 import PersonOutlineIcon from "@material-ui/icons/PersonOutline";
 import styled from "styled-components";
-import { styled as styledAPI } from "@material-ui/core/styles";
 
-import { firstCap } from "utils/firstCap";
 import TicketsModal from "../TicketsModal";
+import TrackCard from "gameComponents/TrackCard";
+import BackCard from "gameComponents/BackCard";
 
 const PlayerViewWrapper = styled.div`
   display: flex;
@@ -17,37 +17,39 @@ const PlayerViewWrapper = styled.div`
 `;
 
 const TracksWrapper = styled.div`
-  //   width: 70%;
+  max-width: 70%;
   display: flex;
-  justify-content: center;
-  // background-color: green;
+  justify-content: flex-start;
+  flex-wrap: wrap;
 `;
 
+const TicketsContainer = styled.div`
+  height: fit-content;
+`;
+
+// TODO: Change to responsive
 const PlayerWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: 17%;
-  // background-color: pink;
+  width: 50%;
+  max-width: 300px;
+  background-color: pink;
 `;
 
 const TracksAndPoints = styled.div`
   display: flex;
   justify-content: space-evenly;
-  height: 40%;
   padding-bottom: 0.5em;
 `;
 
+// TODO: Make circular and responsive
 const Ring = styled.div`
-  text-align: center;
   border: 5px solid #555;
   border-radius: 50%;
-  padding: 0.5em;
+  width: 100%;
+  padding-top: 50%;
+  text-align: center;
 `;
-
-const StyledCard = styledAPI(Card)({
-  width: "125px",
-  textAlign: "center",
-});
 
 const PlayerView: FC = () => {
   const {
@@ -75,22 +77,22 @@ const PlayerView: FC = () => {
                 badgeContent={trackCard.amount}
                 color="primary"
                 key={`trackColor_${trackCard.color}`}
+                style={{ margin: "0.25em 0.25em 0 0.25em" }}
               >
-                <StyledCard style={{ marginLeft: "0.5em" }}>
-                  <CardHeader
-                    title={firstCap(trackCard.color)}
-                    style={{ paddingTop: "50%" }}
-                  />
-                </StyledCard>
+                <TrackCard color={trackCard.color} />
               </Badge>
             )
           );
         })}
       </TracksWrapper>
-      <Badge badgeContent={tickets.length} color="primary">
-        <StyledCard onClick={openTicketsModal}>
-          <CardHeader title="Tickets" style={{ paddingTop: "50%" }} />
-        </StyledCard>
+      <Badge
+        badgeContent={tickets.length}
+        color="primary"
+        style={{ margin: "0.25em 1em 0 1em" }}
+      >
+        <TicketsContainer onClick={openTicketsModal}>
+          <BackCard />
+        </TicketsContainer>
       </Badge>
       <PlayerWrapper>
         <PersonOutlineIcon
