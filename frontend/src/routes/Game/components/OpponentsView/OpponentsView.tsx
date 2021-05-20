@@ -110,6 +110,8 @@ const OpponentsView: FC = () => {
                   </Lower>
                 </OpponentCard>
               );
+            } else {
+              return null;
             }
           })
         : "No opponents"}
