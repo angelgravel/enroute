@@ -1,4 +1,4 @@
-import { Ticket } from "@typeDef/index";
+import { Ticket } from "@typeDef/types";
 
 export const initialShortTickets: Ticket[] = [
   {

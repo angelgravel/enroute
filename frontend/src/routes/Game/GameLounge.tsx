@@ -17,7 +17,7 @@ import {
   SocketEvent,
   AddSocketPayload,
   AddSocketEmit,
-} from "@typeDef/index";
+} from "@typeDef/types";
 import socketEmit from "utils/socketEmit";
 /*=====================================*/
 
@@ -38,7 +38,6 @@ const GameLounge: FC<GameLoungeProps> = ({}) => {
   const { players, gameToken, playerId } = useSelector(
     (state: RootState) => state.game,
   );
-  console.log("HELLO");
 
   useEffect(() => {
     if (socket) {

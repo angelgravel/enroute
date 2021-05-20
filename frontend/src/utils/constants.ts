@@ -1,4 +1,4 @@
-import { RouteColor } from "@typeDef/index";
+import { RouteColor } from "@typeDef/types";
 
 type ColorToHex = {
   [key in RouteColor]: [string, string];

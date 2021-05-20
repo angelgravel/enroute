@@ -15,7 +15,7 @@ import {
   CreateJoinSocketPayload,
   PlayerClient,
   SocketResponse,
-} from "@typeDef/index";
+} from "@typeDef/types";
 import { createGame, joinGame } from "./routes/game";
 /*=======================================*/
 

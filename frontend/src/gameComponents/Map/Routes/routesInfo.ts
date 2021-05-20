@@ -1,4 +1,4 @@
-import { RouteColor, Route } from "@typeDef/index";
+import { RouteColor, Route } from "@typeDef/types";
 type Track = {
   x: number;
   y: number;

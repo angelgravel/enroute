@@ -1,4 +1,4 @@
-import { GameRoutes } from "@typeDef/index";
+import { GameRoutes } from "@typeDef/types";
 
 const initialRoutes: GameRoutes = {
   edin_lond_1: { builtBy: null, color: "orange", bridges: 0, length: 4 },

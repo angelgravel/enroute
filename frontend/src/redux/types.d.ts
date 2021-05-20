@@ -7,7 +7,7 @@ import {
   Ticket,
   Route,
   TrackColor,
-} from "@typeDef/index";
+} from "@typeDef/types";
 
 export type GameState = {
   gameToken: string;
@@ -16,7 +16,7 @@ export type GameState = {
   color: PlayerColor | "";
   trackCards: PlayerTrackCards;
   tickets: Ticket[];
-  tracks: number;
+  remainingTracks: number;
   points: number;
   players: PlayerClient[];
   routes: GameRoutes;

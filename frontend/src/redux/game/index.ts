@@ -17,7 +17,7 @@ export const gameActions = {
   SET_NICKNAME: "setNickname",
   SET_TRACK_CARDS: "setTrackCards",
   SET_TICKETS: "setTickets",
-  SET_TRACKS: "setTracks",
+  SET_REMAINING_TRACKS: "setRemainingTracks",
   SET_POINTS: "setPoints",
   SET_PLAYERS: "setPlayers",
   SET_ROUTES: "setRoutes",
@@ -31,7 +31,7 @@ const initialState: GameState = {
   color: "",
   trackCards: initialTrackCards,
   tickets: [],
-  tracks: 0,
+  remainingTracks: 0,
   points: 0,
   players: [],
   routes: initialRoutes,
@@ -70,9 +70,11 @@ export const setTickets = (newState: Ticket[]) => (dispatch: Dispatch) => {
   });
 };
 
-export const setTracks = (newState: number) => (dispatch: Dispatch) => {
+export const setRemainingTracks = (newState: number) => (
+  dispatch: Dispatch,
+) => {
   return dispatch({
-    type: gameActions.SET_TRACKS,
+    type: gameActions.SET_REMAINING_TRACKS,
     payload: newState,
   });
 };
@@ -118,6 +120,7 @@ const gameReducer = (state: Partial<GameState> = initialState, action: any) => {
         playerId: action.payload.playerId,
         color: action.payload.color,
         nickname: action.payload.nickname,
+        remainingTracks: action.payload.remainingTracks,
       };
     case gameActions.SET_NICKNAME:
       return {
@@ -127,17 +130,17 @@ const gameReducer = (state: Partial<GameState> = initialState, action: any) => {
     case gameActions.SET_TRACK_CARDS:
       return {
         ...state,
-        trackCards: action.payload,
+        // trackCards: action.payload, // TODO: Uncomment to update
       };
     case gameActions.SET_TICKETS:
       return {
         ...state,
         tickets: action.payload,
       };
-    case gameActions.SET_TRACKS:
+    case gameActions.SET_REMAINING_TRACKS:
       return {
         ...state,
-        tracks: action.payload,
+        remainingTracks: action.payload,
       };
     case gameActions.SET_POINTS:
       return {
