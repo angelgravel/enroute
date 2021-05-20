@@ -83,6 +83,10 @@ io.on("connection", (socket) => {
     game.addSocket(socket, io, data.playerId);
   });
   /*********************************************************/
+  socket.on("disconnect", () => {
+    console.log("Socket ", socket.id, "was disconnected!!!");
+    
+  });
 });
 
 server.listen(process.env.API_PORT, () => {
