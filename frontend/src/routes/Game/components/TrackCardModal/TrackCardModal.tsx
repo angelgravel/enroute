@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "notistack";
 import cloneDeep from "lodash.clonedeep";
 
-import { SocketResponse, TrackColor } from "@typeDef/index";
+import { SocketResponse, TrackColor } from "@typeDef/types";
 import { unsetChosenRoute } from "redux/chosenRoute";
 import { RootState } from "redux/store";
 import { socketContext } from "context/socket";

@@ -6,8 +6,8 @@ import PersonOutlineIcon from "@material-ui/icons/PersonOutline";
 import styled from "styled-components";
 
 import TicketsModal from "../TicketsModal";
-import TrackCard from "gameComponents/TrackCard";
-import BackCard from "gameComponents/BackCard";
+import TrackCard from "../TrackCard";
+import BackCard from "routes/Game/components/BackCard";
 
 const PlayerViewWrapper = styled.div`
   display: flex;

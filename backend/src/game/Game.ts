@@ -298,11 +298,7 @@ class Game {
           }
 
           this.emitTickets(player.socket, player.tickets);
-          this.emitTrackCards(
-            player.socket,
-            player.trackCards,
-            "Initial track cards",
-          );
+          this.emitTrackCards(player.socket, player.trackCards, "init");
         }
       }
 

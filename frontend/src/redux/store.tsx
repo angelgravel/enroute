@@ -12,7 +12,7 @@ import gameReducer from "./game";
 import chosenRouteReducer from "./chosenRoute";
 
 import { GameState } from "./types";
-import { GameRoute } from "@typeDef/index";
+import { GameRoute } from "@typeDef/types";
 
 // COMBINING ALL REDUCERS
 const combinedReducer = combineReducers({

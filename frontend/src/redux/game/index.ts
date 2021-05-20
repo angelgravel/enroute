@@ -5,7 +5,7 @@ import {
   PlayerTrackCards,
   Ticket,
   TrackColor,
-} from "@typeDef/index";
+} from "@typeDef/types";
 
 import { GameState } from "../types";
 

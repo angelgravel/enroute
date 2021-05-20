@@ -1,4 +1,4 @@
-import { GameRoute } from "@typeDef/index";
+import { GameRoute } from "@typeDef/types";
 import { Dispatch } from "redux";
 import { ChosenRouteState } from "redux/types";
 

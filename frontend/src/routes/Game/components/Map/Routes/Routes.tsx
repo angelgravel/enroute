@@ -1,19 +1,14 @@
-import React, { FC, forwardRef, useEffect, useState } from "react";
+import { FC, forwardRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 
-import { colorToHex } from "../../../utils/constants";
+import { colorToHex } from "utils/constants";
 import routesInfo, { RouteInfo } from "./routesInfo";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "notistack";
 import { RootState } from "redux/store";
 import { setChosenRoute } from "redux/chosenRoute";
-import {
-  PlayerColor,
-  PlayerTrackCards,
-  Route as RouteType,
-  TrackColor,
-} from "@typeDef/index";
+import { PlayerColor, Route as RouteType, TrackColor } from "@typeDef/types";
 
 const TrackRect = styled(motion.rect)`
   stroke-miterlimit: 10;

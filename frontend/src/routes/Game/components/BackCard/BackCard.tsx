@@ -1,7 +1,7 @@
 import { FC } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
-import BasicCard from "gameComponents/BasicCard";
+import BasicCard from "../BasicCard";
 
 const BackCardWrapper = styled(motion.svg)`
   width: 100%;

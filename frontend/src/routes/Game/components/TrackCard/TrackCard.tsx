@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Rail from "./Rail";
 import { TrackColor } from "@typeDef/types";
 import mapTrackColorToHex from "./mapTrackColorToHex";
-import BasicCard from "gameComponents/BasicCard";
+import BasicCard from "../BasicCard";
 
 const TrackCardWrapper = styled(motion.svg)`
   width: 100%;
@@ -67,11 +67,11 @@ const BridgeGradient: FC = () => (
 
 type TrackCardProps = {
   color: TrackColor;
-  styleProp?: React.CSSProperties;
+  style?: React.CSSProperties;
 };
-const TrackCard: FC<TrackCardProps> = ({ color, styleProp }) => {
+const TrackCard: FC<TrackCardProps> = ({ color, style }) => {
   return (
-    <BasicCard style={styleProp}>
+    <BasicCard style={style}>
       <TrackCardWrapper
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 171.08 256.12"

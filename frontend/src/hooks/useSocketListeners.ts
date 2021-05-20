@@ -17,7 +17,7 @@ import {
   SocketResponse,
   Ticket,
   TrackColor,
-} from "@typeDef/index";
+} from "@typeDef/types";
 
 const useSocketListeners = (socket: Socket) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -54,18 +54,22 @@ const useSocketListeners = (socket: Socket) => {
 
   const routesListener = (data: SocketResponse<GameRoutes>) => {
     if (data) {
-      enqueueSnackbar(data.message, {
-        variant: data.success ? "success" : "error",
-      });
+      if (data.message !== "init") {
+        enqueueSnackbar(data.message, {
+          variant: data.success ? "success" : "error",
+        });
+      }
       dispatch(setRoutes(data.payload));
     }
   };
 
   const trackCardsListener = (data: SocketResponse<PlayerTrackCards>) => {
     if (data) {
-      enqueueSnackbar(data.message, {
-        variant: data.success ? "success" : "error",
-      });
+      if (data.message !== "init") {
+        enqueueSnackbar(data.message, {
+          variant: data.success ? "success" : "error",
+        });
+      }
       dispatch(setTrackCards(data.payload));
     }
   };
