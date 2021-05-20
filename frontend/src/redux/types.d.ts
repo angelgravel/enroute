@@ -6,6 +6,7 @@ import {
   GameRoute,
   Ticket,
   Route,
+  TrackColor,
 } from "@typeDef/index";
 
 export type GameState = {
@@ -19,6 +20,7 @@ export type GameState = {
   points: number;
   players: PlayerClient[];
   routes: GameRoutes;
+  openTrackCards: TrackColor[];
 };
 
 export type ChosenRouteState = {

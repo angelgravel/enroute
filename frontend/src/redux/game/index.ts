@@ -1,12 +1,16 @@
+import { Dispatch } from "redux";
 import {
   GameRoutes,
   PlayerClient,
   PlayerTrackCards,
   Ticket,
+  TrackColor,
 } from "@typeDef/index";
-import { Dispatch } from "redux";
+
 import { GameState } from "../types";
+
 import initialRoutes from "./initialRoutes";
+import initialTrackCards from "./initialTrackCards";
 
 export const gameActions = {
   SET_INIT_GAME: "setInitGame",
@@ -17,6 +21,7 @@ export const gameActions = {
   SET_POINTS: "setPoints",
   SET_PLAYERS: "setPlayers",
   SET_ROUTES: "setRoutes",
+  SET_OPEN_TRACK_CARDS: "setOpenTrackCards",
 };
 
 const initialState: GameState = {
@@ -24,49 +29,13 @@ const initialState: GameState = {
   playerId: "",
   nickname: "",
   color: "",
-  trackCards: {
-    blue: {
-      color: "blue",
-      amount: 0,
-    },
-    orange: {
-      color: "orange",
-      amount: 0,
-    },
-    red: {
-      color: "red",
-      amount: 0,
-    },
-    black: {
-      color: "black",
-      amount: 0,
-    },
-    white: {
-      color: "white",
-      amount: 0,
-    },
-    green: {
-      color: "green",
-      amount: 0,
-    },
-    yellow: {
-      color: "yellow",
-      amount: 0,
-    },
-    pink: {
-      color: "pink",
-      amount: 0,
-    },
-    bridge: {
-      color: "bridge",
-      amount: 0,
-    },
-  },
+  trackCards: initialTrackCards,
   tickets: [],
   tracks: 0,
   points: 0,
   players: [],
   routes: initialRoutes,
+  openTrackCards: [],
 };
 
 export const setInitGame = (newState: Partial<GameState>) => (
@@ -131,6 +100,15 @@ export const setRoutes = (newState: GameRoutes) => (dispatch: Dispatch) => {
   });
 };
 
+export const setOpenTrackCards = (newState: TrackColor[]) => (
+  dispatch: Dispatch,
+) => {
+  return dispatch({
+    type: gameActions.SET_OPEN_TRACK_CARDS,
+    payload: newState,
+  });
+};
+
 const gameReducer = (state: Partial<GameState> = initialState, action: any) => {
   switch (action.type) {
     case gameActions.SET_INIT_GAME:
@@ -175,6 +153,11 @@ const gameReducer = (state: Partial<GameState> = initialState, action: any) => {
       return {
         ...state,
         routes: action.payload,
+      };
+    case gameActions.SET_OPEN_TRACK_CARDS:
+      return {
+        ...state,
+        openTrackCards: action.payload,
       };
     default:
       return state;

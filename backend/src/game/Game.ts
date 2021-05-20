@@ -152,6 +152,21 @@ class Game {
     this.gameRoomSocket?.emit("routes", emitMessage);
   }
 
+  private emitBuildRoute(
+    socket: Socket,
+    success: boolean,
+    code: string,
+    message: string,
+  ) {
+    const emitMessage: SocketResponse<string> = {
+      success,
+      message,
+      payload: code,
+    };
+
+    socket.emit("build_route", emitMessage);
+  }
+
   private nextPlayer() {
     try {
       // Next player
@@ -282,7 +297,7 @@ class Game {
             this.dealTrackCard(player);
           }
 
-          this.emitTickets(socket, player.tickets);
+          this.emitTickets(player.socket, player.tickets);
           this.emitTrackCards(
             player.socket,
             player.trackCards,
@@ -291,7 +306,7 @@ class Game {
         }
       }
 
-      this.emitRoutes("Initial routes");
+      this.emitRoutes("init");
     } catch (error) {
       socket.emit("setup_game", {
         success: false,
@@ -371,18 +386,25 @@ class Game {
     route: Route,
     chosenTrackCards: TrackColor[],
   ) {
-    const player = this.players.find(
-      (p) => p.socket && p.socket.id === socket.id,
-    );
-    //Separate potential bridge cards and track cards of other colors.
-    const chosenBridgeCards = chosenTrackCards.filter(
-      (card) => card === "bridge",
-    );
-    const chosenColoredTrackCards = chosenTrackCards.filter(
-      (card) => card !== "bridge",
-    );
-
     try {
+      if (!this.gameStarted) {
+        throw new SocketError(
+          "The game hasn't started yet!",
+          "game/not_started",
+        );
+      }
+
+      const player = this.players.find(
+        (p) => p.socket && p.socket.id === socket.id,
+      );
+      //Separate potential bridge cards and track cards of other colors.
+      const chosenBridgeCards = chosenTrackCards.filter(
+        (card) => card === "bridge",
+      );
+      const chosenColoredTrackCards = chosenTrackCards.filter(
+        (card) => card !== "bridge",
+      );
+
       if (!player) {
         throw new SocketError(
           "Player not found in the game",
@@ -402,7 +424,7 @@ class Game {
       }
       // Check if all colored cards is the same color.
       if (
-        chosenColoredTrackCards.every(
+        !chosenColoredTrackCards.every(
           (value) => value === chosenColoredTrackCards[0],
         )
       ) {
@@ -480,14 +502,28 @@ class Game {
         player.trackCards,
         `${player.nickname}s track cards are updated`,
       );
+      this.emitBuildRoute(
+        socket,
+        true,
+        `You have built ${route}`,
+        "game/built",
+      );
+
       // Next players turn
       this.nextPlayer();
     } catch (error) {
-      socket.emit("build_route", {
-        success: false,
-        message: error.message,
-        code: error.code,
-      });
+      if ("message" in error && "code" in error) {
+        const { message, code } = error as SocketError;
+        this.emitBuildRoute(socket, false, code, message);
+      } else {
+        console.log(error);
+        this.emitBuildRoute(
+          socket,
+          false,
+          "game/could_not_build_route",
+          `Could not build ${route}. Something went wrong!`,
+        );
+      }
     }
   }
 
@@ -495,10 +531,18 @@ class Game {
     socket: Socket,
     pickedTrackCard: TrackColor,
   ) {
-    const player = this.players.find(
-      (p) => p.socket && p.socket.id === socket.id,
-    );
     try {
+      if (!this.gameStarted) {
+        throw new SocketError(
+          "The game hasn't started yet!",
+          "game/not_started",
+        );
+      }
+
+      const player = this.players.find(
+        (p) => p.socket && p.socket.id === socket.id,
+      );
+
       if (!player) {
         throw new SocketError(
           "Player not found in the game",
@@ -562,11 +606,22 @@ class Game {
         `${player.nickname} picked up a card from open track cards`,
       );
     } catch (error) {
-      socket.emit("pick_card_from_openTrackCards", {
-        success: false,
-        message: error.message,
-        code: error.code,
-      });
+      if ("message" in error && "code" in error) {
+        const { message, code } = error as SocketError;
+        socket.emit("pick_card_from_openTrackCards", {
+          success: false,
+          message: message,
+          payload: code,
+        });
+      } else {
+        console.log(error);
+        socket.emit("pick_card_from_openTrackCards", {
+          success: false,
+          message:
+            "Something went wrong when trying to pick a card from open track cards",
+          payload: "error/pick_card_from_openTrackCards",
+        });
+      }
     }
   }
 
@@ -575,6 +630,13 @@ class Game {
       (p) => p.socket && p.socket.id === socket.id,
     );
     try {
+      if (!this.gameStarted) {
+        throw new SocketError(
+          "The game hasn't started yet!",
+          "game/not_started",
+        );
+      }
+
       if (!player) {
         throw new SocketError(
           "Player not found in the game",
@@ -605,11 +667,21 @@ class Game {
         `${player.nickname} picked up a card`,
       );
     } catch (error) {
-      socket.emit("pick_card_from_TrackCards", {
-        success: false,
-        message: error.message,
-        code: error.code,
-      });
+      if ("message" in error && "code" in error) {
+        const { message, code } = error as SocketError;
+        socket.emit("pick_card_from_trackCards", {
+          success: false,
+          message: message,
+          payload: code,
+        });
+      } else {
+        console.log(error);
+        socket.emit("pick_card_from_trackCards", {
+          success: false,
+          message: "Something went wrong when trying to pick a track card",
+          payload: "error/pick_card",
+        });
+      }
     }
   }
 
@@ -628,13 +700,17 @@ class Game {
       socket.emit("end_game", endResponse);
     }
 
-    socket.on("build_route", (route: Route, data: TrackColor[]) =>
-      this.buildRoute(socket, route, data),
+    type BuildRouteRequest = {
+      route: Route;
+      chosenTrackCards: TrackColor[];
+    };
+    socket.on("build_route", (data: BuildRouteRequest) =>
+      this.buildRoute(socket, data.route, data.chosenTrackCards),
     );
     socket.on("pick_card_from_openTrackCards", (data: TrackColor) =>
       this.pickCardFromOpenTracksCards(socket, data),
     );
-    socket.on("pick_card_from_TrackCards", () =>
+    socket.on("pick_card_from_trackCards", () =>
       this.pickCardFromTracksCards(socket),
     );
 

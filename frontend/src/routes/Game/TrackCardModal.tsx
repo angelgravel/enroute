@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useContext, useEffect, useState } from "react";
 import {
   Backdrop,
   Button,
@@ -11,15 +11,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "notistack";
 import cloneDeep from "lodash.clonedeep";
 
-import { TrackColor } from "@typeDef/index";
+import { SocketResponse, TrackColor } from "@typeDef/index";
 import { unsetChosenRoute } from "redux/chosenRoute";
 import { RootState } from "redux/store";
-import { socket } from "context/socket";
+import { socketContext } from "context/socket";
 import socketEmit from "utils/socketEmit";
 
 type CardModalProps = {};
 const TrackCardModal: FC<CardModalProps> = ({}) => {
   const dispatch = useDispatch();
+  const socket = useContext(socketContext);
   const { enqueueSnackbar } = useSnackbar();
   const { trackCards } = useSelector((state: RootState) => state.game);
   const chosenRoute = useSelector((state: RootState) => state.chosenRoute);
@@ -47,21 +48,37 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
   const handleBuildRoute = () => {
     let _chosenTrackCards = Object.values(chosenTrackCards);
     const data = {
-      chosenRoute: chosenRoute.id,
+      route: chosenRoute.id,
       chosenTrackCards: _chosenTrackCards,
     };
 
     if (socket) {
       socketEmit(socket, "build_route", data);
     }
-
-    setIsModalOpen(false);
-    setChosenTrackCards({});
   };
 
   useEffect(() => {
-    dispatch(unsetChosenRoute());
-  }, []);
+    if (!isModalOpen) {
+      console.log("hej");
+      dispatch(unsetChosenRoute());
+    }
+  }, [isModalOpen]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("build_route", handleSocketResponse);
+    }
+  }, [socket]);
+
+  const handleSocketResponse = (data: SocketResponse<string>) => {
+    if (data.success) {
+      setChosenTrackCards({});
+      enqueueSnackbar(data.message, { variant: "success" });
+      setIsModalOpen(false);
+    } else {
+      enqueueSnackbar(data.message, { variant: "error" });
+    }
+  };
 
   useEffect(() => {
     try {
