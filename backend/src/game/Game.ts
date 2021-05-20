@@ -142,6 +142,7 @@ class Game {
           nickname: player.nickname,
           remainingTracks: player.remainingTracks,
           haveChosenTickets: player.haveChosenTickets,
+          points: player.points,
         });
       }
       this.gameRoomSocket.emit("players", _players);
@@ -729,6 +730,7 @@ class Player {
   remainingTracks: number;
   haveChosenTickets: boolean;
   previousAction: PlayerAction;
+  points: number;
 
   constructor(_color: PlayerColor) {
     this.id = uniqid("player#");
@@ -740,6 +742,7 @@ class Player {
     this.remainingTracks = 45;
     this.haveChosenTickets = false;
     this.previousAction = "none";
+    this.points = 0;
 
     this.socketListeners();
   }

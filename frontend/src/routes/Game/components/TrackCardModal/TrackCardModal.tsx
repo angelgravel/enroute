@@ -59,7 +59,6 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
 
   useEffect(() => {
     if (!isModalOpen) {
-      console.log("hej");
       dispatch(unsetChosenRoute());
     }
   }, [isModalOpen]);
