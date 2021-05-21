@@ -35,18 +35,20 @@ const Rect5 = styled(motion.rect)`
 
 type BackCardProps = {
   style?: React.CSSProperties;
+  rotate?: boolean;
 };
-const BackCard: FC<BackCardProps> = ({ style }) => {
+const BackCard: FC<BackCardProps> = ({ style = {}, rotate = false }) => {
   return (
-    <BasicCard style={style}>
+    <BasicCard style={style} rotate={rotate}>
       <BackCardWrapper
+        style={style}
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 171.08 256.12"
+        viewBox="0 0 256.12 171.08"
       >
         <motion.pattern
           id="New_Pattern_2"
           data-name="New Pattern 2"
-          width="90.71"
+          width="92.71"
           height="87.87"
           patternUnits="userSpaceOnUse"
           viewBox="0 0 90.71 87.87"
@@ -74,8 +76,14 @@ const BackCard: FC<BackCardProps> = ({ style }) => {
             <Polygon2 points="21.98 -19.32 41.3 0 21.98 19.32 2.66 0 21.98 -19.32" />
           </motion.g>
         </motion.pattern>
-        <Rect4 x="0.5" y="0.5" width="170.08" height="255.12" rx="7.14" />
-        <Rect5 x="9.63" y="10.85" width="151.83" height="234.41" />
+        <Rect5
+          x="43.02"
+          y="-42.02"
+          width="170.08"
+          height="255.12"
+          rx="7.14"
+          transform="translate(42.52 213.6) rotate(-90)"
+        />
       </BackCardWrapper>
     </BasicCard>
   );

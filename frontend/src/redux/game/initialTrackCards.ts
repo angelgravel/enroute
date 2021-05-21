@@ -10,39 +10,39 @@ type InitialTrackCards = {
 const initialTrackCards: InitialTrackCards = {
   blue: {
     color: "blue",
-    amount: 1,
+    amount: 0,
   },
   orange: {
     color: "orange",
-    amount: 1,
+    amount: 0,
   },
   red: {
     color: "red",
-    amount: 1,
+    amount: 0,
   },
   black: {
     color: "black",
-    amount: 1,
+    amount: 0,
   },
   white: {
     color: "white",
-    amount: 1,
+    amount: 0,
   },
   green: {
     color: "green",
-    amount: 1,
+    amount: 0,
   },
   yellow: {
     color: "yellow",
-    amount: 1,
+    amount: 0,
   },
   pink: {
     color: "pink",
-    amount: 1,
+    amount: 0,
   },
   bridge: {
     color: "bridge",
-    amount: 1,
+    amount: 0,
   },
 };
 

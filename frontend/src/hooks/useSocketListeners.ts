@@ -6,6 +6,7 @@ import { useSnackbar } from "notistack";
 import {
   setOpenTrackCards,
   setPlayers,
+  setCurrentPlayer,
   setRoutes,
   setTickets,
   setTrackCards,
@@ -13,6 +14,7 @@ import {
 import {
   GameRoutes,
   PlayerClient,
+  PlayerColor,
   PlayerTrackCards,
   SocketResponse,
   Ticket,
@@ -33,6 +35,12 @@ const useSocketListeners = (socket: Socket) => {
       socket.on("track_cards", trackCardsListener);
       socket.on("tickets", ticketsListener);
       socket.on("players", playersListener);
+      socket.on("currentPlayer", currentPlayerListener);
+      socket.on(
+        "pick_card_from_openTrackCards",
+        pickFromOpenTrackCardsListener,
+      );
+      socket.on("pick_card_from_trackCards", pickFromTrackCardsListener);
 
       // TODO: Handle pick initial tickets error handling
     }
@@ -43,6 +51,9 @@ const useSocketListeners = (socket: Socket) => {
       socket.off("track_cards");
       socket.off("tickets");
       socket.off("players");
+      socket.off("currentPlayer");
+      socket.off("pick_card_from_openTrackCards");
+      socket.off("pick_card_from_trackCards");
     };
   }, [socket]);
 
@@ -83,6 +94,35 @@ const useSocketListeners = (socket: Socket) => {
   const playersListener = (players: PlayerClient[]) => {
     if (players) {
       dispatch(setPlayers(players));
+    }
+  };
+
+  const currentPlayerListener = (player: PlayerColor) => {
+    if (player) {
+      dispatch(setCurrentPlayer(player));
+    }
+  };
+
+  const pickFromOpenTrackCardsListener = (
+    data: SocketResponse<PlayerTrackCards>,
+  ) => {
+    if (data) {
+      if (data.message !== "init") {
+        enqueueSnackbar(data.message, {
+          variant: data.success ? "success" : "error",
+        });
+      }
+    }
+  };
+  const pickFromTrackCardsListener = (
+    data: SocketResponse<PlayerTrackCards>,
+  ) => {
+    if (data) {
+      if (data.message !== "init") {
+        enqueueSnackbar(data.message, {
+          variant: data.success ? "success" : "error",
+        });
+      }
     }
   };
 

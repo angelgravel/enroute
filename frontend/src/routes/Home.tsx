@@ -82,7 +82,8 @@ const Home: FC = () => {
   };
 
   //TODO: Add functionality to join a game (check if game code exits and if there is enough room)
-  const handleJoinGame = async () => {
+  const handleJoinGame = async (e: any) => {
+    e.preventDefault();
     try {
       const resp = await axios.patch<SocketResponse<CreateJoinSocketPayload>>(
         "/game",
@@ -158,31 +159,34 @@ const Home: FC = () => {
               padding: "10px",
             }}
           >
-            <Typography variant="h3" style={{ margin: "10px" }}>
-              Enter game code:
-            </Typography>
+            <form onSubmit={handleJoinGame}>
+              <Typography variant="h3" style={{ margin: "10px" }}>
+                Enter game code:
+              </Typography>
 
-            <FormControl variant="outlined">
-              <InputLabel htmlFor="game_code">Game code</InputLabel>
-              <OutlinedInput
-                id="game_code"
-                type={"text"}
-                // value={gameToken}
-                onChange={(e) => setGameToken(e.target.value)}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleJoinGame}
-                      edge="end"
-                    >
-                      <ArrowForwardIcon />
-                    </IconButton>
-                  </InputAdornment>
-                }
-                labelWidth={70}
-              />
-            </FormControl>
+              <FormControl variant="outlined">
+                <InputLabel htmlFor="game_code">Game code</InputLabel>
+                <OutlinedInput
+                  id="game_code"
+                  type={"text"}
+                  // value={gameToken}
+                  onChange={(e) => setGameToken(e.target.value)}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleJoinGame}
+                        edge="end"
+                        type="submit"
+                      >
+                        <ArrowForwardIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  labelWidth={70}
+                />
+              </FormControl>
+            </form>
           </div>
         </Fade>
       </Modal>

@@ -2,6 +2,7 @@ import { Dispatch } from "redux";
 import {
   GameRoutes,
   PlayerClient,
+  PlayerColor,
   PlayerTrackCards,
   Ticket,
   TrackColor,
@@ -20,6 +21,7 @@ export const gameActions = {
   SET_REMAINING_TRACKS: "setRemainingTracks",
   SET_POINTS: "setPoints",
   SET_PLAYERS: "setPlayers",
+  SET_CURRENT_PLAYER: "setCurrentPlayer",
   SET_ROUTES: "setRoutes",
   SET_OPEN_TRACK_CARDS: "setOpenTrackCards",
 };
@@ -34,6 +36,7 @@ const initialState: GameState = {
   remainingTracks: 0,
   points: 0,
   players: [],
+  currentPlayer: "",
   routes: initialRoutes,
   openTrackCards: [],
 };
@@ -95,6 +98,15 @@ export const setPlayers = (newState: PlayerClient[]) => (
   });
 };
 
+export const setCurrentPlayer = (newState: PlayerColor) => (
+  dispatch: Dispatch,
+) => {
+  return dispatch({
+    type: gameActions.SET_CURRENT_PLAYER,
+    payload: newState,
+  });
+};
+
 export const setRoutes = (newState: GameRoutes) => (dispatch: Dispatch) => {
   return dispatch({
     type: gameActions.SET_ROUTES,
@@ -130,7 +142,7 @@ const gameReducer = (state: Partial<GameState> = initialState, action: any) => {
     case gameActions.SET_TRACK_CARDS:
       return {
         ...state,
-        // trackCards: action.payload, // TODO: Uncomment to update
+        trackCards: action.payload,
       };
     case gameActions.SET_TICKETS:
       return {

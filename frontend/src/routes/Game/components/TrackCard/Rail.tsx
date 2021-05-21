@@ -2,14 +2,284 @@ import { FC } from "react";
 
 type RailProps = {
   color: string;
+  rotate: boolean;
 };
-const Rail: FC<RailProps> = ({ color }) => {
+const Rail: FC<RailProps> = ({ color, rotate }) => {
   if (color === "bridge") {
     return (
       <path
         fill="#3e4341"
-        d="M91.72,148.48l-12.62,0a41.89,41.89,0,0,1-4.87,8.18l17.51,0,0-8.17m16.35,8.12,0,8.17-8.16,0,0,8.17-8.17,0,0-8.17-28.57.08,0-8.17H69a44.16,44.16,0,0,0-.15-57.16l-5.84,0,0-8.16,28.57-.08,0-8.16,8.17,0,0,8.17,8.16,0,0,8.17-8.17,0,.16,57.15,8.16,0M79,107.69l12.61,0,0-8.17-17.52.05A42.4,42.4,0,0,1,79,107.69m12.62,4-10.94,0a49.64,49.64,0,0,1,2.15,8.16l8.81,0,0-8.17m0,12.25-8.33,0,.18,4.08-.15,4.09,8.33,0,0-8.16m0,12.25-8.82,0a49.92,49.92,0,0,1-2.1,8.17l10.94,0Z"
+        d={
+          rotate
+            ? "M107.77,91.86l0-12.62a42.39,42.39,0,0,1-8.18-4.87l0,17.51,8.16,0m-8.12,16.35-8.16,0,0-8.16-8.16,0,0-8.17,8.16,0-.08-28.58,8.17,0,0,5.84A44.18,44.18,0,0,0,156.7,69V63.15l8.16,0,.08,28.57,8.16,0,0,8.17-8.17,0,0,8.16-8.16,0,0-8.17L99.63,100l0,8.17m48.91-29.07,0,12.61,8.16,0,0-17.52a41.8,41.8,0,0,1-8.15,4.93m-4,12.62,0-10.94A50.15,50.15,0,0,1,136.33,83l0,8.82,8.17,0m-12.25,0,0-8.33-4.08.18-4.08-.16,0,8.33,8.17,0m-12.25,0L120,83a49.66,49.66,0,0,1-8.17-2.1l0,10.94Z"
+            : "M91.72,148.48l-12.62,0a41.89,41.89,0,0,1-4.87,8.18l17.51,0,0-8.17m16.35,8.12,0,8.17-8.16,0,0,8.17-8.17,0,0-8.17-28.57.08,0-8.17H69a44.16,44.16,0,0,0-.15-57.16l-5.84,0,0-8.16,28.57-.08,0-8.16,8.17,0,0,8.17,8.16,0,0,8.17-8.17,0,.16,57.15,8.16,0M79,107.69l12.61,0,0-8.17-17.52.05A42.4,42.4,0,0,1,79,107.69m12.62,4-10.94,0a49.64,49.64,0,0,1,2.15,8.16l8.81,0,0-8.17m0,12.25-8.33,0,.18,4.08-.15,4.09,8.33,0,0-8.16m0,12.25-8.82,0a49.92,49.92,0,0,1-2.1,8.17l10.94,0Z"
+        }
       />
+    );
+  }
+  if (rotate) {
+    return (
+      <g>
+        <g>
+          <rect
+            fill={color}
+            x="82.47"
+            y="100.88"
+            width="7.1"
+            height="9.12"
+            transform="translate(172.05 210.87) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="78.72"
+            y="100.88"
+            width="14.06"
+            height="1.74"
+            transform="translate(171.49 203.5) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="78.99"
+            y="96.72"
+            width="14.06"
+            height="1.74"
+            transform="translate(172.05 195.19) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="82.47"
+            y="74.3"
+            width="7.1"
+            height="24.17"
+            transform="translate(172.05 172.77) rotate(180)"
+          />
+          <rect fill={color} x="82.47" y="61.64" width="7.1" height="10.37" />
+          <rect fill={color} x="78.72" y="70.27" width="14.06" height="1.74" />
+          <rect fill={color} x="78.72" y="74.3" width="14.06" height="1.74" />
+        </g>
+        <g>
+          <rect
+            fill={color}
+            x="110.59"
+            y="100.88"
+            width="7.1"
+            height="9.12"
+            transform="translate(228.28 210.87) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="106.83"
+            y="100.88"
+            width="14.06"
+            height="1.74"
+            transform="translate(227.72 203.5) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="107.11"
+            y="96.72"
+            width="14.06"
+            height="1.74"
+            transform="translate(228.28 195.19) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="110.59"
+            y="74.3"
+            width="7.1"
+            height="24.17"
+            transform="translate(228.28 172.77) rotate(180)"
+          />
+          <rect fill={color} x="110.59" y="61.64" width="7.1" height="10.37" />
+          <rect fill={color} x="106.83" y="70.27" width="14.06" height="1.74" />
+          <rect fill={color} x="106.83" y="74.3" width="14.06" height="1.74" />
+        </g>
+        <g>
+          <rect
+            fill={color}
+            x="96.53"
+            y="100.88"
+            width="7.1"
+            height="9.12"
+            transform="translate(200.16 210.87) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="92.78"
+            y="100.88"
+            width="14.06"
+            height="1.74"
+            transform="translate(199.61 203.5) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="93.05"
+            y="96.72"
+            width="14.06"
+            height="1.74"
+            transform="translate(200.16 195.19) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="96.53"
+            y="74.3"
+            width="7.1"
+            height="24.17"
+            transform="translate(200.16 172.77) rotate(180)"
+          />
+          <rect fill={color} x="96.53" y="61.64" width="7.1" height="10.37" />
+          <rect fill={color} x="92.78" y="70.27" width="14.06" height="1.74" />
+          <rect fill={color} x="92.78" y="74.3" width="14.06" height="1.74" />
+        </g>
+        <g>
+          <rect
+            fill={color}
+            x="138.7"
+            y="100.88"
+            width="7.1"
+            height="9.12"
+            transform="translate(284.51 210.87) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="134.95"
+            y="100.88"
+            width="14.06"
+            height="1.74"
+            transform="translate(283.96 203.5) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="135.23"
+            y="96.72"
+            width="14.06"
+            height="1.74"
+            transform="translate(284.51 195.19) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="138.7"
+            y="74.3"
+            width="7.1"
+            height="24.17"
+            transform="translate(284.51 172.77) rotate(180)"
+          />
+          <rect fill={color} x="138.7" y="61.64" width="7.1" height="10.37" />
+          <rect fill={color} x="134.95" y="70.27" width="14.06" height="1.74" />
+          <rect fill={color} x="134.95" y="74.3" width="14.06" height="1.74" />
+        </g>
+        <g>
+          <rect
+            fill={color}
+            x="124.65"
+            y="100.88"
+            width="7.1"
+            height="9.12"
+            transform="translate(256.39 210.87) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="120.89"
+            y="100.88"
+            width="14.06"
+            height="1.74"
+            transform="translate(255.84 203.5) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="121.17"
+            y="96.72"
+            width="14.06"
+            height="1.74"
+            transform="translate(256.39 195.19) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="124.65"
+            y="74.3"
+            width="7.1"
+            height="24.17"
+            transform="translate(256.39 172.77) rotate(180)"
+          />
+          <rect fill={color} x="124.65" y="61.64" width="7.1" height="10.37" />
+          <rect fill={color} x="120.89" y="70.27" width="14.06" height="1.74" />
+          <rect fill={color} x="120.89" y="74.3" width="14.06" height="1.74" />
+        </g>
+        <g>
+          <rect
+            fill={color}
+            x="166.82"
+            y="100.88"
+            width="7.1"
+            height="9.12"
+            transform="translate(340.74 210.87) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="163.07"
+            y="100.88"
+            width="14.06"
+            height="1.74"
+            transform="translate(340.19 203.5) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="163.34"
+            y="96.72"
+            width="14.06"
+            height="1.74"
+            transform="translate(340.74 195.19) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="166.82"
+            y="74.3"
+            width="7.1"
+            height="24.17"
+            transform="translate(340.74 172.77) rotate(180)"
+          />
+          <rect fill={color} x="166.82" y="61.64" width="7.1" height="10.37" />
+          <rect fill={color} x="163.07" y="70.27" width="14.06" height="1.74" />
+          <rect fill={color} x="163.07" y="74.3" width="14.06" height="1.74" />
+        </g>
+        <g>
+          <rect
+            fill={color}
+            x="152.76"
+            y="100.88"
+            width="7.1"
+            height="9.12"
+            transform="translate(312.63 210.87) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="149.01"
+            y="100.88"
+            width="14.06"
+            height="1.74"
+            transform="translate(312.07 203.5) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="149.28"
+            y="96.72"
+            width="14.06"
+            height="1.74"
+            transform="translate(312.63 195.19) rotate(180)"
+          />
+          <rect
+            fill={color}
+            x="152.76"
+            y="74.3"
+            width="7.1"
+            height="24.17"
+            transform="translate(312.63 172.77) rotate(180)"
+          />
+          <rect fill={color} x="152.76" y="61.64" width="7.1" height="10.37" />
+          <rect fill={color} x="149.01" y="70.27" width="14.06" height="1.74" />
+          <rect fill={color} x="149.01" y="74.3" width="14.06" height="1.74" />
+        </g>
+      </g>
     );
   }
   return (

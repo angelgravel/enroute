@@ -35,7 +35,9 @@ export type SocketEvent =
   | "track_cards"
   | "setup_game"
   | "players"
-  | "build_route";
+  | "build_route"
+  | "pick_card_from_openTrackCards"
+  | "pick_card_from_trackCards";
 
 export type PlayerTrackCard = {
   color: TrackColor;
