@@ -5,6 +5,7 @@ import TrackCardModal from "./components/TrackCardModal";
 import Map from "./components/Map";
 import PickInitTicketsModal from "./components/PickInitTicketsModal";
 import PlayerView from "./components/PlayerView";
+import TrackCardView from "./components/TrackCardView";
 
 const GameWrapper = styled.div`
   display: flex;
@@ -36,22 +37,6 @@ const OpponentsView: FC = () => {
   return <OpponentsViewWrapper>Opponents View</OpponentsViewWrapper>;
 };
 
-// Placekeeper
-const TracksDeckView: FC = () => {
-  return (
-    <div
-      style={{
-        width: "20%",
-        backgroundColor: "red",
-        textAlign: "center",
-        lineHeight: "25",
-      }}
-    >
-      Tracks Deck View
-    </div>
-  );
-};
-
 const Game: FC = () => {
   return (
     <GameWrapper>
@@ -62,7 +47,7 @@ const Game: FC = () => {
           <OpponentsView />
           <Map />
         </MidWrapper>
-        <TracksDeckView />
+        <TrackCardView />
       </TopWrapper>
       <PlayerView />
     </GameWrapper>

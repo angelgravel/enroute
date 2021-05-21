@@ -19,6 +19,7 @@ export type GameState = {
   remainingTracks: number;
   points: number;
   players: PlayerClient[];
+  currentPlayer: string;
   routes: GameRoutes;
   openTrackCards: TrackColor[];
 };

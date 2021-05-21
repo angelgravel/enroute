@@ -16,13 +16,6 @@ const PlayerViewWrapper = styled.div`
   background-color: #dedede;
 `;
 
-const TracksWrapper = styled.div`
-  max-width: 70%;
-  display: flex;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-`;
-
 const TicketsContainer = styled.div`
   height: fit-content;
 `;
@@ -69,7 +62,7 @@ const PlayerView: FC = () => {
   return (
     <PlayerViewWrapper>
       <TicketsModal modalState={[isTicketsModalOpen, setIsTicketsModalOpen]} />
-      <TracksWrapper>
+      <div>
         {Object.values(trackCards).map((trackCard) => {
           return (
             trackCard.amount > 0 && (
@@ -79,19 +72,19 @@ const PlayerView: FC = () => {
                 key={`trackColor_${trackCard.color}`}
                 style={{ margin: "0.25em 0.25em 0 0.25em" }}
               >
-                <TrackCard color={trackCard.color} />
+                <TrackCard color={trackCard.color} style={{ width: "100px" }} />
               </Badge>
             )
           );
         })}
-      </TracksWrapper>
+      </div>
       <Badge
         badgeContent={tickets.length}
         color="primary"
         style={{ margin: "0.25em 1em 0 1em" }}
       >
         <TicketsContainer onClick={openTicketsModal}>
-          <BackCard />
+          <BackCard style={{ width: "80px" }} />
         </TicketsContainer>
       </Badge>
       <PlayerWrapper>

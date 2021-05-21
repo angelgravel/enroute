@@ -152,6 +152,10 @@ class Game {
     this.gameRoomSocket?.emit("routes", emitMessage);
   }
 
+  private emitCurrentPlayer(currentPlayer: string) {
+    this.gameRoomSocket?.emit("currentPlayer", currentPlayer);
+  }
+
   private emitBuildRoute(
     socket: Socket,
     success: boolean,
@@ -187,6 +191,7 @@ class Game {
         currentPlayerIdx + 1 >= this.players.length ? 0 : currentPlayerIdx + 1;
 
       this.currentPlayer = this.players[nextPlayerIdx];
+      this.emitCurrentPlayer(this.players[nextPlayerIdx].id);
     } catch (err) {
       if (err.message) console.log(err.message);
       // Random player
@@ -364,6 +369,9 @@ class Game {
         this.players = shuffleArray(this.players);
         this.emitPlayers();
 
+        // Set the first player
+        this.nextPlayer();
+
         // Send five open track cards to all players
         this.openTrackCards = Array.from(this.trackCards.splice(0, 5));
         this.emitOpenTrackCards();
@@ -407,6 +415,12 @@ class Game {
           "game/player_not_found",
         );
       }
+      if (player.previousAction !== "none") {
+        throw new SocketError(
+          "Player has already picket up a card and can therefor not build on this round",
+          "game/cant_build",
+        );
+      }
       // Check is it the player's turn.
       if (this.currentPlayer && this.currentPlayer.id !== player.id) {
         throw new SocketError("Its not your turn.", "game/not_your_turn");
@@ -420,6 +434,7 @@ class Game {
       }
       // Check if all colored cards is the same color.
       if (
+        chosenColoredTrackCards.length &&
         !chosenColoredTrackCards.every(
           (value) => value === chosenColoredTrackCards[0],
         )
@@ -436,6 +451,7 @@ class Game {
           "game/not_enough_chosen_cards",
         );
       }
+
       // Does the player have enough bridges?
       if (player.remainingTracks < this.routes[route].length) {
         throw new SocketError(
@@ -460,8 +476,9 @@ class Game {
       }
       // Does the player have the chosen cards of the chosen color?
       if (
+        chosenColoredTrackCards.length &&
         chosenColoredTrackCards.length <
-        player.trackCards[chosenColoredTrackCards[0]].amount
+          player.trackCards[chosenColoredTrackCards[0]].amount
       ) {
         throw new SocketError(
           "Not enough cards of the chosen color to build the chosen route.",
@@ -471,11 +488,12 @@ class Game {
 
       /******** BUILD ROUTE ********/
       // Update players trackCards
-      player.trackCards["bridge"].amount =
-        player.trackCards["bridge"].amount - chosenBridgeCards.length;
-      player.trackCards[chosenColoredTrackCards[0]].amount =
-        player.trackCards[chosenColoredTrackCards[0]].amount -
-        chosenColoredTrackCards.length;
+      player.trackCards["bridge"].amount -= chosenBridgeCards.length;
+      if (chosenColoredTrackCards.length) {
+        player.trackCards[chosenColoredTrackCards[0]].amount -=
+          chosenColoredTrackCards.length;
+      }
+
       // Update the players remainingTracks
       player.remainingTracks =
         player.remainingTracks - this.routes[route].length;
@@ -545,6 +563,11 @@ class Game {
           "game/player_not_found",
         );
       }
+
+      if (!this.currentPlayer) {
+        this.nextPlayer();
+      }
+
       // Check is it the player's turn.
       if (this.currentPlayer && this.currentPlayer.id !== player.id) {
         throw new SocketError("Its not your turn.", "game/not_your_turn");
@@ -570,8 +593,6 @@ class Game {
         player.previousAction === "picked_track_card" &&
         pickedTrackCard === "bridge"
       ) {
-        // Next players turn
-        this.nextPlayer();
         throw new SocketError(
           "You can not pick up a Bridge card on this move",
           "game/not_able_to_pick_up_bridge",
@@ -583,6 +604,7 @@ class Game {
       let newTrackCard = this.pickTrackCard();
       this.openTrackCards.push(newTrackCard);
       /******* Update players previousAction state ******/
+
       if (player.previousAction === "none") {
         if (pickedTrackCard === "bridge") {
           player.previousAction = "none";
@@ -591,16 +613,20 @@ class Game {
         } else {
           player.previousAction = "picked_track_card";
         }
+      } else if (player.previousAction === "picked_track_card") {
+        player.previousAction = "none";
+        // Next players turn
+        this.nextPlayer();
       }
       /******* Update players trackCards ******/
-      player.trackCards[pickedTrackCard].amount =
-        player.trackCards[pickedTrackCard].amount + 1;
+      ++player.trackCards[pickedTrackCard].amount;
 
       this.emitTrackCards(
         socket,
         player.trackCards,
         `${player.nickname} picked up a card from open track cards`,
       );
+      this.emitOpenTrackCards();
     } catch (error) {
       if ("message" in error && "code" in error) {
         const { message, code } = error as SocketError;

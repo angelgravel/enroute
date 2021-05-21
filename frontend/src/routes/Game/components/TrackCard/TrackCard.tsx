@@ -6,7 +6,10 @@ import { TrackColor } from "@typeDef/types";
 import mapTrackColorToHex from "./mapTrackColorToHex";
 import BasicCard from "../BasicCard";
 
-const TrackCardWrapper = styled(motion.svg)`
+type TrackCardWrapperProps = {
+  isRotated: boolean;
+};
+const TrackCardWrapper = styled(motion.svg)<TrackCardWrapperProps>`
   width: 100%;
   height: 100%;
 `;
@@ -68,46 +71,56 @@ const BridgeGradient: FC = () => (
 type TrackCardProps = {
   color: TrackColor;
   style?: React.CSSProperties;
+  rotate?: boolean;
 };
-const TrackCard: FC<TrackCardProps> = ({ color, style }) => {
+const TrackCard: FC<TrackCardProps> = ({
+  color,
+  style = {},
+  rotate = false,
+}) => {
   return (
-    <BasicCard style={style}>
+    <BasicCard style={style} rotate={rotate}>
       <TrackCardWrapper
+        style={style}
+        isRotated={rotate}
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 171.08 256.12"
+        viewBox={rotate ? "0 0 256.12 171.08" : "0 0 171.08 256.12"}
       >
         {color === "bridge" && <BridgeGradient />}
         <Bg1
           fill={mapTrackColorToHex[color].bg1.fill}
-          x="9.71"
-          y="10.99"
+          x={rotate ? "52.15" : "9.71"}
+          y={rotate ? "-31.39" : "10.99"}
           width="151.83"
           height="234.41"
+          transform={rotate ? "translate(42.24 213.88) rotate(-90)" : ""}
         />
         <Bg2
           fill={mapTrackColorToHex[color].bg2.fill}
           stroke={mapTrackColorToHex[color].bg2.stroke}
-          x="20.44"
-          y="29.86"
+          x={rotate ? "62.88" : "20.44"}
+          y={rotate ? "-12.52" : "29.86"}
           width="130.37"
           height="196.67"
+          transform={rotate ? "translate(42.24 213.88) rotate(-90)" : ""}
         />
         <Bg3
           fill={mapTrackColorToHex[color].bg3.fill}
           stroke={mapTrackColorToHex[color].bg3.stroke}
-          x="26.95"
-          y="37.85"
+          x={rotate ? "68.53" : "26.95"}
+          y={rotate ? "-4.53" : "37.85"}
           width="117.33"
           height="180.69"
+          transform={rotate ? "translate(41.38 213.01) rotate(-90)" : ""}
         />
         <Circle
           fill={mapTrackColorToHex[color].circle.fill}
           stroke={mapTrackColorToHex[color].circle.stroke}
-          cx="85.62"
-          cy="128.2"
+          cx={rotate ? "128.06" : "85.62"}
+          cy={rotate ? "85.82" : "128.2"}
           r="69.39"
         />
-        <Rail color={mapTrackColorToHex[color].rail.fill} />
+        <Rail color={mapTrackColorToHex[color].rail.fill} rotate={rotate} />
       </TrackCardWrapper>
     </BasicCard>
   );

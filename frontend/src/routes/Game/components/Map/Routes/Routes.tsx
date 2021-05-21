@@ -50,7 +50,6 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
 
   const handleClick = () => {
     try {
-      console.log(routes);
       if (!trackCards || !routes || !routes[id]) throw new Error("");
 
       if (routes[id].builtBy !== null) {
@@ -66,7 +65,6 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
       const noBridges = Object.values(trackCards).filter(
         ({ color }) => color !== "bridge",
       );
-      console.log(noBridges);
 
       if (
         (routes[id].color === "any" &&
