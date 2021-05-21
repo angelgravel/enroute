@@ -12,6 +12,7 @@ import {
 } from "@material-ui/core";
 import RailIcon from "utils/RailIcon";
 import mapTrackColorToHex from "../TrackCard/mapTrackColorToHex";
+import { playerColorToHex } from "utils/constants";
 
 const OpponentsViewWrapper = styled.div`
   display: flex;
@@ -86,7 +87,7 @@ const OpponentsView: FC = () => {
                   <Lower>
                     <OpponentAvatar
                       style={{
-                        color: `${mapTrackColorToHex[opponent.color].bg1.fill}`,
+                        color: playerColorToHex[opponent.color],
                       }}
                     />
                     <OpponentsInfo>
@@ -96,7 +97,7 @@ const OpponentsView: FC = () => {
                           color="primary"
                         >
                           <RailIcon
-                            color={mapTrackColorToHex[opponent.color].rail.fill}
+                            color={playerColorToHex[opponent.color]}
                             style={{
                               fontSize: "2.5rem",
                             }}

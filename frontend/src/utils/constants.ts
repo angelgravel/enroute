@@ -16,26 +16,15 @@ export const colorToHex: ColorToHex = {
 };
 
 type PlayerColorToHex = {
-  [color in PlayerColor]: {
-    color: string;
-  };
+  [color in PlayerColor]: string;
 };
 export const playerColorToHex: PlayerColorToHex = {
-  black: {
-    color: "",
-  },
-  blue: {
-    color: "",
-  },
-  red: {
-    color: "",
-  },
-  green: {
-    color: "",
-  },
-  yellow: {
-    color: "",
-  },
+  blue: "#64b5f6",
+  red: "#e57373",
+  green: "#81c784",
+  yellow: "#ffb74d",
+  // pink:  "#f6a5c0",
+  black: "#261a15",
 };
 
 export const initialRoutes = {

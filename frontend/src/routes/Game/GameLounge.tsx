@@ -19,6 +19,7 @@ import {
   AddSocketEmit,
 } from "@typeDef/types";
 import socketEmit from "utils/socketEmit";
+import { playerColorToHex } from "utils/constants";
 /*=====================================*/
 
 const Container = styled.div`
@@ -106,7 +107,7 @@ const GameLounge: FC<GameLoungeProps> = ({}) => {
                     <div style={{ display: "inline-grid" }} key={playerId}>
                       <PersonOutlineIcon
                         style={{
-                          color: `${player.color}`,
+                          color: `${playerColorToHex[player.color]}`,
                           height: "80px",
                           width: "80px",
                         }}
