@@ -86,7 +86,7 @@ const PickInitTicketsModal: FC = () => {
         <ContentWrapper>
           <Typography
             variant="h3"
-            style={{ margin: "10px", textAlign: "center" }}
+            style={{ margin: "10px", textAlign: "center", userSelect: "none" }}
           >
             Choose at least two Destination Tickets to keep
           </Typography>
@@ -103,6 +103,7 @@ const PickInitTicketsModal: FC = () => {
                         style={{ width: "15rem", cursor: "pointer" }}
                         ticket={ticket}
                         raised={isChosen(ticket)}
+                        interactable
                       />
                     </div>
                   );
@@ -122,7 +123,7 @@ const PickInitTicketsModal: FC = () => {
                 filter: "drop-shadow(0 0 2px rgba(50, 50, 50, 0.3))",
               }}
             >
-              Choose tickets ({chosenTickets.length})
+              Choose tickets
             </Typography>
           </Button>
         </ContentWrapper>

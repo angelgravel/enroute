@@ -1,24 +1,25 @@
+import { motion } from "framer-motion";
 import { FC } from "react";
 import styled from "styled-components";
 
 const HEIGHT = 256.12;
 const WIDTH = 171.08;
-const SHADOW =
-  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)";
 
 type BasicCardWrapperProps = {
   rotate?: boolean;
   raised?: boolean;
+  interactable?: boolean;
 };
-const BasicCardWrapper = styled.div<BasicCardWrapperProps>`
+const BasicCardWrapper = styled(motion.div)<BasicCardWrapperProps>`
   background-color: #fff;
-  border: 1px solid rgb(180, 180, 180); // TODO: remove?
   width: 100%;
   padding-top: ${({ rotate }) =>
     (rotate ? WIDTH / HEIGHT : HEIGHT / WIDTH) * 100}%;
   position: relative;
-  box-shadow: ${({ raised }) => (raised ? SHADOW : 0)};
-  transition: box-shadow 0.2s ease-in-out;
+  box-shadow: 0 0 8px ${({ raised }) => (raised ? 2 : 0)}px
+    rgba(50, 50, 50, 0.2);
+  transition: all 100ms ease;
+  border-radius: 0.3rem;
 `;
 
 const BasicCardContent = styled.div`
@@ -33,15 +34,46 @@ type BasicCardProps = {
   rotate: boolean;
   style: React.CSSProperties;
   raised?: boolean;
+  interactable?: boolean;
 };
 const BasicCard: FC<BasicCardProps> = ({
   children,
   style,
   rotate = false,
   raised = false,
+  interactable = false,
 }) => {
   return (
-    <BasicCardWrapper style={style} rotate={rotate} raised={raised}>
+    <BasicCardWrapper
+      style={style}
+      rotate={rotate}
+      raised={raised}
+      initial={false}
+      animate={raised ? "isRaised" : interactable ? "isNotRaised" : "initial"}
+      variants={{
+        isRaised: {
+          scale: 1,
+          opacity: 1,
+          transition: { duration: 0.1 },
+        },
+        isNotRaised: {
+          scale: 0.93,
+          opacity: 0.5,
+          transition: { duration: 0.1 },
+        },
+        initial: {
+          scale: 1,
+          opacity: 1,
+        },
+      }}
+      interactable={interactable}
+      whileHover={
+        interactable && !raised
+          ? { opacity: 0.7, transition: { duration: 0 } }
+          : {}
+      }
+      whileTap={interactable ? { scale: 0.85 } : {}}
+    >
       <BasicCardContent>{children}</BasicCardContent>
     </BasicCardWrapper>
   );

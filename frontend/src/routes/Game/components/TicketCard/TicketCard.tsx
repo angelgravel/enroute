@@ -75,6 +75,7 @@ const PointsText = styled(motion.text)`
   font-size: 41px;
   font-family: Roboto-Black, Roboto;
   font-weight: 800;
+  user-select: none;
 `;
 
 const RouteText = styled(motion.text)`
@@ -82,21 +83,28 @@ const RouteText = styled(motion.text)`
   font-size: 34px;
   font-family: AmaticSC-Bold, Amatic SC;
   font-weight: 700;
+  user-select: none;
 `;
 
 type TicketCardProps = {
   style?: React.CSSProperties;
   ticket: Ticket;
   raised?: boolean;
-  // rotate?: boolean;
+  interactable?: boolean;
 };
 const TicketCard: FC<TicketCardProps> = ({
   style = {},
   ticket,
   raised = false,
+  interactable,
 }) => {
   return (
-    <BasicCard style={style} rotate={true} raised={raised}>
+    <BasicCard
+      style={style}
+      rotate={true}
+      raised={raised}
+      interactable={interactable}
+    >
       <TicketCardWrapper
         style={style}
         xmlns="http://www.w3.org/2000/svg"
