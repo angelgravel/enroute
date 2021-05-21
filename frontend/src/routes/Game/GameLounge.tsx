@@ -10,11 +10,11 @@ import logo from "../../assets/location.gif";
 
 import { RootState } from "../../redux/store";
 import { socketContext } from "../../context/socket";
+import CopyToClipboard from "./components/CopyToClipboard";
 
 /*=============== Types ===============*/
 import {
   SocketResponse,
-  SocketEvent,
   AddSocketPayload,
   AddSocketEmit,
 } from "@typeDef/types";
@@ -94,8 +94,24 @@ const GameLounge: FC<GameLoungeProps> = ({}) => {
       <img src={logo} style={{ height: "80px" }} alt="logo" />
       <Card style={{ display: "inline-grid", padding: "20px" }}>
         <Typography variant="h2">Game lounge</Typography>
-        <Typography variant="h5">Game code: {gameToken}</Typography>
-
+        {/* <Typography variant="h5">Game code: {gameToken}</Typography> */}
+        {/* TODO: Change gameId to gameIdUrl */}
+        <CopyToClipboard TooltipProps={{ title: "Copied Game ID!" }}>
+          {({ copy }) => (
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => copy(gameToken)}
+            >
+              <Typography
+                variant="h6"
+                style={{ filter: "drop-shadow(0 0 2px rgba(50, 50, 50, 0.3))" }}
+              >
+                Copy Game ID
+              </Typography>
+            </Button>
+          )}
+        </CopyToClipboard>
         <Card style={{ margin: "20px", padding: "10px", textAlign: "center" }}>
           <Typography variant="h5" style={{ margin: "10px" }}>
             Players
