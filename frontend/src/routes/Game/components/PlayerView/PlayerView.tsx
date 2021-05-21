@@ -8,6 +8,7 @@ import styled from "styled-components";
 import TicketsModal from "../TicketsModal";
 import TrackCard from "../TrackCard";
 import BackCard from "routes/Game/components/BackCard";
+import { playerColorToHex } from "utils/constants";
 
 const PlayerViewWrapper = styled.div`
   display: flex;
@@ -97,7 +98,7 @@ const PlayerView: FC = () => {
       <PlayerWrapper>
         <PersonOutlineIcon
           style={{
-            color: `${color}`,
+            color: color ? playerColorToHex[color] : "transparent",
             display: "block",
             height: "80px",
             width: "80px",
