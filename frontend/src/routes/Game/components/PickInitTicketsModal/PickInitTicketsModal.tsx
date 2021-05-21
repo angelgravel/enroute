@@ -78,6 +78,8 @@ const PickInitTicketsModal: FC = () => {
       closeAfterTransition
       BackdropComponent={Backdrop}
       BackdropProps={{ timeout: 500 }}
+      disableBackdropClick
+      disableEscapeKeyDown
     >
       <Fade in={isModalOpen}>
         <div

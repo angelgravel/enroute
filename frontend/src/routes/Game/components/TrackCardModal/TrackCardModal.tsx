@@ -59,7 +59,6 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
 
   useEffect(() => {
     if (!isModalOpen) {
-      console.log("hej");
       dispatch(unsetChosenRoute());
     }
   }, [isModalOpen]);
@@ -211,7 +210,8 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
                 filter: "drop-shadow(0 0 2px rgba(50, 50, 50, 0.3))",
               }}
             >
-              Build route ({Object.keys(chosenTrackCards).length})
+              Build route ({Object.keys(chosenTrackCards).length}/
+              {chosenRoute.length})
             </Typography>
           </Button>
         </div>
