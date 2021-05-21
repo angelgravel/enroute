@@ -1,14 +1,7 @@
 import { FC } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store";
-import {
-  Button,
-  Typography,
-  Modal,
-  Backdrop,
-  Fade,
-  makeStyles,
-} from "@material-ui/core";
+import { Button, Typography, Modal, Backdrop, Fade } from "@material-ui/core";
 import styled from "styled-components";
 
 import TicketCard from "../TicketCard";
@@ -31,20 +24,6 @@ const ContentWrapper = styled.div`
   max-width: 690px;
 `;
 
-const useStyles = makeStyles({
-  ticketsCard: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    margin: "1vw",
-    height: "25vh",
-    width: "20vw",
-    minWidth: "70px",
-    maxWidth: "175px",
-    textAlign: "center",
-  },
-});
-
 type TicketsModalProp = {
   modalState: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
 };
@@ -53,7 +32,6 @@ const TicketsModal: FC<TicketsModalProp> = ({
   modalState: [isModalOpen, setIsModalOpen],
 }) => {
   const { tickets } = useSelector((state: RootState) => state.game);
-  const classes = useStyles();
 
   return (
     <Modal

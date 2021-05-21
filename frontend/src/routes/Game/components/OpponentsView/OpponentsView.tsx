@@ -11,7 +11,6 @@ import {
   withStyles,
 } from "@material-ui/core";
 import RailIcon from "utils/RailIcon";
-import mapTrackColorToHex from "../TrackCard/mapTrackColorToHex";
 import { playerColorToHex } from "utils/constants";
 
 const OpponentsViewWrapper = styled.div`

@@ -20,12 +20,6 @@ const Polygon3 = styled(motion.polygon)`
   stroke-miterlimit: 10;
 `;
 
-const Rect4 = styled(motion.rect)`
-  fill: #fff;
-  stroke: #fefdfe;
-  stroke-miterlimit: 10;
-`;
-
 const Rect5 = styled(motion.rect)`
   stroke: #edc4d4;
   stroke-linejoin: round;
