@@ -2,25 +2,28 @@ import { FC, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store";
 import styled from "styled-components";
-import {
-  Button,
-  Typography,
-  Modal,
-  Backdrop,
-  Fade,
-  Card,
-  CardContent,
-  CardHeader,
-} from "@material-ui/core";
+import { Button, Typography, Modal, Backdrop, Fade } from "@material-ui/core";
 
 import { SocketEvent, Ticket } from "@typeDef/types";
 import { socketContext } from "context/socket";
-import { firstCap } from "utils/firstCap";
+import TicketCard from "../TicketCard";
+
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: white;
+  border: 4px solid #f9b1cd;
+  border-radius: 4px;
+  padding: 10px;
+  max-width: 690px;
+`;
 
 const CardsWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
 `;
 
 const PickInitTicketsModal: FC = () => {
@@ -80,80 +83,27 @@ const PickInitTicketsModal: FC = () => {
       BackdropProps={{ timeout: 500 }}
     >
       <Fade in={isModalOpen}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            backgroundColor: "white",
-            border: "4px solid #f9b1cd",
-            borderRadius: "4px",
-            padding: "10px",
-          }}
-        >
+        <ContentWrapper>
           <Typography
             variant="h3"
             style={{ margin: "10px", textAlign: "center" }}
           >
             Choose at least two Destination Tickets to keep
           </Typography>
-
           <CardsWrapper>
             {tickets && tickets.length
               ? tickets.map((ticket) => {
                   return (
-                    <div key={`${ticket.start}_${ticket.end}`}>
-                      <Card
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "space-between",
-                          margin: "1vw",
-                          height: "25vh",
-                          width: "20vw",
-                          minWidth: "70px",
-                          maxWidth: "175px",
-                          textAlign: "center",
-                        }}
+                    <div
+                      key={`${ticket.start}_${ticket.end}`}
+                      style={{ padding: "10px" }}
+                      onClick={() => markTicket(ticket)}
+                    >
+                      <TicketCard
+                        style={{ width: "15rem", cursor: "pointer" }}
+                        ticket={ticket}
                         raised={isChosen(ticket)}
-                        onClick={() => markTicket(ticket)}
-                      >
-                        <div>
-                          <CardHeader
-                            title={`${firstCap(ticket.start)}`}
-                            titleTypographyProps={{
-                              align: "center",
-                            }}
-                            style={{
-                              paddingBottom: "0.1vh",
-                            }}
-                          />
-                          <CardHeader
-                            title="-"
-                            titleTypographyProps={{
-                              align: "center",
-                            }}
-                            style={{
-                              paddingBottom: "0.1vh",
-                              paddingTop: "0.1vh",
-                            }}
-                          />
-                          <CardHeader
-                            title={`${firstCap(ticket.end)}`}
-                            titleTypographyProps={{
-                              align: "center",
-                            }}
-                            style={{
-                              paddingTop: "0.1vh",
-                            }}
-                          />
-                        </div>
-                        <CardContent>
-                          <Typography align="center">
-                            {ticket.points} points
-                          </Typography>
-                        </CardContent>
-                      </Card>
+                      />
                     </div>
                   );
                 })
@@ -162,7 +112,7 @@ const PickInitTicketsModal: FC = () => {
           <Button
             variant="contained"
             color="secondary"
-            style={{ maxWidth: "200px", alignSelf: "center" }}
+            style={{ maxWidth: "210px", alignSelf: "center" }}
             onClick={chooseTickets}
             disabled={!isEnoughCards}
           >
@@ -172,10 +122,10 @@ const PickInitTicketsModal: FC = () => {
                 filter: "drop-shadow(0 0 2px rgba(50, 50, 50, 0.3))",
               }}
             >
-              Choose tickets
+              Choose tickets ({chosenTickets.length})
             </Typography>
           </Button>
-        </div>
+        </ContentWrapper>
       </Fade>
     </Modal>
   );

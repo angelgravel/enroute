@@ -7,19 +7,17 @@ import {
   Modal,
   Backdrop,
   Fade,
-  Card,
-  CardContent,
-  CardHeader,
   makeStyles,
 } from "@material-ui/core";
 import styled from "styled-components";
 
-import { firstCap } from "utils/firstCap";
+import TicketCard from "../TicketCard";
 
 const CardsWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
 `;
 
 const ContentWrapper = styled.div`
@@ -30,6 +28,7 @@ const ContentWrapper = styled.div`
   border: 4px solid #f9b1cd;
   border-radius: 4px;
   padding: 10px;
+  max-width: 690px;
 `;
 
 const useStyles = makeStyles({
@@ -84,48 +83,11 @@ const TicketsModal: FC<TicketsModalProp> = ({
             {tickets && tickets.length
               ? tickets.map((ticket) => {
                   return (
-                    <div key={`${ticket.start}_${ticket.end}`}>
-                      <Card
-                        key={`${ticket.start}_${ticket.end}`}
-                        className={classes.ticketsCard}
-                      >
-                        {/* TODO: Make cleaner code. Other way to make new line? */}
-                        <div>
-                          <CardHeader
-                            title={`${firstCap(ticket.start)}`}
-                            titleTypographyProps={{
-                              align: "center",
-                            }}
-                            style={{
-                              paddingBottom: "0.1vh",
-                            }}
-                          />
-                          <CardHeader
-                            title="-"
-                            titleTypographyProps={{
-                              align: "center",
-                            }}
-                            style={{
-                              paddingBottom: "0.1vh",
-                              paddingTop: "0.1vh",
-                            }}
-                          />
-                          <CardHeader
-                            title={`${firstCap(ticket.end)}`}
-                            titleTypographyProps={{
-                              align: "center",
-                            }}
-                            style={{
-                              paddingTop: "0.1vh",
-                            }}
-                          />
-                        </div>
-                        <CardContent>
-                          <Typography align="center">
-                            {ticket.points} points
-                          </Typography>
-                        </CardContent>
-                      </Card>
+                    <div
+                      key={`${ticket.start}_${ticket.end}`}
+                      style={{ padding: "10px" }}
+                    >
+                      <TicketCard style={{ width: "15rem" }} ticket={ticket} />
                     </div>
                   );
                 })
