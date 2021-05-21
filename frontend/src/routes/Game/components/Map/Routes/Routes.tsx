@@ -1,5 +1,5 @@
 import { FC, forwardRef, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import styled from "styled-components";
 
 import { colorToHex } from "utils/constants";
@@ -14,6 +14,10 @@ const TrackRect = styled(motion.rect)`
   stroke-miterlimit: 10;
 `;
 
+const RailRect = styled(motion.rect)`
+  stroke-miterlimit: 10;
+`;
+
 const BridgeSvg = styled(motion.path)`
   fill: #262626;
 `;
@@ -24,14 +28,25 @@ const Bridge: FC<BridgeProps> = ({ d }) => (
   <BridgeSvg d={d} transform="translate(0)" />
 );
 
-const TrackGroup = styled(motion.g)`
-  cursor: pointer;
-  filter: brightness(1) opacity(0.95);
+type TrackGroupProps = {
+  canBuild: boolean;
+};
+const TrackGroup = styled(motion.g)<TrackGroupProps>`
+  filter: brightness(1) opacity(0.9);
   transition: filter 150ms ease;
 
-  &:hover {
-    filter: brightness(0.8) opacity(1);
-  }
+  ${({ canBuild }) =>
+    canBuild
+      ? `
+    cursor: pointer;
+
+    &:hover {
+      filter: brightness(0.9) opacity(1);
+    }
+  `
+      : `
+    cursor: not-allowed;
+  `}
 `;
 
 type RouteProps = {
@@ -43,12 +58,74 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
   const dispatch = useDispatch();
   const { routes, trackCards } = useSelector((state: RootState) => state.game);
   const color = colorToHex[routeInfo.color];
-  const tracks = routeInfo.tracks;
-  const bridges = routeInfo.bridges;
+  const { emptyTracks, builtTracks, bridges } = routeInfo;
 
   const [builtBy, setBuiltBy] = useState<PlayerColor | null>(null);
+  const [canBuild, setCanBuild] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const builtTracksWrapperVariants = {
+    isBuilt: {
+      transition: {
+        staggerChildren: emptyTracks.length > 1 ? 0.2 : 0.03,
+        delayChildren: emptyTracks.length > 1 ? 0.2 : 0.01,
+      },
+    },
+    isNotBuilt: {
+      transition: { staggerChildren: 0.15, staggerDirection: -1 },
+    },
+  };
+
+  const builtTracksGroupVariants = {
+    isBuilt: {
+      transition: {
+        staggerChildren: 0.03,
+        delayChildren: 0.01,
+      },
+    },
+    isNotBuilt: {
+      transition: {
+        staggerChildren: 0.15,
+        staggerDirection: -1,
+      },
+    },
+  };
+
+  const builtTracksVariants = {
+    isBuilt: {
+      opacity: 1,
+      // scale: 1,
+    },
+    isNotBuilt: {
+      opacity: 0,
+      // scale: 0,
+    },
+  };
 
   const handleClick = () => {
+    if (canBuild) {
+      dispatch(
+        setChosenRoute({
+          id,
+          builtBy: null,
+          color: routeInfo.color,
+          bridges: routes[id].bridges,
+          length: routes[id].length,
+        }),
+      );
+    } else {
+      console.log(errorMessage);
+      enqueueSnackbar(errorMessage, { variant: "error" });
+    }
+  };
+
+  useEffect(() => {
+    if (routes && routes[id]) {
+      setBuiltBy(routes[id].builtBy);
+    }
+  }, [routes]);
+
+  useEffect(() => {
     try {
       if (!trackCards || !routes || !routes[id]) throw new Error("");
 
@@ -79,80 +156,93 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
         throw new Error("not_enough_track_cards");
       }
 
-      const { color, bridges, tracks } = routeInfo;
-
-      dispatch(
-        setChosenRoute({
-          id: id,
-          builtBy: null,
-          color,
-          bridges: bridges.length,
-          length: tracks.length,
-        }),
-      );
+      setCanBuild(true);
     } catch (error) {
-      console.log(error);
       switch (error.message) {
         case "already_built":
-          enqueueSnackbar(`Already built by ${routes[id].builtBy}!`, {
-            variant: "error",
-          });
+          setErrorMessage(
+            `That route is already built by ${routes[id].builtBy}`,
+          );
           break;
         case "not_enough_track_cards":
-          enqueueSnackbar(`Not enough track cards to build that route!`, {
-            variant: "error",
-          });
+          setErrorMessage(
+            `You don't have enough track cards to build that route`,
+          );
           break;
         case "not_enough_bridges":
-          enqueueSnackbar(`Not enough bridges to build that route!`, {
-            variant: "error",
-          });
+          setErrorMessage(
+            `You don't have enough bridge cards to build that route`,
+          );
           break;
         default:
-          enqueueSnackbar(`Error!`, {
-            variant: "error",
-          });
+          setErrorMessage(`Cannot build that route`);
           break;
       }
     }
-  };
-
-  useEffect(() => {
-    if (routes && routes[id]) {
-      setBuiltBy(routes[id].builtBy);
-    }
-  }, [routes]);
+  }, [trackCards]);
 
   return (
-    <TrackGroup
-      ref={ref}
-      id={id}
-      onClick={() => {
-        handleClick();
-      }}
-    >
-      {tracks.map((track) => (
-        <TrackRect
-          {...track}
-          rx="3"
-          fill={builtBy || color[0]}
-          stroke={builtBy || color[1]}
-        />
-      ))}
-      {bridges.map((d) => (
-        <Bridge d={d} />
-      ))}
-    </TrackGroup>
+    <motion.g initial={false} animate={builtBy ? "isBuilt" : "isNotBuilt"}>
+      <AnimatePresence>
+        {builtBy ? (
+          <motion.g
+            variants={builtTracksWrapperVariants}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {builtTracks.map((builtTracks, i) => (
+              <motion.g
+                variants={builtTracksGroupVariants}
+                key={`builtTrack-${i}`}
+              >
+                {builtTracks.map((builtTrack) => (
+                  <RailRect
+                    key={`builtTrack-${i}-${builtTrack.x}-${builtTrack.y}`}
+                    {...builtTrack}
+                    fill={builtBy}
+                    variants={builtTracksVariants}
+                  />
+                ))}
+              </motion.g>
+            ))}
+          </motion.g>
+        ) : (
+          <TrackGroup
+            canBuild={canBuild}
+            ref={ref}
+            id={id}
+            onClick={() => {
+              handleClick();
+            }}
+            whileHover={canBuild ? { scale: 1.08 } : {}}
+            whileTap={canBuild ? { scale: 0.95 } : {}}
+          >
+            {emptyTracks.map((emptyTrack) => (
+              <TrackRect
+                {...emptyTrack}
+                key={`emptyTrack-${emptyTrack.x}-${emptyTrack.y}`}
+                fill={color[0]}
+                stroke={color[1]}
+              />
+            ))}
+            {bridges.map((d, i) => (
+              <Bridge d={d} key={`bridge-${i}`} />
+            ))}
+          </TrackGroup>
+        )}
+      </AnimatePresence>
+    </motion.g>
   );
 });
 
 const Routes: FC = () => {
   return (
-    <g id="tracks">
+    <motion.g id="tracks">
       {Object.entries(routesInfo).map(([id, routeInfo]) => (
-        <Route id={id as RouteType} routeInfo={routeInfo} />
+        <Route key={`route-${id}`} id={id as RouteType} routeInfo={routeInfo} />
       ))}
-    </g>
+    </motion.g>
   );
 };
 

@@ -210,7 +210,8 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
                 filter: "drop-shadow(0 0 2px rgba(50, 50, 50, 0.3))",
               }}
             >
-              Build route ({Object.keys(chosenTrackCards).length})
+              Build route ({Object.keys(chosenTrackCards).length}/
+              {chosenRoute.length})
             </Typography>
           </Button>
         </div>
