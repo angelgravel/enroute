@@ -1,4 +1,4 @@
-import { RouteColor } from "@typeDef/types";
+import { PlayerColor, RouteColor } from "@typeDef/types";
 
 type ColorToHex = {
   [key in RouteColor]: [string, string];
@@ -13,6 +13,29 @@ export const colorToHex: ColorToHex = {
   yellow: ["#fde77d", "#dfc95f"],
   pink: ["#F9B1CD", "#DB93A5"],
   any: ["#dcdbd9", "#bebdbb"],
+};
+
+type PlayerColorToHex = {
+  [color in PlayerColor]: {
+    color: string;
+  };
+};
+export const playerColorToHex: PlayerColorToHex = {
+  black: {
+    color: "",
+  },
+  blue: {
+    color: "",
+  },
+  red: {
+    color: "",
+  },
+  green: {
+    color: "",
+  },
+  yellow: {
+    color: "",
+  },
 };
 
 export const initialRoutes = {
