@@ -138,7 +138,8 @@ const GameLounge: FC<GameLoungeProps> = () => {
                 defaultValue={`${window.location.href}/${
                   gameToken.split("#")[1]
                 }`}
-                style={{ minWidth: 300 }}
+                style={{ minWidth: 300, color: "rgb(88, 88, 88)" }}
+                onFocus={(e) => e.target.select()}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton
