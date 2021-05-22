@@ -98,8 +98,6 @@ const useSocketListeners = (socket: Socket) => {
   };
 
   const currentPlayerListener = (playerId: string) => {
-    console.log("hejhej", playerId);
-
     if (playerId) {
       dispatch(setCurrentPlayer(playerId));
     }
