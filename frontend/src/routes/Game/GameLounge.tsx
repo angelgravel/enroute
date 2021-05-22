@@ -1,10 +1,21 @@
-import { FC, useContext, useEffect } from "react";
-import { Button, Card, Typography } from "@material-ui/core";
+import React, { FC, useContext, useEffect, useState } from "react";
+import {
+  Button,
+  Card,
+  FormControl,
+  IconButton,
+  Input,
+  InputAdornment,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
 import PersonOutlineIcon from "@material-ui/icons/PersonOutline";
-import { Link } from "react-router-dom";
+import ShareIcon from "@material-ui/icons/Share";
+import { Link, useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "notistack";
+import copy from "clipboard-copy";
 
 import logo from "../../assets/location.gif";
 
@@ -19,6 +30,7 @@ import {
 } from "@typeDef/types";
 import socketEmit from "utils/socketEmit";
 import { playerColorToHex } from "utils/constants";
+import { unsetGame } from "redux/game";
 /*=====================================*/
 
 const Container = styled.div`
@@ -31,13 +43,24 @@ const Container = styled.div`
   width: 100vw;
 `;
 
+const GameIdContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+`;
+
 type GameLoungeProps = {};
-const GameLounge: FC<GameLoungeProps> = ({}) => {
+const GameLounge: FC<GameLoungeProps> = () => {
+  const dispatch = useDispatch();
+  const history = useHistory();
   const { enqueueSnackbar } = useSnackbar();
   const socket = useContext(socketContext);
   const { players, gameToken, playerId } = useSelector(
     (state: RootState) => state.game,
   );
+
+  const [copyTooltip, setCopyTooltip] = useState<string>("");
 
   useEffect(() => {
     if (socket) {
@@ -47,10 +70,21 @@ const GameLounge: FC<GameLoungeProps> = ({}) => {
           return;
         }
       });
+
+      // Setup game
+      socket.on("setup_game", (data: SocketResponse<undefined>) => {
+        if (!data.success) {
+          enqueueSnackbar(data.message, {
+            variant: "error",
+            autoHideDuration: 2000,
+          });
+        }
+      });
     }
 
     return () => {
       socket.off("add_socket");
+      socket.off("setup_game");
     };
   }, [socket]);
 
@@ -64,36 +98,79 @@ const GameLounge: FC<GameLoungeProps> = ({}) => {
     }
   }, [socket, playerId, gameToken]);
 
+  useEffect(() => {
+    if (!gameToken) {
+      history.push("/");
+    }
+  }, [gameToken]);
+
   const handleStartGame = () => {
     socketEmit(socket, "setup_game");
   };
-
-  useEffect(() => {
-    if (socket) {
-      // Setup game
-      socket.on("setup_game", (data: SocketResponse<undefined>) => {
-        if (!data.success) {
-          enqueueSnackbar(data.message, {
-            variant: "error",
-            autoHideDuration: 2000,
-          });
-        }
-      });
-    }
-
-    return () => {
-      socket.off("setup_game");
-    };
-  }, []);
 
   // TODO: Check if game exists
 
   return (
     <Container>
       <img src={logo} style={{ height: "80px" }} alt="logo" />
-      <Card style={{ display: "inline-grid", padding: "20px" }}>
+      <Card style={{ display: "inline-grid", padding: "4rem" }}>
         <Typography variant="h2">Game lounge</Typography>
-        <Typography variant="h5">Game code: {gameToken}</Typography>
+
+        <Typography variant="h5" style={{ marginRight: "0.5rem" }}>
+          Game code: {gameToken.split("#")[1]}
+        </Typography>
+
+        <Tooltip
+          open={copyTooltip !== ""}
+          title={copyTooltip}
+          leaveDelay={1500}
+          onClose={() => {
+            setCopyTooltip("");
+          }}
+        >
+          <GameIdContainer>
+            <Typography variant="h5" style={{ marginRight: "0.5rem" }}>
+              Invite link:
+            </Typography>
+            <FormControl variant="standard">
+              <Input
+                readOnly
+                defaultValue={`${window.location.href}/${
+                  gameToken.split("#")[1]
+                }`}
+                style={{ minWidth: 300, color: "rgb(88, 88, 88)" }}
+                onFocus={(e) => e.target.select()}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="Copy invite link to clipboard"
+                      onClick={async () => {
+                        try {
+                          await copy(
+                            `${window.location.href}/${
+                              gameToken.split("#")[1]
+                            }`,
+                          );
+                          setCopyTooltip(
+                            "Copied the invite link to your clipboard!",
+                          );
+                        } catch (error) {
+                          setCopyTooltip(
+                            "Could not copy the invite link to your clipboard...",
+                          );
+                        }
+                      }}
+                      // onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      <ShareIcon />
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+          </GameIdContainer>
+        </Tooltip>
 
         <Card style={{ margin: "20px", padding: "10px", textAlign: "center" }}>
           <Typography variant="h5" style={{ margin: "10px" }}>
@@ -123,7 +200,13 @@ const GameLounge: FC<GameLoungeProps> = ({}) => {
         </Card>
 
         <div>
-          <Link to="/" style={{ textDecoration: "none" }}>
+          <Link
+            to="/"
+            onClick={() => {
+              dispatch(unsetGame());
+            }}
+            style={{ textDecoration: "none" }}
+          >
             <Button variant="contained" color="secondary">
               <Typography
                 variant="h6"

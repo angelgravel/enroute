@@ -15,7 +15,7 @@ import styled from "styled-components";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import { useHistory } from "react-router-dom";
 import { useSnackbar } from "notistack";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { setInitGame } from "../redux/game";
 import useAxios from "../hooks/useAxios";
@@ -24,27 +24,29 @@ import logo from "../assets/location.gif";
 
 /*=============== Types ===============*/
 import { SocketResponse, CreateJoinSocketPayload } from "@typeDef/types";
+import { RootState } from "redux/store";
 /*=====================================*/
 
 const Container = styled.div`
-  text-align: center;
-  padding: 20px;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  overflow: scroll;
 `;
 
 const Home: FC = () => {
-  const { enqueueSnackbar } = useSnackbar();
+  const dispatch = useDispatch();
   const history = useHistory();
   const axios = useAxios();
+  const { enqueueSnackbar } = useSnackbar();
+  const { gameToken: gameTokenRedux } = useSelector(
+    (state: RootState) => state.game,
+  );
+
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [gameToken, setGameToken] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const dispatch = useDispatch();
 
   useEffect(() => {
     if (error) {
@@ -52,6 +54,12 @@ const Home: FC = () => {
       setError("");
     }
   }, [error]);
+
+  useEffect(() => {
+    if (gameTokenRedux) {
+      history.push("/game");
+    }
+  }, [gameTokenRedux]);
 
   const handleCreateGame = async () => {
     try {
@@ -87,7 +95,7 @@ const Home: FC = () => {
     try {
       const resp = await axios.patch<SocketResponse<CreateJoinSocketPayload>>(
         "/game",
-        { gameToken },
+        { gameToken: `game#${gameToken}` },
       );
       dispatch(
         setInitGame({
