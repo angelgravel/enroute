@@ -25,6 +25,7 @@ type PlayerClient = {
   remainingTracks: number;
   haveChosenTickets: boolean;
   points: number;
+  creator: boolean;
 };
 
 export type SocketEvent =
