@@ -102,9 +102,9 @@ const useSocketListeners = (socket: Socket) => {
     }
   };
 
-  const currentPlayerListener = (player: PlayerColor) => {
-    if (player) {
-      dispatch(setCurrentPlayer(player));
+  const currentPlayerListener = (playerId: string) => {
+    if (playerId) {
+      dispatch(setCurrentPlayer(playerId));
     }
   };
 

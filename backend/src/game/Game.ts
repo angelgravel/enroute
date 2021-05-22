@@ -33,7 +33,7 @@ class Game {
   joinable: boolean;
   gameStarted: boolean;
 
-  currentPlayer: Player | undefined;
+  currentPlayer: string | undefined;
   lastRoundStartedBy: Player | undefined;
 
   players: Player[];
@@ -181,7 +181,7 @@ class Game {
       }
 
       const currentPlayerIdx = this.players.findIndex(
-        (p) => p.id === this.currentPlayer?.id,
+        (p) => p.id === this.currentPlayer,
       );
 
       if (currentPlayerIdx === -1) {
@@ -191,15 +191,14 @@ class Game {
       // If current player is the last in this.players => assign next player index to 0
       const nextPlayerIdx =
         currentPlayerIdx + 1 >= this.players.length ? 0 : currentPlayerIdx + 1;
-
-      this.currentPlayer = this.players[nextPlayerIdx];
+      this.currentPlayer = this.players[nextPlayerIdx].id;
       this.emitCurrentPlayer(this.players[nextPlayerIdx].id);
     } catch (err) {
       if (err.message) console.log(err.message);
       // Random player
       this.currentPlayer = this.players[
         Math.floor(Math.random() * this.players.length)
-      ];
+      ].id;
     }
   }
 
@@ -372,7 +371,8 @@ class Game {
         this.emitPlayers();
 
         // Set the first player
-        this.nextPlayer();
+        this.currentPlayer = this.players[0].id;
+        this.emitCurrentPlayer(this.players[0].id);
 
         // Send five open track cards to all players
         this.openTrackCards = Array.from(this.trackCards.splice(0, 5));
@@ -424,7 +424,7 @@ class Game {
         );
       }
       // Check is it the player's turn.
-      if (this.currentPlayer && this.currentPlayer.id !== player.id) {
+      if (this.currentPlayer && this.currentPlayer !== player.id) {
         throw new SocketError("Its not your turn.", "game/not_your_turn");
       }
       if (!this.routes.hasOwnProperty(route)) {
@@ -571,7 +571,7 @@ class Game {
       }
 
       // Check is it the player's turn.
-      if (this.currentPlayer && this.currentPlayer.id !== player.id) {
+      if (this.currentPlayer && this.currentPlayer !== player.id) {
         throw new SocketError("Its not your turn.", "game/not_your_turn");
       }
       //Does the pickedTrackCard exist in openTrackCards
@@ -668,7 +668,7 @@ class Game {
         );
       }
       // Check is it the player's turn.
-      if (this.currentPlayer && this.currentPlayer.id !== player.id) {
+      if (this.currentPlayer && this.currentPlayer !== player.id) {
         throw new SocketError("Its not your turn.", "game/not_your_turn");
       }
 
