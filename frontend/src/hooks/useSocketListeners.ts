@@ -97,9 +97,11 @@ const useSocketListeners = (socket: Socket) => {
     }
   };
 
-  const currentPlayerListener = (player: PlayerColor) => {
-    if (player) {
-      dispatch(setCurrentPlayer(player));
+  const currentPlayerListener = (playerId: string) => {
+    console.log("hejhej", playerId);
+
+    if (playerId) {
+      dispatch(setCurrentPlayer(playerId));
     }
   };
 

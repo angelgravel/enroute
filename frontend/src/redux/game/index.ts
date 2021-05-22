@@ -98,9 +98,7 @@ export const setPlayers = (newState: PlayerClient[]) => (
   });
 };
 
-export const setCurrentPlayer = (newState: PlayerColor) => (
-  dispatch: Dispatch,
-) => {
+export const setCurrentPlayer = (newState: string) => (dispatch: Dispatch) => {
   return dispatch({
     type: gameActions.SET_CURRENT_PLAYER,
     payload: newState,
@@ -163,6 +161,11 @@ const gameReducer = (state: Partial<GameState> = initialState, action: any) => {
       return {
         ...state,
         players: action.payload,
+      };
+    case gameActions.SET_CURRENT_PLAYER:
+      return {
+        ...state,
+        currentPlayer: action.payload,
       };
     case gameActions.SET_ROUTES:
       return {
