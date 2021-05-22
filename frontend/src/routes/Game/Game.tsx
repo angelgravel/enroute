@@ -1,5 +1,9 @@
-import { FC } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import { SnackbarKey, useSnackbar } from "notistack";
+
+import { RootState } from "redux/store";
+import { useSelector } from "react-redux";
 
 import TrackCardModal from "./components/TrackCardModal";
 import Map from "./components/Map";
@@ -40,6 +44,30 @@ const MidWrapper = styled.div`
 // };
 
 const Game: FC = () => {
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { openTrackCards } = useSelector((state: RootState) => state.game);
+  const snackbarKey = useRef<SnackbarKey>();
+
+  const [gameStarted, setGameStarted] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (openTrackCards.length) {
+      setGameStarted(true);
+    }
+  }, [openTrackCards]);
+
+  useEffect(() => {
+    if (!gameStarted) {
+      snackbarKey.current = enqueueSnackbar("Waiting for other players...", {
+        persist: true,
+      });
+    } else {
+      if (snackbarKey.current) {
+        closeSnackbar(snackbarKey.current);
+      }
+    }
+  }, [gameStarted]);
+
   return (
     <GameWrapper>
       <PickInitTicketsModal />
