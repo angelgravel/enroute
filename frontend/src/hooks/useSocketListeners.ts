@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Socket } from "socket.io-client";
 import { useSnackbar } from "notistack";
+import { useHistory } from "react-router-dom";
 
 import {
   setOpenTrackCards,
@@ -9,6 +10,7 @@ import {
   setRoutes,
   setTickets,
   setTrackCards,
+  unsetGame,
 } from "../redux/game";
 import {
   GameRoutes,
@@ -20,6 +22,7 @@ import {
 } from "@typeDef/types";
 
 const useSocketListeners = (socket: Socket) => {
+  const history = useHistory();
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
   const [isListening, setIsListening] = useState<boolean>(false);
@@ -33,6 +36,7 @@ const useSocketListeners = (socket: Socket) => {
       socket.on("track_cards", trackCardsListener);
       socket.on("tickets", ticketsListener);
       socket.on("players", playersListener);
+      socket.on("disconnect", disconnectListener);
 
       // TODO: Handle pick initial tickets error handling
     }
@@ -43,6 +47,7 @@ const useSocketListeners = (socket: Socket) => {
       socket.off("track_cards");
       socket.off("tickets");
       socket.off("players");
+      socket.off("disconnect");
     };
   }, [socket]);
 
@@ -84,6 +89,16 @@ const useSocketListeners = (socket: Socket) => {
     if (players) {
       dispatch(setPlayers(players));
     }
+  };
+
+  const disconnectListener = () => {
+    // TODO: Maybe some other way later on?
+    dispatch(unsetGame());
+    enqueueSnackbar("Disconnected from game", {
+      variant: "error",
+      autoHideDuration: 3000,
+    });
+    history.push("/");
   };
 
   return isListening;

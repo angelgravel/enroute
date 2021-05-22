@@ -8,6 +8,8 @@ import "./index.css";
 
 import Home from "./routes/Home";
 import GameRoute from "./routes/Game";
+import JoinFromInvite from "./routes/JoinFromInvite";
+
 /*=====================================*/
 
 const theme = createMuiTheme({
@@ -51,6 +53,7 @@ const theme = createMuiTheme({
     MuiTypography: {
       h1: {
         fontFamily: "Amatic SC",
+        fontWeight: "bold",
         color: "rgb(88, 88, 88)",
       },
       h2: {
@@ -96,6 +99,10 @@ const App: FC = () => {
             <Switch>
               <Route path={"/"} exact render={() => <Home />} />
               <Route path={"/game"} exact render={() => <GameRoute />} />
+              <Route
+                path={"/game/:gameToken"}
+                render={() => <JoinFromInvite />}
+              />
             </Switch>
           </ThemeProvider>
         </Router>

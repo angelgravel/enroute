@@ -22,6 +22,7 @@ export const gameActions = {
   SET_PLAYERS: "setPlayers",
   SET_ROUTES: "setRoutes",
   SET_OPEN_TRACK_CARDS: "setOpenTrackCards",
+  UNSET_GAME: "unsetGame",
 };
 
 const initialState: GameState = {
@@ -111,6 +112,12 @@ export const setOpenTrackCards = (newState: TrackColor[]) => (
   });
 };
 
+export const unsetGame = () => (dispatch: Dispatch) => {
+  return dispatch({
+    type: gameActions.UNSET_GAME,
+  });
+};
+
 const gameReducer = (state: Partial<GameState> = initialState, action: any) => {
   switch (action.type) {
     case gameActions.SET_INIT_GAME:
@@ -162,6 +169,8 @@ const gameReducer = (state: Partial<GameState> = initialState, action: any) => {
         ...state,
         openTrackCards: action.payload,
       };
+    case gameActions.UNSET_GAME:
+      return initialState;
     default:
       return state;
   }
