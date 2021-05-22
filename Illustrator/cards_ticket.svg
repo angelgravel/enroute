@@ -1,76 +1,76 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256.12 170.89">
   <defs>
     <style>
-      .cls-1, .cls-5, .cls-9 {
+      <!-- .cls-1, .cls-5, .cls-9 {
         fill: none;
-      }
+      } -->
 
-      .cls-2 {
+      <!-- .cls-2 {
         clip-path: url(#clip-path);
-      }
+      } -->
 
-      .cls-11, .cls-3 {
+      <!-- .cls-11, .cls-3 {
         fill: #e5e5e8;
-      }
+      } -->
 
-      .cls-12, .cls-4 {
+      <!-- .cls-12, .cls-4 {
         fill: #fde9e4;
-      }
+      } -->
 
-      .cls-10, .cls-11, .cls-4, .cls-5 {
+      <!-- .cls-10, .cls-11, .cls-4, .cls-5 {
         stroke: #f7f6f8;
         stroke-width: 2px;
-      }
+      } -->
 
-      .cls-10, .cls-11, .cls-12, .cls-4, .cls-5, .cls-6, .cls-7, .cls-8, .cls-9 {
+      <!-- .cls-10, .cls-11, .cls-12, .cls-4, .cls-5, .cls-6, .cls-7, .cls-8, .cls-9 {
         stroke-miterlimit: 10;
-      }
+      } -->
 
-      .cls-6 {
+      <!-- .cls-6 {
         fill: #a4d8df;
-      }
+      } -->
 
-      .cls-12, .cls-6 {
+      <!-- .cls-12, .cls-6 {
         stroke: #000;
-      }
+      } -->
 
-      .cls-6, .cls-7, .cls-8, .cls-9 {
+      <!-- .cls-6, .cls-7, .cls-8, .cls-9 {
         stroke-width: 0.5px;
-      }
+      } -->
 
-      .cls-7, .cls-8 {
+      <!-- .cls-7, .cls-8 {
         fill: #6c8e6d;
-      }
+      } -->
 
-      .cls-7, .cls-9 {
+      <!-- .cls-7, .cls-9 {
         stroke: #0d2327;
-      }
+      } -->
 
-      .cls-8 {
+      <!-- .cls-8 {
         stroke: #0c2327;
-      }
+      } -->
 
-      .cls-10 {
+      <!-- .cls-10 {
         fill: #fff;
         opacity: 0.78;
-      }
+      } -->
 
-      .cls-12 {
+      <!-- .cls-12 {
         font-size: 41px;
         font-family: Roboto-Black, Roboto;
         font-weight: 800;
-      }
+      } -->
 
-      .cls-13 {
+      <!-- .cls-13 {
         fill: #f7f6f8;
-      }
+      } -->
 
-      .cls-14 {
+      <!-- .cls-14 {
         font-size: 34px;
         fill: #1d1d1b;
         font-family: AmaticSC-Bold, Amatic SC;
         font-weight: 700;
-      }
+      } -->
     </style>
     <clipPath id="clip-path">
       <rect class="cls-1" width="256.12" height="170.89"/>

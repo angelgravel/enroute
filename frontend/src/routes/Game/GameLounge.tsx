@@ -14,7 +14,6 @@ import { socketContext } from "../../context/socket";
 /*=============== Types ===============*/
 import {
   SocketResponse,
-  SocketEvent,
   AddSocketPayload,
   AddSocketEmit,
 } from "@typeDef/types";
