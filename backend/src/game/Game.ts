@@ -143,6 +143,7 @@ class Game {
           remainingTracks: player.remainingTracks,
           haveChosenTickets: player.haveChosenTickets,
           points: player.points,
+          creator: this.creator.id === player.id ? true : false,
         });
       }
       this.gameRoomSocket.emit("players", _players);

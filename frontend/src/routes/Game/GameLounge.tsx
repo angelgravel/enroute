@@ -61,6 +61,7 @@ const GameLounge: FC<GameLoungeProps> = () => {
   );
 
   const [copyTooltip, setCopyTooltip] = useState<string>("");
+  const [isCreator, setIsCreator] = useState<boolean>(false);
 
   useEffect(() => {
     if (socket) {
@@ -103,6 +104,14 @@ const GameLounge: FC<GameLoungeProps> = () => {
       history.push("/");
     }
   }, [gameToken]);
+
+  useEffect(() => {
+    players.map((player) => {
+      if (player.creator && player.playerId === playerId) {
+        setIsCreator(true);
+      }
+    });
+  }, [players]);
 
   const handleStartGame = () => {
     socketEmit(socket, "setup_game");
@@ -216,14 +225,20 @@ const GameLounge: FC<GameLoungeProps> = () => {
               </Typography>
             </Button>
           </Link>
-          <Button variant="contained" color="primary" onClick={handleStartGame}>
-            <Typography
-              variant="h6"
-              style={{ filter: "drop-shadow(0 0 2px rgba(50, 50, 50, 0.3))" }}
+          {isCreator && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleStartGame}
             >
-              Start game
-            </Typography>
-          </Button>
+              <Typography
+                variant="h6"
+                style={{ filter: "drop-shadow(0 0 2px rgba(50, 50, 50, 0.3))" }}
+              >
+                Start Game
+              </Typography>
+            </Button>
+          )}
         </div>
       </Card>
     </Container>
