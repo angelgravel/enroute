@@ -2,7 +2,7 @@ import { FC, forwardRef, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import styled from "styled-components";
 
-import { colorToHex } from "utils/constants";
+import { colorToHex, playerColorToHex } from "utils/constants";
 import routesInfo, { RouteInfo } from "./routesInfo";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "notistack";
@@ -200,7 +200,7 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
                   <RailRect
                     key={`builtTrack-${i}-${builtTrack.x}-${builtTrack.y}`}
                     {...builtTrack}
-                    fill={builtBy}
+                    fill={playerColorToHex[builtBy]}
                     variants={builtTracksVariants}
                   />
                 ))}
