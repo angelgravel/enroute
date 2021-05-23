@@ -106,11 +106,11 @@ const GameLounge: FC<GameLoungeProps> = () => {
   }, [gameToken]);
 
   useEffect(() => {
-    players.map((player) => {
-      if (player.creator && player.playerId === playerId) {
-        setIsCreator(true);
-      }
-    });
+    if (
+      players.find((player) => player.creator && player.playerId === playerId)
+    ) {
+      setIsCreator(true);
+    }
   }, [players]);
 
   const handleStartGame = () => {
