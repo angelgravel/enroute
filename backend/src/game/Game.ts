@@ -244,6 +244,32 @@ class Game {
     }
   }
 
+  private countPoints(routeLength: number): number {
+    const ONE = 1;
+    const TWO = 2;
+    const THREE = 3;
+    const FOUR = 7;
+    const FIVE = 10;
+    const SIX = 15;
+
+    switch (routeLength) {
+      case ONE:
+        return ONE;
+      case TWO:
+        return TWO;
+      case THREE:
+        return THREE;
+      case FOUR:
+        return FOUR;
+      case FIVE:
+        return FIVE;
+      case SIX:
+        return SIX;
+      default:
+        return 0;
+    }
+  }
+
   private pickTrackCard() {
     if (!this.trackCards.length) {
       this.trackCards = shuffleArray(this.discardedTrackCards);
@@ -502,6 +528,9 @@ class Game {
       this.routes[route].builtBy = player.color;
       //Add played cards to discardedTrackCards
       this.discardedTrackCards.push(...chosenTrackCards);
+
+      //Update players points
+      player.points += this.countPoints(this.routes[route].length);
 
       // Is it time for the final round?
       if (player.remainingTracks < 3) {

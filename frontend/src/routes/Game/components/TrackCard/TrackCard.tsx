@@ -69,20 +69,24 @@ type TrackCardProps = {
   style?: React.CSSProperties;
   rotate?: boolean;
   onOpenTrackCards?: boolean;
+  raised?: boolean;
+  interactable?: boolean;
 };
 const TrackCard: FC<TrackCardProps> = ({
   color,
   style = {},
   rotate = false,
   onOpenTrackCards = false,
+  raised = false,
+  interactable = false,
 }) => {
   return (
     <BasicCard
       style={style}
       rotate={rotate}
       hoverable={onOpenTrackCards}
-      interactable={onOpenTrackCards}
-      raised={onOpenTrackCards}
+      interactable={onOpenTrackCards || interactable}
+      raised={onOpenTrackCards || raised}
     >
       <TrackCardWrapper
         xmlns="http://www.w3.org/2000/svg"

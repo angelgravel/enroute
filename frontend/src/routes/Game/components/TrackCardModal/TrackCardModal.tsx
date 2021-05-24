@@ -10,12 +10,19 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "notistack";
 import cloneDeep from "lodash.clonedeep";
+import styled from "styled-components";
 
 import { SocketResponse, TrackColor } from "@typeDef/types";
 import { unsetChosenRoute } from "redux/chosenRoute";
 import { RootState } from "redux/store";
 import { socketContext } from "context/socket";
 import socketEmit from "utils/socketEmit";
+import TrackCard from "../TrackCard";
+
+const TrackCardWrapper = styled.div`
+  /* margin-right: 1rem; */
+  padding: 0.3rem;
+`;
 
 type CardModalProps = {};
 const TrackCardModal: FC<CardModalProps> = ({}) => {
@@ -57,6 +64,16 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
     }
   };
 
+  const handleSocketResponse = (data: SocketResponse<string>) => {
+    if (data.success) {
+      setChosenTrackCards({});
+      enqueueSnackbar(data.message, { variant: "success" });
+      setIsModalOpen(false);
+    } else {
+      enqueueSnackbar(data.message, { variant: "error" });
+    }
+  };
+
   useEffect(() => {
     if (!isModalOpen) {
       dispatch(unsetChosenRoute());
@@ -68,16 +85,6 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
       socket.on("build_route", handleSocketResponse);
     }
   }, [socket]);
-
-  const handleSocketResponse = (data: SocketResponse<string>) => {
-    if (data.success) {
-      setChosenTrackCards({});
-      enqueueSnackbar(data.message, { variant: "success" });
-      setIsModalOpen(false);
-    } else {
-      enqueueSnackbar(data.message, { variant: "error" });
-    }
-  };
 
   useEffect(() => {
     try {
@@ -164,7 +171,7 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
             border: "4px solid #f9b1cd",
             borderRadius: "4px",
             padding: "10px",
-            maxWidth: "600px",
+            // maxWidth: "30rem",
             maxHeight: "400px",
           }}
         >
@@ -175,25 +182,25 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
             style={{
               display: "flex",
               flexWrap: "wrap",
-              overflow: "scroll",
+              overflow: "auto",
               paddingBottom: "10px",
+              maxWidth: "34rem",
             }}
           >
-            {availableTrackCards.map((trackColor, i) => {
+            {availableTrackCards.map((trackColor, idx) => {
               return (
-                <Card
-                  key={`${trackCards[trackColor].color}:${i}`}
-                  style={{
-                    margin: "8px",
-                    height: "80px",
-                    width: "80px",
-                    cursor: "pointer",
-                  }}
-                  raised={chosenTrackCards.hasOwnProperty(i)}
-                  onClick={() => toggleTrackCard(trackColor, i)}
+                <TrackCardWrapper
+                  key={`${trackColor}-${idx}`}
+                  onClick={() => toggleTrackCard(trackColor, idx)}
                 >
-                  {trackColor}
-                </Card>
+                  <TrackCard
+                    key={`${trackColor}-${idx}`}
+                    color={trackColor}
+                    style={{ width: "5rem", cursor: "pointer" }}
+                    raised={chosenTrackCards.hasOwnProperty(idx)}
+                    interactable={true}
+                  />
+                </TrackCardWrapper>
               );
             })}
           </div>
