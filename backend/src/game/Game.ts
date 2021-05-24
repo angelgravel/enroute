@@ -497,8 +497,7 @@ class Game {
       }
 
       // Update the players remainingTracks
-      player.remainingTracks =
-        player.remainingTracks - this.routes[route].length;
+      player.remainingTracks -= this.routes[route].length;
       // Mark route as taken
       this.routes[route].builtBy = player.color;
       //Add played cards to discardedTrackCards
@@ -527,6 +526,7 @@ class Game {
 
       // Next players turn
       this.nextPlayer();
+      this.emitPlayers();
     } catch (error) {
       if ("message" in error && "code" in error) {
         const { message, code } = error as SocketError;

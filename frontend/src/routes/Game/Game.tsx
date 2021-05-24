@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 
 import TrackCardModal from "./components/TrackCardModal";
 import PickInitTicketsModal from "./components/PickInitTicketsModal";
-import OpponentsView from "./components/OpponentsView";
+import PlayersView from "./components/PlayersView";
 import TrackCardsView from "./components/TrackCardsView";
 import GameBoard from "./components/GameBoard";
 
@@ -56,7 +56,7 @@ const Game: FC = () => {
       <TrackCardModal />
       <GameWrapper>
         <TrackCardsView />
-        <OpponentsView />
+        <PlayersView />
         <GameBoard />
       </GameWrapper>
     </>
