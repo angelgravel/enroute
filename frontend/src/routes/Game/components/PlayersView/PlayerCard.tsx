@@ -88,7 +88,7 @@ const PlayerCard: FC<PlayerCardProps> = ({ player, isMe = false }) => {
       variants={{
         active: {
           scale: 1,
-          filter: `drop-shadow(0 0 0.2rem ${playerColorToHex[player.color]})`,
+          filter: `drop-shadow(0 0 0.2rem grey)`,
           backgroundColor: "rgba(255, 255, 255, 1)",
 
           transition: {
@@ -117,7 +117,7 @@ const PlayerCard: FC<PlayerCardProps> = ({ player, isMe = false }) => {
               transition: {
                 duration: 1.5,
                 delay: 3,
-                repeat: Infinity,
+                repeat: 3,
               },
             },
             noPulse: {
