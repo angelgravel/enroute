@@ -1,14 +1,31 @@
 import React, { FC, useContext } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "redux/store";
-import TrackCard from "../TrackCard";
-import BackCard from "../BackCard";
+import { useSnackbar } from "notistack";
+import styled from "styled-components";
+
 import { TrackColor } from "@typeDef/types";
+import { RootState } from "redux/store";
+
+import TrackCard from "../TrackCard";
+import TrackCardBack from "../TrackCard/TrackCardBack";
 import socketEmit from "utils/socketEmit";
 import { socketContext } from "context/socket";
-import { useSnackbar } from "notistack";
 
-const TrackCardView: FC = () => {
+const OpenTrackCardsViewWrapper = styled.div`
+  padding-left: 0.5rem;
+  width: 10%;
+`;
+
+const TrackCardWrapper = styled.div`
+  margin-right: 10px;
+  margin-bottom: 0.8rem;
+`;
+
+const BackCardWrapper = styled.div`
+  margin-right: 10px;
+`;
+
+const OpenTrackCardsView: FC = () => {
   const socket = useContext(socketContext);
   const { enqueueSnackbar } = useSnackbar();
   const { openTrackCards } = useSelector((state: RootState) => state.game);
@@ -33,28 +50,28 @@ const TrackCardView: FC = () => {
   };
 
   return (
-    <div style={{ backgroundColor: "#ededed" }}>
+    <OpenTrackCardsViewWrapper>
       {openTrackCards.map((trackCard, idx) => {
         return (
-          <div
+          <TrackCardWrapper
             key={`${trackCard}-${idx}`}
-            style={{ padding: "10px" }}
             onClick={() => handleOpenTrackCardsClick(trackCard)}
           >
             <TrackCard
               key={`${trackCard}-${idx}`}
               color={trackCard}
-              style={{ width: "6rem", cursor: "pointer" }}
+              style={{ width: "100%", cursor: "pointer" }}
               rotate
+              onOpenTrackCards
             />
-          </div>
+          </TrackCardWrapper>
         );
       })}
-      <div style={{ margin: "10px" }} onClick={() => handleTrackCardsClick()}>
-        <BackCard style={{ width: "6rem", cursor: "pointer" }} rotate={true} />
-      </div>
-    </div>
+      <BackCardWrapper onClick={() => handleTrackCardsClick()}>
+        <TrackCardBack style={{ width: "100%", cursor: "pointer" }} />
+      </BackCardWrapper>
+    </OpenTrackCardsViewWrapper>
   );
 };
 
-export default TrackCardView;
+export default OpenTrackCardsView;

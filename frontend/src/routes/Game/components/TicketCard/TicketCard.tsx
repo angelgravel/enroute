@@ -1,33 +1,32 @@
 import { FC } from "react";
 import styled from "styled-components";
-import { motion } from "framer-motion";
 import BasicCard from "../BasicCard";
 import { Ticket } from "@typeDef/types";
 import { firstCap } from "utils/firstCap";
 
-const TicketCardWrapper = styled(motion.svg)`
+const TicketCardWrapper = styled.svg`
   width: 100%;
   height: 100%;
 `;
 
-const TicketBase = styled(motion.g)`
+const TicketBase = styled.g`
   clip-path: url(#clip-path);
   text-align: center;
 `;
 
-const BannerAndFrame = styled(motion.rect)`
+const BannerAndFrame = styled.rect`
   fill: #e5e5e8;
 `;
 
-const BannerBorder = styled(motion.path)`
+const BannerBorder = styled.path`
   fill: #f7f6f8;
 `;
 
-const BaseRect = styled(motion.rect)`
+const BaseRect = styled.rect`
   stroke-miterlimit: 10;
 `;
 
-const BasePath = styled(motion.path)`
+const BasePath = styled.path`
   stroke-miterlimit: 10;
   stroke-width: 0.5px;
   stroke: #0d2327;
@@ -61,14 +60,14 @@ const CountryBorder = styled(BasePath)`
   fill: none;
 `;
 
-const Circle = styled(motion.circle)`
+const Circle = styled.circle`
   fill: #e5e5e8;
   stroke: #f7f6f8;
   stroke-width: 2px;
   stroke-miterlimit: 10;
 `;
 
-const PointsText = styled(motion.text)`
+const PointsText = styled.text`
   fill: #fde9e4;
   stroke: #000;
   stroke-miterlimit: 10;
@@ -78,7 +77,7 @@ const PointsText = styled(motion.text)`
   user-select: none;
 `;
 
-const RouteText = styled(motion.text)`
+const RouteText = styled.text`
   fill: #1d1d1b;
   font-size: 34px;
   font-family: AmaticSC-Bold, Amatic SC;
@@ -125,7 +124,7 @@ const TicketCard: FC<TicketCardProps> = ({
             height="196.67"
             transform="translate(213.91 -42.21) rotate(90)"
           />
-          <motion.g>
+          <g>
             <Water x="36.79" y="27.23" width="181.87" height="117.29" />
             <Land d="M60,27.23c4.29.45,13.9-2.29,13,5-.73.84-3.49,3.56-1.61,4.25,0,1.15,1.61-.54,2.18.67,1.39,2.09,1.51,5.31,2.93,7.84.91,1.84,4.11,1.19,3.22,5.15.59.17.72,1.2.76,1.79,2.14,2.18.2,1.89.1,3.24,4.7-1.53,6.45,1,4.07,6.38,2.27,2.84-1.37,3.12-2.46,4.92-2.78-.29-5.71,1.95-8.53,1.68-.54-.57-1.07.42-1.42.79-1.36.79-2-1.71-3.41-1.12-2.17,1.23-.3,2.72-4.26,2-2.16,2.28-6.69,1.93-2.37-1.23,0-.91,1.07-1.52,1.61-2.13.07-.76.07-1.31.85-1.11.58-.59.89-1.43,1.8-1.24,2.21-1.87-8.17-2.86-4.26-4.92,2.51,1.79,6-4.65,1.9-3.69-1-.74,1.42-.79.75-2.13-1-3.87,4.75,3.27,4.36-4.7-.7-1.18-2.3-1.41-2.37-3.13-8.92.31.89-6.27-5.3-7.84-.32-1.41-3.08-4-1.33-4.84-.62-.55-1.27-1.59,0-1.74A23.76,23.76,0,0,1,60,27.23Z" />
             <Land d="M60.09,38.2c.84,1.41-.85,2.2-1.33.78C59.3,38.36,59.28,37.28,60.09,38.2Z" />
@@ -145,7 +144,7 @@ const TicketCard: FC<TicketCardProps> = ({
             <Land d="M115.59,44.8c1,.6-.12,2.88-.85,1.21C113,46.35,115.09,43.7,115.59,44.8Z" />
             <Land d="M119,43.35c1.2.78,3-.84,4.55-.05.17.84-1.14,1.33-.58,2.23.33.8-.39,1.06-.93.84-1.37.46,2,1.4.16,2-.31.56,0,1.52-.83,1.79-.89-1.1-.26-3.11-2-2.57A2.68,2.68,0,0,0,116.64,46a11,11,0,0,0-.19-1.79C117.46,43.9,117.79,42.28,119,43.35Z" />
             <Land d="M119.48,49.06c3.22,2.34.08,3.57-1.38,1,0-1.23-1.54-1.08-1.18-2.44C117.61,47.1,119.33,48.16,119.48,49.06Z" />
-            <motion.g id="borders">
+            <g id="borders">
               <CountryBorder d="M60.85,50.73c-2.3-.19-3.35-2.75-4.74-4.25-.72,1.45-1.18,2.34-2.84.67a17.18,17.18,0,0,0,2.84-6.26" />
               <CountryBorder d="M109.82,48.05c2.81-.62-.4-2.32,3.6-1" />
               <CountryBorder d="M104.42,57.11c.43.72-.55,1.57-.29,2.44,1.08,1.24.05,2.59-.66,3.49.3.89,1.27,2.17-.28,2.69.2,1-.81,0-.76.9-2.51-1.81-1.66,1.67-1.81,3.73-1,1.23-2.81-.92-3.69-1.72-2.81,1.26-4.14,1.1-6.34-1" />
@@ -172,8 +171,8 @@ const TicketCard: FC<TicketCardProps> = ({
               <CountryBorder d="M132.27,73.11c-1.82-2.5-.15-7.22-2.94-9.06.69-3-.52-5.78-.48-8.84" />
               <CountryBorder d="M185.11,70.43c16.46.81,8.2,7.69,18.53,11.27,3.3-.12,9.4-3,8.8,3.73-1.25,3.2-5.69,4.85-4,9.4" />
               <CountryBorder d="M48.06,115.64c10.43-5.55,4,16,5.11,21.72" />
-            </motion.g>
-          </motion.g>
+            </g>
+          </g>
           <Shade
             x="69.36"
             y="-5.39"
@@ -190,10 +189,10 @@ const TicketCard: FC<TicketCardProps> = ({
           >
             {ticket.points}
           </PointsText>
-          <motion.g>
+          <g>
             <BannerAndFrame x="-1" y="10.57" width="258.12" height="33.8" />
             <BannerBorder d="M256.12,11.57V43.36H0V11.57H256.12m2-2H-2V45.36H258.12V9.57Z" />
-          </motion.g>
+          </g>
           <RouteText
             x="50%"
             y="12.5"

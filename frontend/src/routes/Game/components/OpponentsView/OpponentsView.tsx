@@ -1,34 +1,43 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "redux/store";
 import styled from "styled-components";
 import { motion } from "framer-motion";
-
-import PersonOutlineIcon from "@material-ui/icons/PersonOutline";
 import {
   Badge,
   styled as muiStyled,
   Typography,
   withStyles,
   Divider,
+  IconButton,
 } from "@material-ui/core";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+
+import PersonOutlineIcon from "@material-ui/icons/PersonOutline";
 import RailIcon from "utils/RailIcon";
 import { playerColorToHex } from "utils/constants";
 
 import { PlayerClient } from "@typeDef/types";
 
-const OpponentsViewWrapper = styled.div`
+const OpponentsViewWrapper = styled(motion.div)`
+  /* grid-area: opponents; */
+  /* height: 10vh; */
+  position: fixed;
+  top: 0;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   padding: 0.7rem;
-  background-color: #94d9db;
+  z-index: 1000;
+  max-width: 100vw;
+  /* overflow: auto; */
 `;
 
 const OpponentCard = styled(motion.div)`
   position: relative;
-  margin: 0 1rem;
   padding: 0.3rem;
+  margin: 0.4rem 1rem;
   border-radius: 0.5rem;
   background-color: rgba(255, 255, 255, 0.9);
 `;
@@ -84,11 +93,25 @@ const TrackStats = styled.div`
   width: 100%;
 `;
 
+const Scrollable = styled.div`
+  grid-area: trackCards;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: no-wrap;
+  max-width: calc(100vw - 18rem);
+  overflow: auto;
+  padding-right: 1rem;
+`;
+
 const OpponentsView: FC = () => {
   const { playerId, players, currentPlayer } = useSelector(
     (state: RootState) => state.game,
   );
   const [myInformation, setMyInformation] = useState<PlayerClient>();
+  const [isExpanded, setIsExpanded] = useState<boolean>(true);
+
+  const ScrollableOrNot = isExpanded ? Scrollable : Fragment;
 
   useEffect(() => {
     const me = players.find((player) => player.playerId === playerId);
@@ -118,7 +141,9 @@ const OpponentsView: FC = () => {
             },
           },
         }}
-        animate={currentPlayer === player.playerId ? "active" : "inactive"}
+        animate={
+          currentPlayer === player.playerId || isMe ? "active" : "inactive"
+        }
       >
         {currentPlayer === player.playerId && (
           <CurrentPlayerBadgeText
@@ -141,6 +166,30 @@ const OpponentsView: FC = () => {
             {isMe ? "Your turn" : "Current player"}
           </CurrentPlayerBadgeText>
         )}
+        {isMe && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              transform: "translate(-30%, -30%)",
+              padding: "0.5rem",
+              borderRadius: "10%",
+              backgroundColor: "#f9b1cd",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "0.8rem",
+                color: "#fff",
+                filter: "drop-shadow(0 0 2px rgba(50, 50, 50, 0.4))",
+              }}
+            >
+              You
+            </span>
+          </div>
+        )}
+
         <Typography
           variant="h5"
           style={{ textAlign: "center", fontWeight: "bolder" }}
@@ -177,18 +226,64 @@ const OpponentsView: FC = () => {
   return (
     <OpponentsViewWrapper>
       {myInformation ? generateOpponentCard(myInformation, true) : null}
-      <Divider
-        orientation="vertical"
-        flexItem
-        style={{ margin: "10px", width: "2px" }}
-      />
-      {players && players.length > 1
-        ? players.map((opponent) => {
-            if (playerId !== opponent.playerId) {
-              return generateOpponentCard(opponent, false);
-            }
-          })
-        : "No opponents"}
+      <motion.div
+        variants={{
+          expanded: {
+            width: "fit-content",
+            x: 0,
+            opacity: 1,
+            display: "flex",
+          },
+          notExpanded: {
+            width: 0,
+            x: 50,
+            opacity: 0,
+            display: "flex",
+            transitionEnd: {
+              display: "none",
+            },
+          },
+        }}
+        initial={false}
+        animate={isExpanded ? "expanded" : "notExpanded"}
+        style={{ display: "flex", alignItems: "center" }}
+      >
+        <Divider
+          orientation="vertical"
+          flexItem
+          style={{ margin: "10px 1.5rem", width: "2px" }}
+        />
+        <ScrollableOrNot>
+          {players && players.length > 1 ? (
+            players
+              .filter((player) => player.playerId !== playerId)
+              .map((opponent) => generateOpponentCard(opponent, false))
+          ) : (
+            <Typography
+              style={{ marginLeft: "0.5rem", fontSize: "1.3rem" }}
+              variant="body1"
+            >
+              No opponents
+            </Typography>
+          )}
+        </ScrollableOrNot>
+      </motion.div>
+      <IconButton
+        aria-label={isExpanded ? "Shrink menu" : "Expand menu"}
+        // style={{ fontSize: "2rem" }}
+        style={{
+          backgroundColor: "#fff",
+          marginLeft: "1rem",
+          filter: "drop-shadow(0 0 4px rgba(50, 50, 50, 0.3))",
+        }}
+        color="secondary"
+        size="small"
+        onClick={() => {
+          setIsExpanded(!isExpanded);
+        }}
+      >
+        {isExpanded ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+      </IconButton>
     </OpponentsViewWrapper>
   );
 };

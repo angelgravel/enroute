@@ -1,20 +1,16 @@
 import { FC } from "react";
 import styled from "styled-components";
-import { motion } from "framer-motion";
 import Rail from "./Rail";
 import { TrackColor } from "@typeDef/types";
 import mapTrackColorToHex from "./mapTrackColorToHex";
 import BasicCard from "../BasicCard";
 
-type TrackCardWrapperProps = {
-  isRotated: boolean;
-};
-const TrackCardWrapper = styled(motion.svg)<TrackCardWrapperProps>`
+const TrackCardWrapper = styled.svg`
   width: 100%;
   height: 100%;
 `;
 
-const Bg1 = styled(motion.rect)``;
+const Bg1 = styled.rect``;
 
 const Bg2 = styled(Bg1)`
   stroke-width: 3px;
@@ -25,7 +21,7 @@ const Bg3 = styled(Bg2)`
   stroke-width: 2px;
 `;
 
-const Circle = styled(motion.circle)`
+const Circle = styled.circle`
   stroke-miterlimit: 10;
   stroke-width: 2px;
 `;
@@ -72,17 +68,23 @@ type TrackCardProps = {
   color: TrackColor;
   style?: React.CSSProperties;
   rotate?: boolean;
+  onOpenTrackCards?: boolean;
 };
 const TrackCard: FC<TrackCardProps> = ({
   color,
   style = {},
   rotate = false,
+  onOpenTrackCards = false,
 }) => {
   return (
-    <BasicCard style={style} rotate={rotate}>
+    <BasicCard
+      style={style}
+      rotate={rotate}
+      hoverable={onOpenTrackCards}
+      interactable={onOpenTrackCards}
+      raised={onOpenTrackCards}
+    >
       <TrackCardWrapper
-        style={style}
-        isRotated={rotate}
         xmlns="http://www.w3.org/2000/svg"
         viewBox={rotate ? "0 0 256.12 171.08" : "0 0 171.08 256.12"}
       >
