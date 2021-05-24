@@ -2,10 +2,10 @@
 
 ## Background
 
-We are going to build a game inspired by the board game Ticket to Ride. The game can be played by 2-5 players and the goal of the game is to collect points by building train Track routes on a map. The player with the highest score at the end of the game wins. Points can be collected through:
+We are going to build a game inspired by the board game Ticket to Ride. The game can be played by 2-5 players and the goal of the game is to collect points by building train Routes on a map. The player with the highest score at the end of the game wins. Points can be collected through:
 
-- Building a Track route between two destinations on the map
-- Completing a path between to destinations given on a Ticket Card
+- Building a Route between two destinations on the map using Track cards
+- Completing a path between to destinations given on a Ticket card
 - (Hold the longest path)
 - (Train stations kept at end of the game)
 
@@ -16,7 +16,7 @@ When a player has less than 3 Tracks left, the final round begins. The game ends
 ### Create game
 
 - A person can create a game and becomes Game Creator
-- GC can share a generated a invite URL to share for other people to join the game
+- GC can share a generated join-link for other people to join the game
 - GC decides when game begins after 1-4 people have joined the game
 
 ### Join game 
@@ -36,14 +36,14 @@ When a player has less than 3 Tracks left, the final round begins. The game ends
 
 ### Make a move (the player have two options)
 
-1. Pick two cards from the Track deck
-2. Build a Track
+1. Pick two cards from the open Track cards or Track cards deck
+2. Build a Route with Tracks
 
 ### Keep track (and show) each players points
 
 - (Routes built by a player)
 - (Route between the cities on the Ticket(s))
-- (Current Longest route)
+- (Current Longest Route)
 - (Train stations kept at end of game)
 
 ### The games ending
