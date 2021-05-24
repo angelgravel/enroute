@@ -17,8 +17,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "notistack";
 import copy from "clipboard-copy";
 
-import logo from "../../assets/location.gif";
-
 import { RootState } from "../../redux/store";
 import { socketContext } from "../../context/socket";
 
@@ -31,6 +29,7 @@ import {
 import socketEmit from "utils/socketEmit";
 import { playerColorToHex } from "utils/constants";
 import { unsetGame } from "redux/game";
+import Pin from "assets/Pin";
 /*=====================================*/
 
 const Container = styled.div`
@@ -121,8 +120,15 @@ const GameLounge: FC<GameLoungeProps> = () => {
 
   return (
     <Container>
-      <img src={logo} style={{ height: "80px" }} alt="logo" />
-      <Card style={{ display: "inline-grid", padding: "4rem" }}>
+      <Pin animate style={{ width: "7rem" }} />
+      <Card
+        style={{
+          display: "inline-grid",
+          padding: "4rem",
+          borderRadius: "0.5rem",
+          filter: "drop-shadow(0 0 5px rgba(50, 50, 50, 0.3))",
+        }}
+      >
         <Typography variant="h2">Game lounge</Typography>
 
         <Typography variant="h5" style={{ marginRight: "0.5rem" }}>

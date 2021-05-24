@@ -10,6 +10,16 @@ body {
   touch-action: pan-y;
   width: 100%;
   overflow: hidden;
+  touch-action: none;
+  zoom: 1;
+  transform: scale(1);
+  background: #fff;
+  background: radial-gradient(
+    circle,
+    rgba(148, 217, 219, 0.05) 0%,
+    rgba(223, 201, 95, 0.1) 28%,
+    rgba(214, 112, 138, 0.1) 100%
+  );
 }
 
 html {
@@ -17,7 +27,16 @@ html {
   width: 100%;
   padding: 0;
   margin: 0;
-  overflow: hidden scroll;
+  overflow: hidden;
+  touch-action: none;
+  zoom: 1;
+  transform: scale(1);
+}
+
+#root {
+  touch-action: none;
+  zoom: 1;
+  transform: scale(1);
 }
 
 @media only screen and (max-width: 1000px) {

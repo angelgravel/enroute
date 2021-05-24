@@ -8,7 +8,7 @@ const WIDTH = 171.08;
 type BasicCardWrapperProps = {
   rotate?: boolean;
   raised?: boolean;
-  interactable?: boolean;
+  hoverable?: boolean;
 };
 const BasicCardWrapper = styled(motion.div)<BasicCardWrapperProps>`
   background-color: #fff;
@@ -20,6 +20,19 @@ const BasicCardWrapper = styled(motion.div)<BasicCardWrapperProps>`
     rgba(50, 50, 50, 0.2);
   transition: all 100ms ease;
   border-radius: 0.3rem;
+
+  ${({ hoverable }) =>
+    hoverable
+      ? `
+    cursor: pointer;
+    filter: brightness(1);
+    transition: filter 200ms ease;
+
+    :hover {
+      filter: brightness(0.9);
+    }
+  `
+      : ""}
 `;
 
 const BasicCardContent = styled.div`
@@ -35,6 +48,7 @@ type BasicCardProps = {
   style: React.CSSProperties;
   raised?: boolean;
   interactable?: boolean;
+  hoverable?: boolean;
 };
 const BasicCard: FC<BasicCardProps> = ({
   children,
@@ -42,12 +56,14 @@ const BasicCard: FC<BasicCardProps> = ({
   rotate = false,
   raised = false,
   interactable = false,
+  hoverable = false,
 }) => {
   return (
     <BasicCardWrapper
       style={style}
       rotate={rotate}
       raised={raised}
+      hoverable={hoverable}
       initial={false}
       animate={raised ? "isRaised" : interactable ? "isNotRaised" : "initial"}
       variants={{
@@ -66,7 +82,6 @@ const BasicCard: FC<BasicCardProps> = ({
           opacity: 1,
         },
       }}
-      interactable={interactable}
       whileHover={
         interactable && !raised
           ? { opacity: 0.7, transition: { duration: 0 } }

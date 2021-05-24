@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import StoreWithProvider from "./redux/store";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
@@ -91,6 +91,30 @@ const theme = createMuiTheme({
 });
 
 const App: FC = () => {
+  const preventPinch = (e: any) => {
+    e.preventDefault();
+  };
+
+  const touchHandler = (e: WheelEvent) => {
+    if (e.ctrlKey) {
+      e.preventDefault();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("wheel", touchHandler, { passive: false });
+    document.addEventListener("gesturestart", preventPinch);
+    document.addEventListener("gesturechange", preventPinch);
+    document.addEventListener("gestureend", preventPinch);
+
+    return () => {
+      document.removeEventListener("wheel", touchHandler);
+      document.removeEventListener("gesturestart", preventPinch);
+      document.removeEventListener("gesturechange", preventPinch);
+      document.removeEventListener("gestureend", preventPinch);
+    };
+  }, [document]);
+
   return (
     <StoreWithProvider>
       <SnackbarProvider maxSnack={3}>

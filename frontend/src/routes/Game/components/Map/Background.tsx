@@ -1,28 +1,27 @@
 import { FC } from "react";
-import { motion } from "framer-motion";
 import styled from "styled-components";
 
-const Land = styled(motion.path)`
+const Land = styled.path`
   fill: #6c8e6c;
   stroke: #0d2326;
   stroke-width: 1px;
   stroke-miterlimit: 10;
 `;
 
-const Border = styled(motion.path)`
+const Border = styled.path`
   stroke: #0d2326;
   stroke-width: 0.3px;
   fill: none;
   stroke-miterlimit: 10;
 `;
 
-const Water = styled(motion.rect)`
+const Water = styled.rect`
   fill: #94d9db;
 `;
 
 const Background: FC = () => {
   return (
-    <motion.g id="game_map_background">
+    <g id="game_map_background">
       <Water x="0.5" y="0.5" width="1920" height="1048" />
       <Land
         d="M245.5.5h123l2,17,9.0494,8,8.9506,7-6,7v6l-7,4-2,6-7,7-3,6-7,6,3,6,6,3,1,5,5-2,10-2,7,5,4,12,8,2,3,18,3,11,8,20,5,7,2,8,12-1,6,7,8,3,2,5,6,6-2,11v7l6,4,2,12,8,8,3,8-3,6-8,1,1,6,8,2,4-5,8-1h21l9,9,5,9.7781V282.5l-9,12-3,13,8,12-1,10-8,6-13,2-3,7-9,7h-12l-18,2-12,4-10,6-38,3-6-2-9,9-7,2-9-4-7-8h-13l-9,2-2,10-8,8-12-2h-14l-12,5-9.2445,10H261.5l-14-8,3-7,8-2,10-9,1-6,7-4,2-4,7-5,1.4378-10H294.5l5-4,3-6,11-1,4-4-1-6-20-7-11-2-10-3-9-6-7-9,2-7h7l10,3,6-3,10-1,10-10,4-10v-9l-5-5-7.7151,2H288.5l-4-4,8-3,5-6-1-6-3.5387-7,2.5387-5,8,2,13.4613,3H330.5l11-7-2-14,3-14-6-7-10-5-5-4-4-12-14-1-20-2-7-7-2-13,4-12,9-12.7392V109.5l-5-7-10-2-11-6-6-13-11-9-2-14-1-6,6-1.245-8-7.9058V38.5l8-2.7743V30.5l-2-1.5508V.5Z"
@@ -96,7 +95,7 @@ const Background: FC = () => {
         d="M873.5,195.5l5,6.7194,8,2.2806s4,10,4,11-14,1-14,1l-11-3-6.5-9.21-2.5-7.79-10-4.8217V182.5l7-3,8,7,10,2Z"
         transform="translate(0)"
       />
-      <motion.g id="game_map_borders">
+      <g id="game_map_borders">
         <Border
           d="M254.5,210.5l-19-6-13-10-6.3385-8-5.6615-11-6-3.0217-6,5.0217,3,6-9,3-13-3-5-5,8-11,8-10,9-19,5-16"
           transform="translate(0)"
@@ -203,8 +202,8 @@ const Background: FC = () => {
           d="M119.5,790.5l17.8852-5.0254L156.5,780.5l12.2263,4.9746L179.5,795.5l4.4733,21.89L179.5,835.5l-2.3031,34,4.5179,12.12-1.9575,11.124.8278,20.5323L176.35,942.501l-6.7765,22.7773L173.5,984.5"
           transform="translate(0)"
         />
-      </motion.g>
-    </motion.g>
+      </g>
+    </g>
   );
 };
 

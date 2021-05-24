@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import {
   Button,
   Typography,
@@ -20,11 +20,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { setInitGame } from "../redux/game";
 import useAxios from "../hooks/useAxios";
 
-import logo from "../assets/location.gif";
-
 /*=============== Types ===============*/
 import { SocketResponse, CreateJoinSocketPayload } from "@typeDef/types";
 import { RootState } from "redux/store";
+import Pin from "assets/Pin";
 /*=====================================*/
 
 const Container = styled.div`
@@ -126,7 +125,7 @@ const Home: FC = () => {
 
   return (
     <Container>
-      <img src={logo} alt="logo" />
+      <Pin animate style={{ width: "25rem" }} />
       <Typography variant="h2">EN ROUTE</Typography>
       <Button variant="contained" color="primary" onClick={handleCreateGame}>
         <Typography
