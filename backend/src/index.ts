@@ -12,8 +12,6 @@ import Game from "./game/Game";
 import {
   AddSocketEmit,
   AddSocketPayload,
-  CreateJoinSocketPayload,
-  PlayerClient,
   SocketResponse,
 } from "@typeDef/types";
 import { createGame, joinGame } from "./routes/game";
@@ -25,7 +23,8 @@ dotenv.config();
 // console.log((wasmModule as any).add(1, 2));
 /*======================================*/
 
-const URL = process.env.NODE_ENV === "production" ? "REPLACE_ME" : "localhost";
+const URL =
+  process.env.NODE_ENV === "production" ? "enroute.vlq.se" : "localhost";
 
 const app = express();
 app.use(
@@ -48,8 +47,12 @@ let games: Games = {};
 //   res.send(Object.keys(games).length);
 // });
 /********************** Create Game **********************/
-app.post("/game", (req: Request, res: Response) => createGame(req, res, games));
-app.patch("/game", (req: Request, res: Response) => joinGame(req, res, games));
+app.post("/api/game", (req: Request, res: Response) =>
+  createGame(req, res, games),
+);
+app.patch("/api/game", (req: Request, res: Response) =>
+  joinGame(req, res, games),
+);
 /*********************************************************/
 
 /*============================================================*/
@@ -85,7 +88,6 @@ io.on("connection", (socket) => {
   /*********************************************************/
   socket.on("disconnect", () => {
     console.log("Socket ", socket.id, "was disconnected!!!");
-    
   });
 });
 

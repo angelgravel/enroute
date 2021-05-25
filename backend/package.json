@@ -4,7 +4,7 @@
   "description": "The backend for En Route",
   "main": "lib/index.js",
   "scripts": {
-    "start": "npm run asbuild && node lib/index.js",
+    "start": "npm run asbuild && npm run build && node lib/index.js",
     "dev": "npm run asbuild && concurrently --raw \"npm:watch\" \"nodemon lib/index.js\"",
     "build": "tsc",
     "watch": "tsc --watch",
