@@ -88,7 +88,7 @@ const PlayerCard: FC<PlayerCardProps> = ({ player, isMe = false }) => {
       variants={{
         active: {
           scale: 1,
-          filter: `drop-shadow(0 0 0.2rem grey)`,
+          filter: `drop-shadow(0 0 0.2rem rgb(169,169,169))`,
           backgroundColor: "rgba(255, 255, 255, 1)",
 
           transition: {
