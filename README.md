@@ -41,7 +41,7 @@ When a player has less than 3 Tracks left, the final round begins. The game ends
 
 ### Keep track (and show) each players points
 
-- (Routes built by a player)
+- Routes built by a player
 - (Route between the cities on the Ticket(s))
 - (Current Longest Route)
 - (Train stations kept at end of game)
@@ -55,8 +55,8 @@ When a player has less than 3 Tracks left, the final round begins. The game ends
 ### Frontend
 
 - [React](https://reactjs.org/)
-- [Redux](https://redux.js.org/)
 - [Typescript](https://www.typescriptlang.org/)
+- [Redux](https://redux.js.org/)
 - [Material UI](https://material-ui.com/)
 
 ### Backend
