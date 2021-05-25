@@ -56,7 +56,9 @@ type RouteProps = {
 const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
-  const { routes, trackCards } = useSelector((state: RootState) => state.game);
+  const { routes, trackCards, currentPlayer, playerId } = useSelector(
+    (state: RootState) => state.game,
+  );
   const color = colorToHex[routeInfo.color];
   const { emptyTracks, builtTracks, bridges } = routeInfo;
 
@@ -114,7 +116,7 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
         }),
       );
     } else {
-      console.log(errorMessage);
+      // console.log(errorMessage);
       enqueueSnackbar(errorMessage, { variant: "error" });
     }
   };
@@ -127,6 +129,10 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
 
   useEffect(() => {
     try {
+      if (currentPlayer !== playerId) {
+        throw new Error("not_your_turn");
+      }
+
       if (!trackCards || !routes || !routes[id]) throw new Error("");
 
       if (routes[id].builtBy !== null) {
@@ -158,7 +164,12 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
 
       setCanBuild(true);
     } catch (error) {
+      setCanBuild(false);
+
       switch (error.message) {
+        case "not_your_turn":
+          setErrorMessage(`It's not your turn`);
+          break;
         case "already_built":
           setErrorMessage(
             `That route is already built by ${routes[id].builtBy}`,
@@ -179,7 +190,7 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
           break;
       }
     }
-  }, [trackCards]);
+  }, [trackCards, currentPlayer, playerId]);
 
   return (
     <motion.g initial={false} animate={builtBy ? "isBuilt" : "isNotBuilt"}>

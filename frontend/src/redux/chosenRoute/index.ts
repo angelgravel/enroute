@@ -1,4 +1,3 @@
-import { GameRoute } from "@typeDef/types";
 import { Dispatch } from "redux";
 import { ChosenRouteState } from "redux/types";
 

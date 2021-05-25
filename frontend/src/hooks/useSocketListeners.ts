@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Socket } from "socket.io-client";
 import { useSnackbar } from "notistack";
 import { useHistory } from "react-router-dom";
@@ -16,18 +16,19 @@ import {
 import {
   GameRoutes,
   PlayerClient,
-  PlayerColor,
   PlayerTrackCards,
   SocketResponse,
   Ticket,
   TrackColor,
 } from "@typeDef/types";
+import { RootState } from "redux/store";
 
 const useSocketListeners = (socket: Socket) => {
   const history = useHistory();
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
   const [isListening, setIsListening] = useState<boolean>(false);
+  const { nickname } = useSelector((state: RootState) => state.game);
 
   useEffect(() => {
     if (socket) {
@@ -70,7 +71,7 @@ const useSocketListeners = (socket: Socket) => {
 
   const routesListener = (data: SocketResponse<GameRoutes>) => {
     if (data) {
-      if (data.message !== "init") {
+      if (data.message !== "init" && !data.message?.startsWith(nickname)) {
         enqueueSnackbar(data.message, {
           variant: data.success ? "success" : "error",
         });
@@ -81,11 +82,12 @@ const useSocketListeners = (socket: Socket) => {
 
   const trackCardsListener = (data: SocketResponse<PlayerTrackCards>) => {
     if (data) {
-      if (data.message !== "init") {
+      if (!data.success) {
         enqueueSnackbar(data.message, {
           variant: data.success ? "success" : "error",
         });
       }
+      console.log("Updated track cards");
       dispatch(setTrackCards(data.payload));
     }
   };

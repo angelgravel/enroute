@@ -28,7 +28,9 @@ const BackCardWrapper = styled.div`
 const OpenTrackCardsView: FC = () => {
   const socket = useContext(socketContext);
   const { enqueueSnackbar } = useSnackbar();
-  const { openTrackCards } = useSelector((state: RootState) => state.game);
+  const { openTrackCards, playerId, currentPlayer } = useSelector(
+    (state: RootState) => state.game,
+  );
 
   const handleOpenTrackCardsClick = (trackCard: TrackColor) => {
     if (trackCard && socket) {
@@ -60,15 +62,23 @@ const OpenTrackCardsView: FC = () => {
             <TrackCard
               key={`${trackCard}-${idx}`}
               color={trackCard}
-              style={{ width: "100%", cursor: "pointer" }}
+              style={{
+                width: "100%",
+                cursor: playerId === currentPlayer ? "pointer" : "default",
+              }}
               rotate
-              onOpenTrackCards
+              onOpenTrackCards={playerId === currentPlayer}
             />
           </TrackCardWrapper>
         );
       })}
       <BackCardWrapper onClick={() => handleTrackCardsClick()}>
-        <TrackCardBack style={{ width: "100%", cursor: "pointer" }} />
+        <TrackCardBack
+          style={{
+            width: "100%",
+            cursor: playerId === currentPlayer ? "pointer" : "default",
+          }}
+        />
       </BackCardWrapper>
     </OpenTrackCardsViewWrapper>
   );

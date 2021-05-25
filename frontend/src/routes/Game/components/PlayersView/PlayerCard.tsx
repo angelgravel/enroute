@@ -112,12 +112,13 @@ const PlayerCard: FC<PlayerCardProps> = ({ player, isMe = false }) => {
         <CurrentPlayerBadgeText
           variants={{
             pulse: {
-              scale: [0.9, 1.05, 0.9, 1, 0.9, 0.9],
+              scale: [1, 1.05, 1, 1.05, 1],
 
               transition: {
                 duration: 1.5,
-                delay: 3,
-                repeat: 3,
+                delay: 1,
+                repeat: 2,
+                times: [0, 0.2, 0.4, 0.6, 1],
               },
             },
             noPulse: {

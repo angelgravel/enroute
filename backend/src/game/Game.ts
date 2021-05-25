@@ -3,7 +3,6 @@ import {
   PlayerTrackCards,
   TrackColor,
   GameRoutes,
-  RouteColor,
   Route,
   PlayerAction,
   PlayerClient,
@@ -22,7 +21,7 @@ import {
 } from "./constants";
 import { PlayerColor } from "@typeDef/types";
 import { initialShortTickets, initialLongTickets } from "./initialTickets";
-import { shuffleArray } from "../utils/helpers";
+import { firstCap, routeToCities, shuffleArray } from "../utils/helpers";
 import initialRoutes from "./initialRoutes";
 import { SocketError } from "../utils/SocketError";
 
@@ -161,8 +160,8 @@ class Game {
   private emitBuildRoute(
     socket: Socket,
     success: boolean,
-    code: string,
     message: string,
+    code: string,
   ) {
     const emitMessage: SocketResponse<string> = {
       success,
@@ -188,9 +187,13 @@ class Game {
         throw new Error("Something went wrong");
       }
 
+      // Reset the previous action of current player
+      this.players[currentPlayerIdx].previousAction = "none";
+
       // If current player is the last in this.players => assign next player index to 0
       const nextPlayerIdx =
         currentPlayerIdx + 1 >= this.players.length ? 0 : currentPlayerIdx + 1;
+
       this.currentPlayer = this.players[nextPlayerIdx].id;
       this.emitCurrentPlayer(this.players[nextPlayerIdx].id);
     } catch (err) {
@@ -418,6 +421,8 @@ class Game {
     route: Route,
     chosenTrackCards: TrackColor[],
   ) {
+    const [city1, city2] = routeToCities(route);
+
     try {
       if (!this.gameStarted) {
         throw new SocketError(
@@ -443,16 +448,19 @@ class Game {
           "game/player_not_found",
         );
       }
-      if (player.previousAction !== "none") {
-        throw new SocketError(
-          "Player has already picket up a card and can therefor not build on this round",
-          "game/cant_build",
-        );
-      }
+
       // Check is it the player's turn.
       if (this.currentPlayer && this.currentPlayer !== player.id) {
         throw new SocketError("Its not your turn.", "game/not_your_turn");
       }
+
+      if (player.previousAction !== "none") {
+        throw new SocketError(
+          "You have already picked up a card and can therefore not build on this round",
+          "game/cant_build",
+        );
+      }
+
       if (!this.routes.hasOwnProperty(route)) {
         // Route does not exist
         throw new SocketError(
@@ -460,6 +468,7 @@ class Game {
           "game/route_not_found",
         );
       }
+
       // Check if all colored cards is the same color.
       if (
         chosenColoredTrackCards.length &&
@@ -472,22 +481,29 @@ class Game {
           "game/multiple_colored_track_cards",
         );
       }
+
       // Does the player have enough chosen cards?
-      if (this.routes[route].length > chosenTrackCards.length) {
+      if (this.routes[route].length !== chosenTrackCards.length) {
         throw new SocketError(
-          "Not enough chosen cards to build the chosen route.",
+          `invalid amount of chosen track cards to build ${city1} to ${city2}.`,
           "game/not_enough_chosen_cards",
         );
       }
 
-      // Does the player have enough bridges?
+      // Does the player have enough track cards?
       if (player.remainingTracks < this.routes[route].length) {
+        this.emitTrackCards(
+          socket,
+          player.trackCards,
+          `Your track cards were out of sync and are now updated.`,
+        );
         throw new SocketError(
-          "You don't have enough tracks to build this route.",
+          `You don't have enough tracks to build ${city1} to ${city2}.`,
           "game/not_enough_tracks",
         );
       }
-      // Emit track cards to player
+
+      // Does the player have enough bridges?
       if (
         this.routes[route].bridges > player.trackCards.bridge.amount &&
         chosenBridgeCards.length < player.trackCards.bridge.amount
@@ -495,21 +511,27 @@ class Game {
         this.emitTrackCards(
           socket,
           player.trackCards,
-          `The amount of bridge cards are incorrect. The ${player.nickname}s track cards are updated`,
+          `Your track cards were out of sync and are now updated.`,
         );
         throw new SocketError(
-          "Not enough bridge cards to build the chosen route.",
+          `Not enough bridge cards to build ${city1} to ${city2}.`,
           "game/not_enough_bridge_cards",
         );
       }
+
       // Does the player have the chosen cards of the chosen color?
       if (
         chosenColoredTrackCards.length &&
-        chosenColoredTrackCards.length <
+        chosenColoredTrackCards.length >
           player.trackCards[chosenColoredTrackCards[0]].amount
       ) {
+        this.emitTrackCards(
+          socket,
+          player.trackCards,
+          `Your track cards were out of sync and are now updated.`,
+        );
         throw new SocketError(
-          "Not enough cards of the chosen color to build the chosen route.",
+          `Not enough cards of the chosen color to build ${city1} to ${city2}.`,
           "game/not_enough_chosen_colored_cards",
         );
       }
@@ -540,16 +562,16 @@ class Game {
         );
       }
 
-      this.emitRoutes(`The route ${route} was build by ${player.nickname}`);
+      this.emitRoutes(`${player.nickname} just built ${city1} to ${city2}.`);
       this.emitTrackCards(
         socket,
         player.trackCards,
-        `${player.nickname}s track cards are updated`,
+        `Your track cards are updated`,
       );
       this.emitBuildRoute(
         socket,
         true,
-        `You have built ${route}`,
+        `You have built ${city1} to ${city2}`,
         "game/built",
       );
 
@@ -559,14 +581,14 @@ class Game {
     } catch (error) {
       if ("message" in error && "code" in error) {
         const { message, code } = error as SocketError;
-        this.emitBuildRoute(socket, false, code, message);
+        this.emitBuildRoute(socket, false, message, code);
       } else {
         console.log(error);
         this.emitBuildRoute(
           socket,
           false,
+          `Could not build ${city1} to ${city2}. Something went wrong!`,
           "game/could_not_build_route",
-          `Could not build ${route}. Something went wrong!`,
         );
       }
     }

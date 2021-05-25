@@ -40,9 +40,12 @@ const Game: FC = () => {
 
   useEffect(() => {
     if (!gameStarted) {
-      snackbarKey.current = enqueueSnackbar("Waiting for other players...", {
-        persist: true,
-      });
+      snackbarKey.current = enqueueSnackbar(
+        "Waiting for all players to pick their tickets...",
+        {
+          persist: true,
+        },
+      );
     } else {
       if (snackbarKey.current) {
         closeSnackbar(snackbarKey.current);
