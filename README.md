@@ -4,9 +4,9 @@
 
 ## Individual screencast
 
-Emma Segolsson 
-Victor Lindquist 
-Jacob Molin https://drive.google.com/file/d/1Rwirb86K-MSYkDXJ6wjyr3q8hI_3kHCU/view?usp=sharing
+- Emma Segolsson 
+- Victor Lindquist 
+- Jacob Molin https://drive.google.com/file/d/1Rwirb86K-MSYkDXJ6wjyr3q8hI_3kHCU/view?usp=sharing
 
 ## Background
 
