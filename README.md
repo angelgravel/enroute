@@ -1,5 +1,13 @@
 # En Route
 
+## Project screencast
+
+## Individual screencast
+
+Emma Segolsson 
+Victor Lindquist 
+Jacob Molin https://drive.google.com/file/d/1Rwirb86K-MSYkDXJ6wjyr3q8hI_3kHCU/view?usp=sharing
+
 ## Background
 
 We are going to build a game inspired by the board game Ticket to Ride. The game can be played by 2-5 players and the goal of the game is to collect points by building train Routes on a map. The player with the highest score at the end of the game wins. Points can be collected through:
