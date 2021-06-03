@@ -4,7 +4,7 @@
 
 ## Individual screencast
 
-- Emma Segolsson 
+- Emma Segolsson https://1drv.ms/v/s!Ah5oEZnSTbLwevykNkc1TfHVIb4?e=hlob7m 
 - Victor Lindquist 
 - Jacob Molin https://drive.google.com/file/d/1Rwirb86K-MSYkDXJ6wjyr3q8hI_3kHCU/view?usp=sharing
 
