@@ -256,17 +256,17 @@ class Game {
     const SIX = 15;
 
     switch (routeLength) {
-      case ONE:
+      case 1:
         return ONE;
-      case TWO:
+      case 2:
         return TWO;
-      case THREE:
+      case 3:
         return THREE;
-      case FOUR:
+      case 4:
         return FOUR;
-      case FIVE:
+      case 5:
         return FIVE;
-      case SIX:
+      case 6:
         return SIX;
       default:
         return 0;

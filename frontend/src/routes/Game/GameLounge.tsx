@@ -66,6 +66,7 @@ const GameLounge: FC<GameLoungeProps> = () => {
     if (socket) {
       socket.on("add_socket", (response: SocketResponse<AddSocketPayload>) => {
         if (!response.success) {
+          // dispatch(unsetGame());
           console.log(response.payload);
           return;
         }

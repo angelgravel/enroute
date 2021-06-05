@@ -39,14 +39,18 @@ export const joinGame = (req: Request, res: Response, games: Games) => {
       throw new APIError("Game not found", "join_game/not_found", 404);
     }
 
-    const response = game.addPlayer();
+    if (!game.joinable) {
+      throw new APIError("Game full", "join_game/full", 403);
+    }
+
+    const playerInfo = game.addPlayer();
 
     res.status(200).json({
       success: true,
       message: "join_game/joined",
       payload: {
         gameToken: gameToken,
-        player: response,
+        player: playerInfo,
       },
     });
   } catch (err) {

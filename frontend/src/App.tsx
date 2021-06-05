@@ -118,8 +118,8 @@ const App: FC = () => {
   return (
     <StoreWithProvider>
       <SnackbarProvider maxSnack={3}>
-        <Router>
-          <ThemeProvider theme={theme}>
+        <ThemeProvider theme={theme}>
+          <Router>
             <Switch>
               <Route path={"/"} exact render={() => <Home />} />
               <Route path={"/game"} exact render={() => <GameRoute />} />
@@ -128,8 +128,8 @@ const App: FC = () => {
                 render={() => <JoinFromInvite />}
               />
             </Switch>
-          </ThemeProvider>
-        </Router>
+          </Router>
+        </ThemeProvider>
       </SnackbarProvider>
     </StoreWithProvider>
   );
