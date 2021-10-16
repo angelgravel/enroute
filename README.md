@@ -89,4 +89,4 @@ The code in this repository will mostly follow the [`Airbnb JavaScript Style Gui
 `function`.
 
 ## Authors
-Emma Segolsson, Victor Lindquist, Jacob Molin
+[Emma Segolsson](https://github.com/EmmaSegolsson), [Victor Lindquist](https://github.com/VLLindqvist), [Jacob Molin](https://github.com/jacobmolin)
