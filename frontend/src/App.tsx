@@ -1,7 +1,8 @@
 import React, { FC, useEffect } from "react";
 import StoreWithProvider from "./redux/store";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import { createMuiTheme, ThemeProvider } from "@material-ui/core";
+import { createTheme } from "@material-ui/core/styles";
+import { ThemeProvider } from "@material-ui/core";
 import { SnackbarProvider } from "notistack";
 
 import "./index.css";
@@ -12,7 +13,7 @@ import JoinFromInvite from "./routes/JoinFromInvite";
 
 /*=====================================*/
 
-const theme = createMuiTheme({
+const theme = createTheme({
   shape: {
     borderRadius: 3,
   },
@@ -123,10 +124,7 @@ const App: FC = () => {
             <Switch>
               <Route path={"/"} exact render={() => <Home />} />
               <Route path={"/game"} exact render={() => <GameRoute />} />
-              <Route
-                path={"/game/:gameToken"}
-                render={() => <JoinFromInvite />}
-              />
+              <Route path={"/game/:gameToken"} render={() => <JoinFromInvite />} />
             </Switch>
           </Router>
         </ThemeProvider>

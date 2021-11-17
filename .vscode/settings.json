@@ -1,0 +1,33 @@
+{
+  "prettier.printWidth": 120,
+  "terminalSetups": {
+    "setups": [
+      {
+        "name": "enroute",
+        "terminals": [
+          {
+            "cmd": "cd backend && npm run dev",
+            "color": "terminal.ansiBrightYellow",
+            "icon": "zap",
+            "name": "backend"
+          },
+          {
+            "cmd": "cd frontend && npm run dev",
+            "color": "terminal.ansiGreen",
+            "icon": "browser",
+            "name": "frontend"
+          },
+          {
+            "color": "terminal.ansiBrightWhite",
+            "icon": "github-inverted",
+            "name": "git"
+          },
+          {
+            "color": "terminal.foreground",
+            "name": "zsh"
+          }
+        ]
+      }
+    ]
+  }
+}

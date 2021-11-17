@@ -20,11 +20,11 @@
     "paths": {
       "@typeDef/*": ["../../types/*"],
       "@assets/*": ["assets/*"],
-      "@context/*": ["context/*"],
       "@hooks/*": ["hooks/*"],
       "@redux/*": ["redux/*"],
       "@routes/*": ["routes/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@gameComponents/*": ["routes/Game/components/*"]
     }
   },
   "compileOnSave": true,

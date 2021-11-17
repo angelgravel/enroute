@@ -1,46 +1,32 @@
-import React, { FC, useContext, useEffect, useState } from "react";
-import {
-  Backdrop,
-  Button,
-  Card,
-  Fade,
-  Modal,
-  Typography,
-} from "@material-ui/core";
-import { useDispatch, useSelector } from "react-redux";
+import { FC, useEffect, useState } from "react";
+import { Backdrop, Button, Fade, Modal, Typography } from "@material-ui/core";
 import { useSnackbar } from "notistack";
 import cloneDeep from "lodash.clonedeep";
 import styled from "styled-components";
 
-import { SocketResponse, TrackColor } from "@typeDef/types";
-import { unsetChosenRoute } from "redux/chosenRoute";
-import { RootState } from "redux/store";
-import { socketContext } from "context/socket";
-import socketEmit from "utils/socketEmit";
+import type { SocketResponse, TrackColor } from "@typeDef/types";
+import { unsetChosenRoute } from "@redux/chosenRoute";
+import { useAppDispatch, useAppSelector } from "@redux/store";
+import useSocket from "@hooks/useSocket";
+import socketEmit from "@utils/socketEmit";
+
 import TrackCard from "../TrackCard";
 
 const TrackCardWrapper = styled.div`
-  /* margin-right: 1rem; */
   padding: 0.3rem;
 `;
 
 type CardModalProps = {};
 const TrackCardModal: FC<CardModalProps> = ({}) => {
-  const dispatch = useDispatch();
-  const socket = useContext(socketContext);
+  const dispatch = useAppDispatch();
+  const socket = useSocket();
   const { enqueueSnackbar } = useSnackbar();
-  const { trackCards } = useSelector((state: RootState) => state.game);
-  const chosenRoute = useSelector((state: RootState) => state.chosenRoute);
+  const { trackCards } = useAppSelector((state) => state.game);
+  const chosenRoute = useAppSelector((state) => state.chosenRoute);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isChosenCardsEnough, setIsChosenCardsEnough] = useState<boolean>(
-    false,
-  );
-  const [chosenTrackCards, setChosenTrackCards] = useState<{
-    [idx: number]: TrackColor;
-  }>({});
-  const [availableTrackCards, setAvailableTrackCards] = useState<TrackColor[]>(
-    [],
-  );
+  const [isChosenCardsEnough, setIsChosenCardsEnough] = useState<boolean>(false);
+  const [chosenTrackCards, setChosenTrackCards] = useState<Record<number, TrackColor>>({});
+  const [availableTrackCards, setAvailableTrackCards] = useState<TrackColor[]>([]);
 
   const toggleTrackCard = (trackColor: TrackColor, idx: number) => {
     let _chosenTrackCards = cloneDeep(chosenTrackCards);
@@ -95,9 +81,7 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
       }
 
       if (chosenRoute.color === "any") {
-        const noBridges = _chosenTrackCards.filter(
-          (trackColor) => trackColor !== "bridge",
-        );
+        const noBridges = _chosenTrackCards.filter((trackColor) => trackColor !== "bridge");
         if (!noBridges.every((trackColor, i, arr) => arr[0] === trackColor)) {
           throw new Error();
         }
@@ -105,8 +89,7 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
 
       if (
         chosenRoute.bridges !== 0 &&
-        _chosenTrackCards.filter((color) => color === "bridge").length !==
-          chosenRoute.bridges
+        _chosenTrackCards.filter((color) => color === "bridge").length !== chosenRoute.bridges
       ) {
         throw new Error();
       }
@@ -118,25 +101,17 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
   }, [chosenTrackCards]);
 
   useEffect(() => {
-    if (
-      chosenRoute.color &&
-      chosenRoute.length &&
-      chosenRoute.bridges !== undefined
-    ) {
+    if (chosenRoute.color && chosenRoute.length && chosenRoute.bridges !== undefined) {
       let _availableTrackCards: TrackColor[] = [];
       const bridgeAmount = trackCards["bridge"].amount;
 
       for (const trackCard of Object.values(trackCards)) {
         if (
           (trackCard.color === "bridge" && trackCard.amount > 0) ||
-          (chosenRoute.color === trackCard.color &&
-            trackCard.amount + bridgeAmount >= chosenRoute.length) ||
-          (chosenRoute.color === "any" &&
-            trackCard.amount + bridgeAmount >= chosenRoute.length)
+          (chosenRoute.color === trackCard.color && trackCard.amount + bridgeAmount >= chosenRoute.length) ||
+          (chosenRoute.color === "any" && trackCard.amount + bridgeAmount >= chosenRoute.length)
         ) {
-          _availableTrackCards.push(
-            ...Array.from(Array(trackCard.amount)).map(() => trackCard.color),
-          );
+          _availableTrackCards.push(...Array.from(Array(trackCard.amount)).map(() => trackCard.color));
         }
       }
       setAvailableTrackCards(_availableTrackCards);
@@ -189,10 +164,7 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
           >
             {availableTrackCards.map((trackColor, idx) => {
               return (
-                <TrackCardWrapper
-                  key={`${trackColor}-${idx}`}
-                  onClick={() => toggleTrackCard(trackColor, idx)}
-                >
+                <TrackCardWrapper key={`${trackColor}-${idx}`} onClick={() => toggleTrackCard(trackColor, idx)}>
                   <TrackCard
                     key={`${trackColor}-${idx}`}
                     color={trackColor}
@@ -217,8 +189,7 @@ const TrackCardModal: FC<CardModalProps> = ({}) => {
                 filter: "drop-shadow(0 0 2px rgba(50, 50, 50, 0.3))",
               }}
             >
-              Build route ({Object.keys(chosenTrackCards).length}/
-              {chosenRoute.length})
+              Build route ({Object.keys(chosenTrackCards).length}/{chosenRoute.length})
             </Typography>
           </Button>
         </div>

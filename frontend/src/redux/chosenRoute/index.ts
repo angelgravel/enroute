@@ -1,36 +1,31 @@
-import { Dispatch } from "redux";
-import { ChosenRouteState } from "redux/types";
+import { Reducer } from "redux";
 
-export const chosenRouteActions = {
-  SET_CHOSEN_ROUTE: "setChosenRoute",
-  UNSET_CHOSEN_ROUTE: "unsetChosenRoute",
-};
+import actions from "@redux/actions";
+import { ChosenRouteState } from "@redux/types";
+import { AppThunk } from "@redux/store";
 
 const initialState: ChosenRouteState = {};
 
-export const setChosenRoute = (newState: ChosenRouteState) => (
-  dispatch: Dispatch,
-) => {
-  return dispatch({
-    type: chosenRouteActions.SET_CHOSEN_ROUTE,
-    payload: newState,
+export const setChosenRoute =
+  (newState: ChosenRouteState): AppThunk<Promise<void>> =>
+  async (dispatch) => {
+    dispatch({
+      type: actions.SET_CHOSEN_ROUTE,
+      payload: newState,
+    });
+  };
+
+export const unsetChosenRoute = (): AppThunk<Promise<void>> => async (dispatch) => {
+  dispatch({
+    type: actions.UNSET_CHOSEN_ROUTE,
   });
 };
 
-export const unsetChosenRoute = () => (dispatch: Dispatch) => {
-  return dispatch({
-    type: chosenRouteActions.UNSET_CHOSEN_ROUTE,
-  });
-};
-
-const chosenRouteReducer = (
-  state = initialState,
-  action: any,
-): ChosenRouteState => {
+const chosenRouteReducer: Reducer<ChosenRouteState> = (state = initialState, action: any): ChosenRouteState => {
   switch (action.type) {
-    case chosenRouteActions.SET_CHOSEN_ROUTE:
+    case actions.SET_CHOSEN_ROUTE:
       return action.payload;
-    case chosenRouteActions.UNSET_CHOSEN_ROUTE:
+    case actions.UNSET_CHOSEN_ROUTE:
       return initialState;
     default:
       return state;

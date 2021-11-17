@@ -1,14 +1,13 @@
 import { FC, forwardRef, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import styled from "styled-components";
-
-import { colorToHex, playerColorToHex } from "utils/constants";
-import routesInfo, { RouteInfo } from "./routesInfo";
-import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "notistack";
-import { RootState } from "redux/store";
-import { setChosenRoute } from "redux/chosenRoute";
-import { PlayerColor, Route as RouteType, TrackColor } from "@typeDef/types";
+
+import { colorToHex, playerColorToHex } from "@utils/constants";
+import routesInfo, { RouteInfo } from "./routesInfo";
+import { useAppDispatch, useAppSelector } from "@redux/store";
+import { setChosenRoute } from "@redux/chosenRoute";
+import type { PlayerColor, Route as RouteType, TrackColor } from "@typeDef/types";
 
 const TrackRect = styled(motion.rect)`
   stroke-miterlimit: 10;
@@ -24,9 +23,7 @@ const BridgeSvg = styled(motion.path)`
 type BridgeProps = {
   d: string;
 };
-const Bridge: FC<BridgeProps> = ({ d }) => (
-  <BridgeSvg d={d} transform="translate(0)" />
-);
+const Bridge: FC<BridgeProps> = ({ d }) => <BridgeSvg d={d} transform="translate(0)" />;
 
 type TrackGroupProps = {
   canBuild: boolean;
@@ -55,10 +52,8 @@ type RouteProps = {
 };
 const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
   const { enqueueSnackbar } = useSnackbar();
-  const dispatch = useDispatch();
-  const { routes, trackCards, currentPlayer, playerId } = useSelector(
-    (state: RootState) => state.game,
-  );
+  const dispatch = useAppDispatch();
+  const { routes, trackCards, currentPlayer, playerId } = useAppSelector((state) => state.game);
   const color = colorToHex[routeInfo.color];
   const { emptyTracks, builtTracks, bridges } = routeInfo;
 
@@ -145,19 +140,13 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
         throw new Error("not_enough_bridges");
       }
 
-      const noBridges = Object.values(trackCards).filter(
-        ({ color }) => color !== "bridge",
-      );
+      const noBridges = Object.values(trackCards).filter(({ color }) => color !== "bridge");
 
       if (
         (routes[id].color === "any" &&
-          !noBridges.some(
-            (trackCard) =>
-              trackCard.amount + amountBridges >= routes[id].length,
-          )) ||
+          !noBridges.some((trackCard) => trackCard.amount + amountBridges >= routes[id].length)) ||
         (routes[id].color !== "any" &&
-          trackCards[routes[id].color as TrackColor].amount + amountBridges <
-            routes[id].length)
+          trackCards[routes[id].color as TrackColor].amount + amountBridges < routes[id].length)
       ) {
         throw new Error("not_enough_track_cards");
       }
@@ -171,19 +160,13 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
           setErrorMessage(`It's not your turn`);
           break;
         case "already_built":
-          setErrorMessage(
-            `That route is already built by ${routes[id].builtBy}`,
-          );
+          setErrorMessage(`That route is already built by ${routes[id].builtBy}`);
           break;
         case "not_enough_track_cards":
-          setErrorMessage(
-            `You don't have enough track cards to build that route`,
-          );
+          setErrorMessage(`You don't have enough track cards to build that route`);
           break;
         case "not_enough_bridges":
-          setErrorMessage(
-            `You don't have enough bridge cards to build that route`,
-          );
+          setErrorMessage(`You don't have enough bridge cards to build that route`);
           break;
         default:
           setErrorMessage(`Cannot build that route`);
@@ -203,10 +186,7 @@ const Route = forwardRef<any, RouteProps>(({ id, routeInfo }, ref) => {
             exit={{ opacity: 0 }}
           >
             {builtTracks.map((builtTracks, i) => (
-              <motion.g
-                variants={builtTracksGroupVariants}
-                key={`builtTrack-${i}`}
-              >
+              <motion.g variants={builtTracksGroupVariants} key={`builtTrack-${i}`}>
                 {builtTracks.map((builtTrack) => (
                   <RailRect
                     key={`builtTrack-${i}-${builtTrack.x}-${builtTrack.y}`}

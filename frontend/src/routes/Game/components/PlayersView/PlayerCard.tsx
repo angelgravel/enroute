@@ -1,20 +1,14 @@
-import React, { FC } from "react";
-import {
-  Badge,
-  styled as muiStyled,
-  Typography,
-  withStyles,
-} from "@material-ui/core";
+import { FC } from "react";
+import { Badge, styled as muiStyled, Typography, withStyles } from "@material-ui/core";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 import PersonOutlineIcon from "@material-ui/icons/PersonOutline";
-import { useSelector } from "react-redux";
 
 import { PlayerClient } from "@typeDef/types";
 
-import RailIcon from "utils/RailIcon";
-import { playerColorToHex } from "utils/constants";
-import { RootState } from "redux/store";
+import RailIcon from "@utils/RailIcon";
+import { playerColorToHex } from "@utils/constants";
+import { useAppSelector } from "@redux/store";
 
 const PlayerCardWrapper = styled(motion.div)`
   position: relative;
@@ -80,7 +74,7 @@ type PlayerCardProps = {
   isMe?: boolean;
 };
 const PlayerCard: FC<PlayerCardProps> = ({ player, isMe = false }) => {
-  const { currentPlayer } = useSelector((state: RootState) => state.game);
+  const { currentPlayer } = useAppSelector((state) => state.game);
 
   return (
     <PlayerCardWrapper
@@ -104,9 +98,7 @@ const PlayerCard: FC<PlayerCardProps> = ({ player, isMe = false }) => {
           },
         },
       }}
-      animate={
-        currentPlayer === player.playerId || isMe ? "active" : "inactive"
-      }
+      animate={currentPlayer === player.playerId || isMe ? "active" : "inactive"}
     >
       {currentPlayer === player.playerId && (
         <CurrentPlayerBadgeText
@@ -154,10 +146,7 @@ const PlayerCard: FC<PlayerCardProps> = ({ player, isMe = false }) => {
         </div>
       )}
 
-      <Typography
-        variant="h5"
-        style={{ textAlign: "center", fontWeight: "bolder" }}
-      >
+      <Typography variant="h5" style={{ textAlign: "center", fontWeight: "bolder" }}>
         {player.nickname}
       </Typography>
 

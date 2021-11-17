@@ -1,23 +1,17 @@
-import React, { FC, useContext, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "redux/store";
+import { FC, useEffect, useState } from "react";
 import styled from "styled-components";
-import {
-  Button,
-  Typography,
-  Modal,
-  Backdrop,
-  Fade,
-  IconButton,
-} from "@material-ui/core";
+import { Button, Typography, Modal, Backdrop, Fade, IconButton } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
-
-import { SocketEvent, Ticket } from "@typeDef/types";
-import { socketContext } from "context/socket";
-import TicketCard from "../TicketCard";
 import { motion } from "framer-motion";
-import socketEmit from "utils/socketEmit";
+
+import { useAppSelector } from "@redux/store";
+import useSocket from "@hooks/useSocket";
+import socketEmit from "@utils/socketEmit";
+
+import TicketCard from "../TicketCard";
+
+import type { Ticket } from "@typeDef/types";
 
 const ModalWrapper = styled(motion.div)`
   display: flex;
@@ -46,8 +40,8 @@ const CardsWrapper = styled.div`
 `;
 
 const PickInitTicketsModal: FC = () => {
-  const socket = useContext(socketContext);
-  const { tickets } = useSelector((state: RootState) => state.game);
+  const socket = useSocket();
+  const { tickets } = useAppSelector((state) => state.game);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(true);
   const [isEnoughCards, setIsEnoughCards] = useState<boolean>(false);
   const [chosenTickets, setChosenTickets] = useState<Ticket[]>([]);
@@ -100,9 +94,7 @@ const PickInitTicketsModal: FC = () => {
         timeout: 500,
         style: {
           transition: "background-color 300ms ease",
-          backgroundColor: isMinimized
-            ? "rgba(50,50,50,0.25)"
-            : "rgba(50,50,50,0.8)",
+          backgroundColor: isMinimized ? "rgba(50,50,50,0.25)" : "rgba(50,50,50,0.8)",
         },
       }}
       disableBackdropClick

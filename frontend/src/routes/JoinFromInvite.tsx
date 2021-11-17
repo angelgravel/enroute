@@ -1,15 +1,15 @@
-import React, { FC, useEffect } from "react";
+import { FC, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import { useSnackbar } from "notistack";
 import styled from "styled-components";
 import { Typography } from "@material-ui/core";
 
-import logo from "assets/location.gif";
+import logo from "@assets/location.gif";
 
-import { CreateJoinSocketPayload, SocketResponse } from "@typeDef/types";
-import { setInitGame } from "redux/game";
-import useAxios from "hooks/useAxios";
+import type { CreateJoinSocketPayload, SocketResponse } from "@typeDef/types";
+import { setInitGame } from "@redux/game";
+import { useAppDispatch } from "@redux/store";
+import useAxios from "@hooks/useAxios";
 
 const JoinFromInviteWrapper = styled.div`
   display: flex;
@@ -27,7 +27,7 @@ type JoinFromInviteParams = {
 
 const JoinFromInvite: FC = () => {
   const axios = useAxios();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const history = useHistory();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -47,13 +47,13 @@ const JoinFromInvite: FC = () => {
           remainingTracks: resp.data.payload.player.remainingTracks,
         }),
       );
-      history.push("/game");
+      history.replace("/game");
     } catch (err) {
       enqueueSnackbar("Could not join game", {
         variant: "error",
         autoHideDuration: 2000,
       });
-      history.push("/");
+      history.replace("/");
     }
   };
 

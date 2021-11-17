@@ -1,15 +1,14 @@
-import React, { FC, useContext } from "react";
-import { useSelector } from "react-redux";
+import { FC } from "react";
 import { useSnackbar } from "notistack";
 import styled from "styled-components";
 
 import { TrackColor } from "@typeDef/types";
-import { RootState } from "redux/store";
+import { useAppSelector } from "@redux/store";
+import socketEmit from "@utils/socketEmit";
+import useSocket from "@hooks/useSocket";
 
 import TrackCard from "../TrackCard";
 import TrackCardBack from "../TrackCard/TrackCardBack";
-import socketEmit from "utils/socketEmit";
-import { socketContext } from "context/socket";
 
 const OpenTrackCardsViewWrapper = styled.div`
   padding-left: 0.5rem;
@@ -26,11 +25,9 @@ const BackCardWrapper = styled.div`
 `;
 
 const OpenTrackCardsView: FC = () => {
-  const socket = useContext(socketContext);
+  const socket = useSocket();
   const { enqueueSnackbar } = useSnackbar();
-  const { openTrackCards, playerId, currentPlayer } = useSelector(
-    (state: RootState) => state.game,
-  );
+  const { openTrackCards, playerId, currentPlayer } = useAppSelector((state) => state.game);
 
   const handleOpenTrackCardsClick = (trackCard: TrackColor) => {
     if (trackCard && socket) {
@@ -55,10 +52,7 @@ const OpenTrackCardsView: FC = () => {
     <OpenTrackCardsViewWrapper>
       {openTrackCards.map((trackCard, idx) => {
         return (
-          <TrackCardWrapper
-            key={`${trackCard}-${idx}`}
-            onClick={() => handleOpenTrackCardsClick(trackCard)}
-          >
+          <TrackCardWrapper key={`${trackCard}-${idx}`} onClick={() => handleOpenTrackCardsClick(trackCard)}>
             <TrackCard
               key={`${trackCard}-${idx}`}
               color={trackCard}

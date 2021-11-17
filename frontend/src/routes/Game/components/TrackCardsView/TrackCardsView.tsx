@@ -1,16 +1,11 @@
-import React, { FC, Fragment, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "redux/store";
-import {
-  Badge,
-  ClickAwayListener,
-  IconButton,
-  withStyles,
-} from "@material-ui/core";
+import { FC, Fragment, useState } from "react";
+import { Badge, IconButton, withStyles } from "@material-ui/core";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import styled from "styled-components";
 import { motion } from "framer-motion";
+
+import { useAppSelector } from "@redux/store";
 
 import TicketsModal from "../TicketsModal";
 import TrackCard from "../TrackCard";
@@ -54,7 +49,7 @@ const StyledBadge = withStyles({
 })(Badge);
 
 const TrackCardsView: FC = () => {
-  const { trackCards, tickets } = useSelector((state: RootState) => state.game);
+  const { trackCards, tickets } = useAppSelector((state) => state.game);
   const [isTicketsModalOpen, setIsTicketsModalOpen] = useState<boolean>(false);
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
 
@@ -88,15 +83,8 @@ const TrackCardsView: FC = () => {
           {Object.values(trackCards).map((trackCard) => {
             return (
               trackCard.amount > 0 && (
-                <StyledBadge
-                  badgeContent={trackCard.amount}
-                  color="primary"
-                  key={`trackColor_${trackCard.color}`}
-                >
-                  <TrackCard
-                    color={trackCard.color}
-                    style={{ width: "5rem" }}
-                  />
+                <StyledBadge badgeContent={trackCard.amount} color="primary" key={`trackColor_${trackCard.color}`}>
+                  <TrackCard color={trackCard.color} style={{ width: "5rem" }} />
                 </StyledBadge>
               )
             );

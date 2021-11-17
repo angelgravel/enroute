@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Socket } from "socket.io-client";
 import { useSnackbar } from "notistack";
 import { useHistory } from "react-router-dom";
+import type { Socket } from "socket.io-client";
 
 import {
   setOpenTrackCards,
@@ -12,23 +11,16 @@ import {
   setTickets,
   setTrackCards,
   unsetGame,
-} from "../redux/game";
-import {
-  GameRoutes,
-  PlayerClient,
-  PlayerTrackCards,
-  SocketResponse,
-  Ticket,
-  TrackColor,
-} from "@typeDef/types";
-import { RootState } from "redux/store";
+} from "@redux/game";
+import { RootState, useAppDispatch, useAppSelector } from "@redux/store";
+import { GameRoutes, PlayerClient, PlayerTrackCards, SocketResponse, Ticket, TrackColor } from "@typeDef/types";
 
 const useSocketListeners = (socket: Socket) => {
   const history = useHistory();
   const { enqueueSnackbar } = useSnackbar();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [isListening, setIsListening] = useState<boolean>(false);
-  const { nickname } = useSelector((state: RootState) => state.game);
+  const { nickname } = useAppSelector((state) => state.game);
 
   useEffect(() => {
     if (socket) {
@@ -40,10 +32,7 @@ const useSocketListeners = (socket: Socket) => {
       socket.on("tickets", ticketsListener);
       socket.on("players", playersListener);
       socket.on("currentPlayer", currentPlayerListener);
-      socket.on(
-        "pick_card_from_openTrackCards",
-        pickFromOpenTrackCardsListener,
-      );
+      socket.on("pick_card_from_openTrackCards", pickFromOpenTrackCardsListener);
       socket.on("pick_card_from_trackCards", pickFromTrackCardsListener);
       socket.on("disconnect", disconnectListener);
 
@@ -110,9 +99,7 @@ const useSocketListeners = (socket: Socket) => {
     }
   };
 
-  const pickFromOpenTrackCardsListener = (
-    data: SocketResponse<PlayerTrackCards>,
-  ) => {
+  const pickFromOpenTrackCardsListener = (data: SocketResponse<PlayerTrackCards>) => {
     if (data) {
       if (data.message !== "init") {
         enqueueSnackbar(data.message, {
@@ -122,9 +109,7 @@ const useSocketListeners = (socket: Socket) => {
     }
   };
 
-  const pickFromTrackCardsListener = (
-    data: SocketResponse<PlayerTrackCards>,
-  ) => {
+  const pickFromTrackCardsListener = (data: SocketResponse<PlayerTrackCards>) => {
     if (data) {
       if (data.message !== "init") {
         enqueueSnackbar(data.message, {

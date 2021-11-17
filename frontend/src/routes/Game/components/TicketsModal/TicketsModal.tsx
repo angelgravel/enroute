@@ -1,8 +1,8 @@
 import { FC } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "redux/store";
 import { Button, Typography, Modal, Backdrop, Fade } from "@material-ui/core";
 import styled from "styled-components";
+
+import { useAppSelector } from "@redux/store";
 
 import TicketCard from "../TicketCard";
 
@@ -28,10 +28,8 @@ type TicketsModalProp = {
   modalState: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
 };
 
-const TicketsModal: FC<TicketsModalProp> = ({
-  modalState: [isModalOpen, setIsModalOpen],
-}) => {
-  const { tickets } = useSelector((state: RootState) => state.game);
+const TicketsModal: FC<TicketsModalProp> = ({ modalState: [isModalOpen, setIsModalOpen] }) => {
+  const { tickets } = useAppSelector((state) => state.game);
 
   return (
     <Modal
@@ -50,10 +48,7 @@ const TicketsModal: FC<TicketsModalProp> = ({
     >
       <Fade in={isModalOpen}>
         <ContentWrapper>
-          <Typography
-            variant="h3"
-            style={{ margin: "10px", textAlign: "center" }}
-          >
+          <Typography variant="h3" style={{ margin: "10px", textAlign: "center" }}>
             Destination Tickets
           </Typography>
 
@@ -61,10 +56,7 @@ const TicketsModal: FC<TicketsModalProp> = ({
             {tickets && tickets.length
               ? tickets.map((ticket) => {
                   return (
-                    <div
-                      key={`${ticket.start}_${ticket.end}`}
-                      style={{ padding: "10px" }}
-                    >
+                    <div key={`${ticket.start}_${ticket.end}`} style={{ padding: "10px" }}>
                       <TicketCard style={{ width: "15rem" }} ticket={ticket} />
                     </div>
                   );

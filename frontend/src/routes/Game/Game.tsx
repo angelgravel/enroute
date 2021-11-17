@@ -1,15 +1,14 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { SnackbarKey, useSnackbar } from "notistack";
 
-import { RootState } from "redux/store";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "@redux/store";
 
-import TrackCardModal from "./components/TrackCardModal";
-import PickInitTicketsModal from "./components/PickInitTicketsModal";
-import PlayersView from "./components/PlayersView";
-import TrackCardsView from "./components/TrackCardsView";
-import GameBoard from "./components/GameBoard";
+import TrackCardModal from "@gameComponents/TrackCardModal";
+import PickInitTicketsModal from "@gameComponents/PickInitTicketsModal";
+import PlayersView from "@gameComponents/PlayersView";
+import TrackCardsView from "@gameComponents/TrackCardsView";
+import GameBoard from "@gameComponents/GameBoard";
 
 const GameWrapper = styled.div`
   overflow: hidden;
@@ -27,7 +26,7 @@ const GameWrapper = styled.div`
 
 const Game: FC = () => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const { openTrackCards } = useSelector((state: RootState) => state.game);
+  const { openTrackCards } = useAppSelector((state) => state.game);
   const snackbarKey = useRef<SnackbarKey>();
 
   const [gameStarted, setGameStarted] = useState<boolean>(false);
@@ -40,12 +39,9 @@ const Game: FC = () => {
 
   useEffect(() => {
     if (!gameStarted) {
-      snackbarKey.current = enqueueSnackbar(
-        "Waiting for all players to pick their tickets...",
-        {
-          persist: true,
-        },
-      );
+      snackbarKey.current = enqueueSnackbar("Waiting for all players to pick their tickets...", {
+        persist: true,
+      });
     } else {
       if (snackbarKey.current) {
         closeSnackbar(snackbarKey.current);

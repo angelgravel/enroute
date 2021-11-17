@@ -1,13 +1,13 @@
-import React, { FC, Fragment, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "redux/store";
+import { FC, Fragment, useEffect, useState } from "react";
+import { useAppSelector } from "redux/store";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 import { Typography, Divider, IconButton } from "@material-ui/core";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 
-import { PlayerClient } from "@typeDef/types";
+import type { PlayerClient } from "@typeDef/types";
+
 import PlayerCard from "./PlayerCard";
 
 const OpponentsViewWrapper = styled(motion.div)`
@@ -36,7 +36,7 @@ const Scrollable = styled.div`
 `;
 
 const OpponentsView: FC = () => {
-  const { playerId, players } = useSelector((state: RootState) => state.game);
+  const { playerId, players } = useAppSelector((state) => state.game);
   const [myInformation, setMyInformation] = useState<PlayerClient>();
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
 
@@ -72,23 +72,14 @@ const OpponentsView: FC = () => {
         animate={isExpanded ? "expanded" : "notExpanded"}
         style={{ display: "flex", alignItems: "center" }}
       >
-        <Divider
-          orientation="vertical"
-          flexItem
-          style={{ margin: "10px 1.5rem", width: "2px" }}
-        />
+        <Divider orientation="vertical" flexItem style={{ margin: "10px 1.5rem", width: "2px" }} />
         <ScrollableOrNot>
           {players && players.length > 1 ? (
             players
               .filter((player) => player.playerId !== playerId)
-              .map((opponent) => (
-                <PlayerCard key={opponent.playerId} player={opponent} />
-              ))
+              .map((opponent) => <PlayerCard key={opponent.playerId} player={opponent} />)
           ) : (
-            <Typography
-              style={{ marginLeft: "0.5rem", fontSize: "1.3rem" }}
-              variant="body1"
-            >
+            <Typography style={{ marginLeft: "0.5rem", fontSize: "1.3rem" }} variant="body1">
               No opponents
             </Typography>
           )}

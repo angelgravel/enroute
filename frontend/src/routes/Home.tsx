@@ -15,16 +15,14 @@ import styled from "styled-components";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import { useHistory } from "react-router-dom";
 import { useSnackbar } from "notistack";
-import { useDispatch, useSelector } from "react-redux";
 
-import { setInitGame } from "../redux/game";
-import useAxios from "../hooks/useAxios";
+import { setInitGame } from "@redux/game";
+import { useAppDispatch, useAppSelector } from "@redux/store";
+import useAxios from "@hooks/useAxios";
 
-/*=============== Types ===============*/
-import { SocketResponse, CreateJoinSocketPayload } from "@typeDef/types";
-import { RootState } from "redux/store";
-import Pin from "assets/Pin";
-/*=====================================*/
+import Pin from "@assets/Pin";
+
+import type { SocketResponse, CreateJoinSocketPayload } from "@typeDef/types";
 
 const Container = styled.div`
   height: 100%;
@@ -35,13 +33,11 @@ const Container = styled.div`
 `;
 
 const Home: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const history = useHistory();
   const axios = useAxios();
   const { enqueueSnackbar } = useSnackbar();
-  const { gameToken: gameTokenRedux } = useSelector(
-    (state: RootState) => state.game,
-  );
+  const { gameToken: gameTokenRedux } = useAppSelector((state) => state.game);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [gameToken, setGameToken] = useState<string>("");
@@ -62,9 +58,7 @@ const Home: FC = () => {
 
   const handleCreateGame = async () => {
     try {
-      const resp = await axios.post<SocketResponse<CreateJoinSocketPayload>>(
-        "/game",
-      );
+      const resp = await axios.post<SocketResponse<CreateJoinSocketPayload>>("/game");
       dispatch(
         setInitGame({
           gameToken: resp.data.payload.gameToken,
@@ -92,10 +86,9 @@ const Home: FC = () => {
   const handleJoinGame = async (e: any) => {
     e.preventDefault();
     try {
-      const resp = await axios.patch<SocketResponse<CreateJoinSocketPayload>>(
-        "/game",
-        { gameToken: `game#${gameToken}` },
-      );
+      const resp = await axios.patch<SocketResponse<CreateJoinSocketPayload>>("/game", {
+        gameToken: `game#${gameToken}`,
+      });
       dispatch(
         setInitGame({
           gameToken: resp.data.payload.gameToken,
@@ -128,18 +121,11 @@ const Home: FC = () => {
       <Pin animate style={{ width: "25rem" }} />
       <Typography variant="h2">EN ROUTE</Typography>
       <Button variant="contained" color="primary" onClick={handleCreateGame}>
-        <Typography
-          variant="h6"
-          style={{ filter: "drop-shadow(0 0 5px rgba(50, 50, 50, 0.3))" }}
-        >
+        <Typography variant="h6" style={{ filter: "drop-shadow(0 0 5px rgba(50, 50, 50, 0.3))" }}>
           Create game
         </Typography>
       </Button>
-      <Button
-        variant="contained"
-        color="secondary"
-        onClick={() => setIsModalOpen(true)}
-      >
+      <Button variant="contained" color="secondary" onClick={() => setIsModalOpen(true)}>
         <Typography variant="h6">Join game</Typography>
       </Button>
 
