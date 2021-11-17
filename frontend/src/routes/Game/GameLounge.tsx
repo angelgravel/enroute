@@ -8,13 +8,13 @@ import { useSnackbar } from "notistack";
 import copy from "clipboard-copy";
 
 import { useAppDispatch, useAppSelector } from "@redux/store";
-import useSocket from "@hooks/useSocket";
+import useSocket from "@gameHooks/useSocket";
 import socketEmit from "@utils/socketEmit";
 import { unsetGame } from "@redux/game";
 import { playerColorToHex } from "@utils/constants";
+import type { SocketResponse, AddSocketPayload, AddSocketEmit } from "@typeDef/types";
 
 import Pin from "@assets/Pin";
-import type { SocketResponse, AddSocketPayload, AddSocketEmit } from "@typeDef/types";
 
 const Container = styled.div`
   display: flex;
@@ -53,6 +53,7 @@ const GameLounge: FC<GameLoungeProps> = () => {
   useEffect(() => {
     if (socket) {
       socket.on("add_socket", (response: SocketResponse<AddSocketPayload>) => {
+        console.log(response);
         if (!response.success) {
           // dispatch(unsetGame());
           console.log(response.payload);

@@ -21,9 +21,11 @@
       "@typeDef/*": ["../../types/*"],
       "@assets/*": ["assets/*"],
       "@hooks/*": ["hooks/*"],
+      "@gameHooks/*": ["routes/Game/hooks/*"],
       "@redux/*": ["redux/*"],
       "@routes/*": ["routes/*"],
       "@utils/*": ["utils/*"],
+      "@components/*": ["components/*"],
       "@gameComponents/*": ["routes/Game/components/*"]
     }
   },

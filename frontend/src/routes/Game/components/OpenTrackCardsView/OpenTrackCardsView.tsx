@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { TrackColor } from "@typeDef/types";
 import { useAppSelector } from "@redux/store";
 import socketEmit from "@utils/socketEmit";
-import useSocket from "@hooks/useSocket";
+import useSocket from "@gameHooks/useSocket";
 
 import TrackCard from "../TrackCard";
 import TrackCardBack from "../TrackCard/TrackCardBack";

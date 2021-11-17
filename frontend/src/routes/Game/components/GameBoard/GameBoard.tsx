@@ -56,7 +56,7 @@ const GameBoard: FC = () => {
       },
     },
     {
-      domTarget: gameBoardTableRef,
+      target: gameBoardTableRef,
       eventOptions: { passive: false },
     },
   );

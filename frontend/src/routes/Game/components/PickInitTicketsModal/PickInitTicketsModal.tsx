@@ -6,7 +6,7 @@ import RemoveIcon from "@material-ui/icons/Remove";
 import { motion } from "framer-motion";
 
 import { useAppSelector } from "@redux/store";
-import useSocket from "@hooks/useSocket";
+import useSocket from "@gameHooks/useSocket";
 import socketEmit from "@utils/socketEmit";
 
 import TicketCard from "../TicketCard";

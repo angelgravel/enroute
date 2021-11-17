@@ -31,7 +31,6 @@ export const createGame = (req: FastifyRequest<any>, res: FastifyReply) => {
 
 export const joinGame = (req: FastifyRequest<any>, res: FastifyReply) => {
   try {
-    // TODO: join a game
     const gameToken = req.body.gameToken;
     const game = Store.games[gameToken];
 

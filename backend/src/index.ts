@@ -47,7 +47,10 @@ app.patch("/api/game", joinGame);
 
 /* ======================== Socket IO ======================== */
 app.register(FastifySocketIO, {
-  // put your options here
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
 });
 
 app.ready((err) => {

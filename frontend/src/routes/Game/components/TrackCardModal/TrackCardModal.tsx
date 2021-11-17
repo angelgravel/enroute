@@ -7,7 +7,7 @@ import styled from "styled-components";
 import type { SocketResponse, TrackColor } from "@typeDef/types";
 import { unsetChosenRoute } from "@redux/chosenRoute";
 import { useAppDispatch, useAppSelector } from "@redux/store";
-import useSocket from "@hooks/useSocket";
+import useSocket from "@gameHooks/useSocket";
 import socketEmit from "@utils/socketEmit";
 
 import TrackCard from "../TrackCard";

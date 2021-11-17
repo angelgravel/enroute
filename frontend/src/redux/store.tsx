@@ -11,7 +11,7 @@ import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, 
 import gameReducer from "./game";
 import chosenRouteReducer from "./chosenRoute";
 
-import Pin from "@assets/Pin";
+import Loader from "@components/Loader";
 
 // COMBINING ALL REDUCERS
 const combinedReducer = combineReducers({
@@ -59,14 +59,7 @@ export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unk
 const StoreWithProvider: FC = ({ children }) => {
   return (
     <Provider store={store}>
-      <PersistGate
-        loading={
-          <div>
-            <Pin animate style={{ width: "25rem" }} />
-          </div>
-        }
-        persistor={persistor}
-      >
+      <PersistGate loading={<Loader fullscreen />} persistor={persistor}>
         {children}
       </PersistGate>
     </Provider>
