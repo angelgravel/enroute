@@ -11,17 +11,13 @@ import {
 } from "@typeDef/types";
 import { BroadcastOperator, Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import uniqid from "uniqid";
 import cloneDeep from "lodash.clonedeep";
 
-import {
-  initialGameTrackCards,
-  initialPlayerTrackCards,
-  playerColors,
-} from "./constants";
+import { initialGameTrackCards, initialPlayerTrackCards, playerColors } from "./constants";
 import { PlayerColor } from "@typeDef/types";
 import { initialShortTickets, initialLongTickets } from "./initialTickets";
 import { firstCap, routeToCities, shuffleArray } from "../utils/helpers";
+import uniqeId from "../utils/uniqueId";
 import initialRoutes from "./initialRoutes";
 import { SocketError } from "../utils/SocketError";
 
@@ -44,11 +40,9 @@ class Game {
   routes: GameRoutes;
 
   constructor() {
-    this.gameToken = uniqid("game#");
+    this.gameToken = uniqeId("game#");
     this.gameRoomSocket = undefined;
-    this.creator = new Player(
-      playerColors[Math.floor(Math.random() * (playerColors.length - 1))],
-    );
+    this.creator = new Player(playerColors[Math.floor(Math.random() * (playerColors.length - 1))]);
     this.joinable = true;
     this.gameStarted = false;
 
@@ -68,9 +62,7 @@ class Game {
       this.gameRoomSocket = _io.to(this.gameToken);
     }
 
-    const playerIdx = this.players.findIndex(
-      (_player) => _player.id === playerId,
-    );
+    const playerIdx = this.players.findIndex((_player) => _player.id === playerId);
     if (playerIdx !== -1) {
       _socket.join(this.gameToken);
       this.players[playerIdx].setSocket(_socket);
@@ -114,11 +106,7 @@ class Game {
     this.gameRoomSocket?.emit("routes", emitMessage);
   }
 
-  private emitTrackCards(
-    socket: Socket,
-    trackCards: PlayerTrackCards,
-    message: string,
-  ) {
+  private emitTrackCards(socket: Socket, trackCards: PlayerTrackCards, message: string) {
     const emitMessage: SocketResponse<PlayerTrackCards> = {
       success: true,
       message,
@@ -157,12 +145,7 @@ class Game {
     this.gameRoomSocket?.emit("currentPlayer", currentPlayer);
   }
 
-  private emitBuildRoute(
-    socket: Socket,
-    success: boolean,
-    message: string,
-    code: string,
-  ) {
+  private emitBuildRoute(socket: Socket, success: boolean, message: string, code: string) {
     const emitMessage: SocketResponse<string> = {
       success,
       message,
@@ -179,9 +162,7 @@ class Game {
         throw new Error();
       }
 
-      const currentPlayerIdx = this.players.findIndex(
-        (p) => p.id === this.currentPlayer,
-      );
+      const currentPlayerIdx = this.players.findIndex((p) => p.id === this.currentPlayer);
 
       if (currentPlayerIdx === -1) {
         throw new Error("Something went wrong");
@@ -191,25 +172,20 @@ class Game {
       this.players[currentPlayerIdx].previousAction = "none";
 
       // If current player is the last in this.players => assign next player index to 0
-      const nextPlayerIdx =
-        currentPlayerIdx + 1 >= this.players.length ? 0 : currentPlayerIdx + 1;
+      const nextPlayerIdx = currentPlayerIdx + 1 >= this.players.length ? 0 : currentPlayerIdx + 1;
 
       this.currentPlayer = this.players[nextPlayerIdx].id;
       this.emitCurrentPlayer(this.players[nextPlayerIdx].id);
     } catch (err) {
       if (err.message) console.log(err.message);
       // Random player
-      this.currentPlayer = this.players[
-        Math.floor(Math.random() * this.players.length)
-      ].id;
+      this.currentPlayer = this.players[Math.floor(Math.random() * this.players.length)].id;
     }
   }
 
   private assignColor(): PlayerColor {
     const gamePlayerColors = this.players.map((player) => player.color);
-    const availableColors = playerColors.filter(
-      (color) => !gamePlayerColors.includes(color),
-    );
+    const availableColors = playerColors.filter((color) => !gamePlayerColors.includes(color));
 
     if (!availableColors.length) {
       throw new SocketError("All colors are taken", "game/all_colors_taken");
@@ -222,10 +198,7 @@ class Game {
     if (pickedTicket) {
       player.addTicket(pickedTicket);
     } else {
-      throw new SocketError(
-        "No available tickets",
-        "game/no-available-tickets",
-      );
+      throw new SocketError("No available tickets", "game/no-available-tickets");
     }
   }
 
@@ -240,10 +213,7 @@ class Game {
     if (pickedTrackCard) {
       player.addTrackCard(pickedTrackCard);
     } else {
-      throw new SocketError(
-        "No available track cards",
-        "game/no-available-track-cards",
-      );
+      throw new SocketError("No available track cards", "game/no-available-track-cards");
     }
   }
 
@@ -284,30 +254,21 @@ class Game {
     if (pickedTrackCard) {
       return pickedTrackCard;
     } else {
-      throw new SocketError(
-        "No available track cards",
-        "game/no-available-track-cards",
-      );
+      throw new SocketError("No available track cards", "game/no-available-track-cards");
     }
   }
 
   private async setupGame(socket: Socket) {
     try {
       if (socket.id !== this.creator.socket?.id) {
-        throw new SocketError(
-          "Unauthorized: Only the creator of a game can start",
-          "unauthorized/creator_only",
-        );
+        throw new SocketError("Unauthorized: Only the creator of a game can start", "unauthorized/creator_only");
       }
 
       // TODO: Uncomment
       // Disabled so you don't need >=2
       // players to test funcitonality
       if (this.players.length < 2) {
-        throw new SocketError(
-          "There are not enough players to start the game",
-          "game/not_enough_players",
-        );
+        throw new SocketError("There are not enough players to start the game", "game/not_enough_players");
       }
 
       this.joinable = false;
@@ -349,15 +310,10 @@ class Game {
 
   private pickInitialTickets(socket: Socket, chosenTickets: Ticket[]) {
     try {
-      const player = this.players.find(
-        (p) => p.socket && p.socket.id === socket.id,
-      );
+      const player = this.players.find((p) => p.socket && p.socket.id === socket.id);
 
       if (!player) {
-        throw new SocketError(
-          "Player not found in the game",
-          "game/player_not_found",
-        );
+        throw new SocketError("Player not found in the game", "game/player_not_found");
       }
 
       if (!player.socket) {
@@ -366,25 +322,16 @@ class Game {
 
       // Player must keep 2 tickets
       if (chosenTickets.length < 2) {
-        throw new SocketError(
-          "You must keep at least two tickets",
-          "game/must_keep_two_tickets",
-        );
+        throw new SocketError("You must keep at least two tickets", "game/must_keep_two_tickets");
       }
 
       //Chosen tickets must match the dealt tickets
       const correctlyChosenTickets = chosenTickets.filter(
-        (ct) =>
-          player.tickets.filter(
-            (pt) => ct.start === pt.start && ct.end === pt.end,
-          ).length,
+        (ct) => player.tickets.filter((pt) => ct.start === pt.start && ct.end === pt.end).length,
       ).length;
 
       if (!correctlyChosenTickets) {
-        throw new SocketError(
-          "The chosen tickets doesn't match the dealt tickets",
-          "game/incorrectly_chosen_tickets",
-        );
+        throw new SocketError("The chosen tickets doesn't match the dealt tickets", "game/incorrectly_chosen_tickets");
       }
 
       player.tickets = Array.from(chosenTickets);
@@ -416,37 +363,21 @@ class Game {
     }
   }
 
-  private buildRoute(
-    socket: Socket,
-    route: Route,
-    chosenTrackCards: TrackColor[],
-  ) {
+  private buildRoute(socket: Socket, route: Route, chosenTrackCards: TrackColor[]) {
     const [city1, city2] = routeToCities(route);
 
     try {
       if (!this.gameStarted) {
-        throw new SocketError(
-          "The game hasn't started yet!",
-          "game/not_started",
-        );
+        throw new SocketError("The game hasn't started yet!", "game/not_started");
       }
 
-      const player = this.players.find(
-        (p) => p.socket && p.socket.id === socket.id,
-      );
+      const player = this.players.find((p) => p.socket && p.socket.id === socket.id);
       //Separate potential bridge cards and track cards of other colors.
-      const chosenBridgeCards = chosenTrackCards.filter(
-        (card) => card === "bridge",
-      );
-      const chosenColoredTrackCards = chosenTrackCards.filter(
-        (card) => card !== "bridge",
-      );
+      const chosenBridgeCards = chosenTrackCards.filter((card) => card === "bridge");
+      const chosenColoredTrackCards = chosenTrackCards.filter((card) => card !== "bridge");
 
       if (!player) {
-        throw new SocketError(
-          "Player not found in the game",
-          "game/player_not_found",
-        );
+        throw new SocketError("Player not found in the game", "game/player_not_found");
       }
 
       // Check is it the player's turn.
@@ -463,18 +394,13 @@ class Game {
 
       if (!this.routes.hasOwnProperty(route)) {
         // Route does not exist
-        throw new SocketError(
-          "Route not found on game map.",
-          "game/route_not_found",
-        );
+        throw new SocketError("Route not found on game map.", "game/route_not_found");
       }
 
       // Check if all colored cards is the same color.
       if (
         chosenColoredTrackCards.length &&
-        !chosenColoredTrackCards.every(
-          (value) => value === chosenColoredTrackCards[0],
-        )
+        !chosenColoredTrackCards.every((value) => value === chosenColoredTrackCards[0])
       ) {
         throw new SocketError(
           "You can not build a route with multiple types of track cards",
@@ -492,15 +418,8 @@ class Game {
 
       // Does the player have enough track cards?
       if (player.remainingTracks < this.routes[route].length) {
-        this.emitTrackCards(
-          socket,
-          player.trackCards,
-          `Your track cards were out of sync and are now updated.`,
-        );
-        throw new SocketError(
-          `You don't have enough tracks to build ${city1} to ${city2}.`,
-          "game/not_enough_tracks",
-        );
+        this.emitTrackCards(socket, player.trackCards, `Your track cards were out of sync and are now updated.`);
+        throw new SocketError(`You don't have enough tracks to build ${city1} to ${city2}.`, "game/not_enough_tracks");
       }
 
       // Does the player have enough bridges?
@@ -508,28 +427,16 @@ class Game {
         this.routes[route].bridges > player.trackCards.bridge.amount &&
         chosenBridgeCards.length < player.trackCards.bridge.amount
       ) {
-        this.emitTrackCards(
-          socket,
-          player.trackCards,
-          `Your track cards were out of sync and are now updated.`,
-        );
-        throw new SocketError(
-          `Not enough bridge cards to build ${city1} to ${city2}.`,
-          "game/not_enough_bridge_cards",
-        );
+        this.emitTrackCards(socket, player.trackCards, `Your track cards were out of sync and are now updated.`);
+        throw new SocketError(`Not enough bridge cards to build ${city1} to ${city2}.`, "game/not_enough_bridge_cards");
       }
 
       // Does the player have the chosen cards of the chosen color?
       if (
         chosenColoredTrackCards.length &&
-        chosenColoredTrackCards.length >
-          player.trackCards[chosenColoredTrackCards[0]].amount
+        chosenColoredTrackCards.length > player.trackCards[chosenColoredTrackCards[0]].amount
       ) {
-        this.emitTrackCards(
-          socket,
-          player.trackCards,
-          `Your track cards were out of sync and are now updated.`,
-        );
+        this.emitTrackCards(socket, player.trackCards, `Your track cards were out of sync and are now updated.`);
         throw new SocketError(
           `Not enough cards of the chosen color to build ${city1} to ${city2}.`,
           "game/not_enough_chosen_colored_cards",
@@ -540,8 +447,7 @@ class Game {
       // Update players trackCards
       player.trackCards["bridge"].amount -= chosenBridgeCards.length;
       if (chosenColoredTrackCards.length) {
-        player.trackCards[chosenColoredTrackCards[0]].amount -=
-          chosenColoredTrackCards.length;
+        player.trackCards[chosenColoredTrackCards[0]].amount -= chosenColoredTrackCards.length;
       }
 
       // Update the players remainingTracks
@@ -557,23 +463,12 @@ class Game {
       // Is it time for the final round?
       if (player.remainingTracks < 3) {
         this.lastRoundStartedBy = player;
-        this.emitFinalRound(
-          `${player.nickname} has less than 3 tracks remaining. Start final round!`,
-        );
+        this.emitFinalRound(`${player.nickname} has less than 3 tracks remaining. Start final round!`);
       }
 
       this.emitRoutes(`${player.nickname} just built ${city1} to ${city2}.`);
-      this.emitTrackCards(
-        socket,
-        player.trackCards,
-        `Your track cards are updated`,
-      );
-      this.emitBuildRoute(
-        socket,
-        true,
-        `You have built ${city1} to ${city2}`,
-        "game/built",
-      );
+      this.emitTrackCards(socket, player.trackCards, `Your track cards are updated`);
+      this.emitBuildRoute(socket, true, `You have built ${city1} to ${city2}`, "game/built");
 
       // Next players turn
       this.nextPlayer();
@@ -594,27 +489,16 @@ class Game {
     }
   }
 
-  private pickCardFromOpenTracksCards(
-    socket: Socket,
-    pickedTrackCard: TrackColor,
-  ) {
+  private pickCardFromOpenTracksCards(socket: Socket, pickedTrackCard: TrackColor) {
     try {
       if (!this.gameStarted) {
-        throw new SocketError(
-          "The game hasn't started yet!",
-          "game/not_started",
-        );
+        throw new SocketError("The game hasn't started yet!", "game/not_started");
       }
 
-      const player = this.players.find(
-        (p) => p.socket && p.socket.id === socket.id,
-      );
+      const player = this.players.find((p) => p.socket && p.socket.id === socket.id);
 
       if (!player) {
-        throw new SocketError(
-          "Player not found in the game",
-          "game/player_not_found",
-        );
+        throw new SocketError("Player not found in the game", "game/player_not_found");
       }
 
       if (!this.currentPlayer) {
@@ -636,20 +520,11 @@ class Game {
       if (player.previousAction === "built_route") {
         // Next players turn
         this.nextPlayer();
-        throw new SocketError(
-          "No more actions left after built route.",
-          "game/no_actions_left",
-        );
+        throw new SocketError("No more actions left after built route.", "game/no_actions_left");
       }
       // If
-      if (
-        player.previousAction === "picked_track_card" &&
-        pickedTrackCard === "bridge"
-      ) {
-        throw new SocketError(
-          "You can not pick up a Bridge card on this move",
-          "game/not_able_to_pick_up_bridge",
-        );
+      if (player.previousAction === "picked_track_card" && pickedTrackCard === "bridge") {
+        throw new SocketError("You can not pick up a Bridge card on this move", "game/not_able_to_pick_up_bridge");
       }
       /******* Update openTrackCards ******/
       let index = this.openTrackCards.indexOf(pickedTrackCard);
@@ -674,11 +549,7 @@ class Game {
       /******* Update players trackCards ******/
       ++player.trackCards[pickedTrackCard].amount;
 
-      this.emitTrackCards(
-        socket,
-        player.trackCards,
-        `${player.nickname} picked up a card from open track cards`,
-      );
+      this.emitTrackCards(socket, player.trackCards, `${player.nickname} picked up a card from open track cards`);
       this.emitOpenTrackCards();
     } catch (error) {
       if ("message" in error && "code" in error) {
@@ -692,8 +563,7 @@ class Game {
         console.log(error);
         socket.emit("pick_card_from_openTrackCards", {
           success: false,
-          message:
-            "Something went wrong when trying to pick a card from open track cards",
+          message: "Something went wrong when trying to pick a card from open track cards",
           payload: "error/pick_card_from_openTrackCards",
         });
       }
@@ -701,22 +571,14 @@ class Game {
   }
 
   private pickCardFromTracksCards(socket: Socket) {
-    const player = this.players.find(
-      (p) => p.socket && p.socket.id === socket.id,
-    );
+    const player = this.players.find((p) => p.socket && p.socket.id === socket.id);
     try {
       if (!this.gameStarted) {
-        throw new SocketError(
-          "The game hasn't started yet!",
-          "game/not_started",
-        );
+        throw new SocketError("The game hasn't started yet!", "game/not_started");
       }
 
       if (!player) {
-        throw new SocketError(
-          "Player not found in the game",
-          "game/player_not_found",
-        );
+        throw new SocketError("Player not found in the game", "game/player_not_found");
       }
       // Check is it the player's turn.
       if (this.currentPlayer && this.currentPlayer !== player.id) {
@@ -733,14 +595,9 @@ class Game {
       }
       /******* Update players trackCards ******/
       let newTrackCard = this.pickTrackCard();
-      player.trackCards[newTrackCard].amount =
-        player.trackCards[newTrackCard].amount + 1;
+      player.trackCards[newTrackCard].amount = player.trackCards[newTrackCard].amount + 1;
 
-      this.emitTrackCards(
-        socket,
-        player.trackCards,
-        `${player.nickname} picked up a card`,
-      );
+      this.emitTrackCards(socket, player.trackCards, `${player.nickname} picked up a card`);
     } catch (error) {
       if ("message" in error && "code" in error) {
         const { message, code } = error as SocketError;
@@ -762,9 +619,7 @@ class Game {
 
   gameEvents(socket: Socket) {
     socket.on("setup_game", () => this.setupGame(socket));
-    socket.on("pick_initial_tickets", (data: Ticket[]) =>
-      this.pickInitialTickets(socket, data),
-    );
+    socket.on("pick_initial_tickets", (data: Ticket[]) => this.pickInitialTickets(socket, data));
 
     const endResponse: SocketResponse<AddSocketPayload> = {
       success: true,
@@ -779,15 +634,9 @@ class Game {
       route: Route;
       chosenTrackCards: TrackColor[];
     };
-    socket.on("build_route", (data: BuildRouteRequest) =>
-      this.buildRoute(socket, data.route, data.chosenTrackCards),
-    );
-    socket.on("pick_card_from_openTrackCards", (data: TrackColor) =>
-      this.pickCardFromOpenTracksCards(socket, data),
-    );
-    socket.on("pick_card_from_trackCards", () =>
-      this.pickCardFromTracksCards(socket),
-    );
+    socket.on("build_route", (data: BuildRouteRequest) => this.buildRoute(socket, data.route, data.chosenTrackCards));
+    socket.on("pick_card_from_openTrackCards", (data: TrackColor) => this.pickCardFromOpenTracksCards(socket, data));
+    socket.on("pick_card_from_trackCards", () => this.pickCardFromTracksCards(socket));
 
     const response: SocketResponse<AddSocketPayload> = {
       success: true,
@@ -811,7 +660,7 @@ class Player {
   points: number;
 
   constructor(_color: PlayerColor) {
-    this.id = uniqid("player#");
+    this.id = uniqeId("player#");
     // this.socket = _socket;
     this.tickets = [];
     this.trackCards = cloneDeep(initialPlayerTrackCards);
@@ -843,9 +692,7 @@ class Player {
 
   socketListeners() {
     if (this.socket) {
-      this.socket.on("set_nickname", (newNickname: string) =>
-        this.setNickname(newNickname),
-      );
+      this.socket.on("set_nickname", (newNickname: string) => this.setNickname(newNickname));
     }
   }
 }

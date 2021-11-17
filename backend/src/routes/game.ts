@@ -1,16 +1,16 @@
-import { Request, Response } from "express";
+import { FastifyRequest, FastifyReply } from "fastify";
 import Game from "../game/Game";
-import { Games } from "index";
+import { Store } from "index";
 import { APIError } from "../utils/APIError";
 
-export const createGame = (req: Request, res: Response, games: Games) => {
+export const createGame = (req: FastifyRequest<any>, res: FastifyReply) => {
   // TODO: create a game by creating instance of the Game class.
   // The request (req) should contain the suitable data to send into the constructor
   try {
     const newGame = new Game();
-    games[newGame.gameToken] = newGame;
+    Store.games[newGame.gameToken] = newGame;
 
-    return res.status(200).json({
+    res.status(200).send({
       success: true,
       message: "create_game/created",
       payload: {
@@ -25,15 +25,15 @@ export const createGame = (req: Request, res: Response, games: Games) => {
       },
     });
   } catch (err) {
-    return res.status(500).send(err.message);
+    res.status(500).send(err.message);
   }
 };
 
-export const joinGame = (req: Request, res: Response, games: Games) => {
+export const joinGame = (req: FastifyRequest<any>, res: FastifyReply) => {
   try {
     // TODO: join a game
     const gameToken = req.body.gameToken;
-    const game = games[gameToken];
+    const game = Store.games[gameToken];
 
     if (!game) {
       throw new APIError("Game not found", "join_game/not_found", 404);
@@ -45,7 +45,7 @@ export const joinGame = (req: Request, res: Response, games: Games) => {
 
     const playerInfo = game.addPlayer();
 
-    res.status(200).json({
+    res.status(200).send({
       success: true,
       message: "join_game/joined",
       payload: {
@@ -61,6 +61,6 @@ export const joinGame = (req: Request, res: Response, games: Games) => {
             message: err.message,
           }
         : undefined;
-    res.status(err.status || 500).json(response);
+    res.status(err.status || 500).send(response);
   }
 };

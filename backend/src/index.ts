@@ -1,7 +1,6 @@
-import express, { Request, Response } from "express";
-import { createServer } from "http";
-import { Server } from "socket.io";
-import cors from "cors";
+import Fastify from "fastify";
+import FastifySocketIO from "fastify-socket.io";
+import cors from "fastify-cors";
 import dotenv from "dotenv";
 
 /*============ IMPORT ROUTES ============*/
@@ -9,11 +8,7 @@ import Game from "./game/Game";
 /*=======================================*/
 
 /*============ IMPORT TYPES ============*/
-import {
-  AddSocketEmit,
-  AddSocketPayload,
-  SocketResponse,
-} from "@typeDef/types";
+import { AddSocketEmit, AddSocketPayload, SocketResponse } from "@typeDef/types";
 import { createGame, joinGame } from "./routes/game";
 /*=======================================*/
 
@@ -23,23 +18,22 @@ dotenv.config();
 // console.log((wasmModule as any).add(1, 2));
 /*======================================*/
 
-const URL =
-  process.env.NODE_ENV === "production" ? "enroute.vlq.se" : "localhost";
+const isDev = process.env.NODE_ENV !== "production";
 
-const app = express();
-app.use(
-  cors({
-    origin: "*",
-    methods: "*",
-  }),
-);
-app.use(express.json());
+const URL = isDev ? "localhost" : "enroute.vlq.se";
 
-export type Games = {
-  [gameToken: string]: Game;
-};
-let games: Games = {};
+const app = Fastify({
+  logger: false,
+  // logger: process.env.NODE_ENV !== "production",
+});
+app.register(cors, {
+  origin: "*",
+  methods: ["GET", "PATCH", "POST"],
+});
 
+export class Store {
+  public static games: Record<string, Game> = {};
+}
 /*=========================== ROUTES =========================*/
 
 // app.get("/token", tokenValidatorMiddleware, getGameToken);
@@ -47,52 +41,47 @@ let games: Games = {};
 //   res.send(Object.keys(games).length);
 // });
 /********************** Create Game **********************/
-app.post("/api/game", (req: Request, res: Response) =>
-  createGame(req, res, games),
-);
-app.patch("/api/game", (req: Request, res: Response) =>
-  joinGame(req, res, games),
-);
+app.post("/api/game", createGame);
+app.patch("/api/game", joinGame);
 /*********************************************************/
 
-/*============================================================*/
-
-const server = createServer(app);
-
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
+/* ======================== Socket IO ======================== */
+app.register(FastifySocketIO, {
+  // put your options here
 });
 
-// socket = a client/person
-io.on("connection", (socket) => {
-  console.log("from index: ", socket.id);
-  /********************** Add Socket ***********************/
-  socket.on("add_socket", (data: AddSocketEmit) => {
-    const game = games[data.gameToken];
+app.ready((err) => {
+  if (err) throw err;
 
-    if (!game) {
-      const response: SocketResponse<AddSocketPayload> = {
-        success: false,
-        message: "add_socket/not_added",
-        payload: "Could not add socket",
-      };
-      socket.emit("add_socket", response);
-      return;
-    }
+  const { io } = app;
 
-    game.addSocket(socket, io, data.playerId);
+  // socket = a client/person
+  io.on("connection", (socket) => {
+    console.log("from index: ", socket.id);
+    /********************** Add Socket ***********************/
+    socket.on("add_socket", (data: AddSocketEmit) => {
+      const game = Store.games[data.gameToken];
+
+      if (!game) {
+        const response: SocketResponse<AddSocketPayload> = {
+          success: false,
+          message: "add_socket/not_added",
+          payload: "Could not add socket",
+        };
+        socket.emit("add_socket", response);
+        return;
+      }
+
+      game.addSocket(socket, io, data.playerId);
+    });
+    /*********************************************************/
+    socket.on("disconnect", () => {
+      console.log("Socket ", socket.id, "was disconnected!!!");
+    });
   });
-  /*********************************************************/
-  socket.on("disconnect", () => {
-    console.log("Socket ", socket.id, "was disconnected!!!");
-  });
 });
 
-server.listen(process.env.API_PORT, () => {
-  console.log(
-    `⚡️[server]: Server is running at https://${URL}:${process.env.API_PORT}`,
-  );
+app.listen(process.env.API_PORT ?? "3001", () => {
+  console.log(`⚡️[server]: Server is running at http${isDev ? "" : "s"}://${URL}:${process.env.API_PORT ?? "3001"}`);
 });
+/* ============================================================*/

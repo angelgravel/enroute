@@ -1,7 +1,7 @@
 import React, { FC, useRef, useState } from "react";
 import styled from "styled-components";
 import { motion, useMotionValue } from "framer-motion";
-import { useGesture } from "react-use-gesture";
+import { useGesture } from "@use-gesture/react";
 
 import OpenTrackCardsView from "../OpenTrackCardsView";
 import Map from "../Map";
