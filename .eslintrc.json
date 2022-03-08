@@ -1,9 +1,10 @@
 {
   "env": {
-    "node": true,
-    "es2021": true
+    "browser": true,
+    "es2021": true,
+    "node": true
   },
-  "extends": ["airbnb-base"],
+  "extends": ["airbnb"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": "latest",
