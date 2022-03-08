@@ -38,7 +38,7 @@
   "lint-staged": {
     "**/*.{ts,tsx,js,jsx}": [
       "eslint --fix",
-      "git-format-staged -f 'prettier --ignore-unknown --stdin --stdin-filepath \"{}\"' ."
+      "git add"
     ]
   }
 }
