@@ -37,18 +37,32 @@
   "devDependencies": {
     "@types/lodash.clonedeep": "^4.5.6",
     "@types/node": "^16.11.7",
+    "@typescript-eslint/eslint-plugin": "^5.14.0",
+    "@typescript-eslint/parser": "^5.14.0",
     "asbuild": "^0.2.0",
     "assemblyscript": "^0.19.20",
     "concurrently": "^6.0.2",
+    "eslint": "^8.10.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-prettier": "^4.0.0",
     "git-format-staged": "^2.1.1",
     "husky": "^6.0.0",
+    "lint-staged": "^12.3.5",
     "prettier": "^2.2.1",
     "tsup": "^5.7.0",
     "typescript": "^4.4.4"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "git-format-staged -f 'prettier --ignore-unknown --stdin --stdin-filepath \"{}\"' ."
+      "pre-commit": "lint-staged"
     }
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "git add && git-format-staged -f 'prettier --ignore-unknown --stdin --stdin-filepath \"{}\"' ."
+    ]
   }
 }

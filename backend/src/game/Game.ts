@@ -24,7 +24,7 @@ import { SocketError } from "../utils/SocketError";
 class Game {
   gameToken: string;
   creator: Player;
-  gameRoomSocket: BroadcastOperator<DefaultEventsMap> | undefined;
+  gameRoomSocket: BroadcastOperator<DefaultEventsMap, any> | undefined;
   joinable: boolean;
   gameStarted: boolean;
 
