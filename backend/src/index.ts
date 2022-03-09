@@ -21,14 +21,16 @@ dotenv.config();
 const isDev = process.env.NODE_ENV !== "production";
 
 const URL = isDev ? "localhost" : "api.enroute.vlq.se";
+const OriginURL = isDev ? "localhost" : "enroute.vlq.se";
 
 const app = Fastify({
   logger: false,
   // logger: process.env.NODE_ENV !== "production",
 });
 app.register(cors, {
-  origin: "*",
+  origin: OriginURL,
   methods: ["GET", "PATCH", "POST"],
+  credentials: true,
 });
 
 export class Store {
@@ -48,7 +50,7 @@ app.patch("/api/game", joinGame);
 /* ======================== Socket IO ======================== */
 app.register(FastifySocketIO, {
   cors: {
-    origin: "*",
+    origin: OriginURL,
     methods: ["PUT", "GET", "POST", "DELETE", "OPTIONS"],
     credentials: false,
   },
