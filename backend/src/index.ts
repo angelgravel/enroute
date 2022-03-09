@@ -49,7 +49,8 @@ app.patch("/api/game", joinGame);
 app.register(FastifySocketIO, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST"],
+    methods: ["PUT", "GET", "POST", "DELETE", "OPTIONS"],
+    credentials: false,
   },
 });
 
