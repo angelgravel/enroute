@@ -30,7 +30,6 @@ const app = Fastify({
 app.register(cors, {
   origin: OriginURL,
   methods: ["GET", "PATCH", "POST"],
-  credentials: true,
 });
 
 export class Store {
@@ -52,7 +51,7 @@ app.register(FastifySocketIO, {
   cors: {
     origin: OriginURL,
     methods: ["PUT", "GET", "POST", "DELETE", "OPTIONS"],
-    credentials: false,
+    credentials: true,
   },
 });
 
