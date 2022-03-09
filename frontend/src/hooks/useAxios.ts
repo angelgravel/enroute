@@ -9,6 +9,7 @@ const useAxios = () => {
       baseURL: BASE_URL,
     }),
   );
+
   return axios.current;
 };
 
