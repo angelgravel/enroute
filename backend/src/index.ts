@@ -20,8 +20,8 @@ dotenv.config();
 
 const isDev = process.env.NODE_ENV !== "production";
 
-const URL = isDev ? "localhost" : "api.enroute.vlq.se";
-const OriginURL = isDev ? "localhost" : "enroute.vlq.se";
+const URL = isDev ? "http://localhost" : "https://api.enroute.vlq.se";
+const OriginURL = isDev ? "http://localhost" : "https://enroute.vlq.se";
 
 const app = Fastify({
   logger: false,
