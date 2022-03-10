@@ -1,7 +1,7 @@
 import Axios from "axios";
 import { useRef } from "react";
 
-const BASE_URL = process.env.NODE_ENV === "production" ? "https://enroute.vlq.se/api" : "http://localhost:3001/api";
+const BASE_URL = process.env.NODE_ENV === "production" ? "https://api.enroute.vlq.se/api" : "http://localhost:3001/api";
 
 const useAxios = () => {
   const axios = useRef(
@@ -9,7 +9,6 @@ const useAxios = () => {
       baseURL: BASE_URL,
     }),
   );
-
   return axios.current;
 };
 
