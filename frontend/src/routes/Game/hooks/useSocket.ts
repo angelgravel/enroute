@@ -6,6 +6,7 @@ const SOCKET_URL = process.env.NODE_ENV === "production" ? "https://api.enroute.
 export const socket = socketioClient(SOCKET_URL, {
   withCredentials: true,
 });
+
 export const socketContext = createContext(socket);
 
 const useSocket = () => {
