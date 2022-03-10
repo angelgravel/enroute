@@ -51,7 +51,6 @@ app.register(FastifySocketIO, {
   cors: {
     origin: OriginURL,
     methods: ["PUT", "GET", "POST", "DELETE", "OPTIONS"],
-    credentials: true,
   },
 });
 
